@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+    <title>RSVP App!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="icon" href="{{ LOGO }}" type="image/png" sizes="16x16">
+    <script type="text/javascript" src= "{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script type="text/javascript" src= "{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script>
+     delete_rsvp = function(event_id, rsvp_id){
+         fetch(`/api/rsvps/${event_id}/${rsvp_id}`, {method: "DELETE"}).then(function(response){
+             console.log(response);
+             if (response.status == 200){
+                 window.location.href = "";
+             } else {
+                 alert("Failed to delete RSVP!");
+             }
+         });
+
+     }
+
+     update_message = function(){
+         $(".alert").text('RSVP Successful!').show();
+     }
+    </script>
+    <body>
+        <div class="jumbotron">
+            <div class="container">
+                <div align="center">
+                    <h2><a href="/">{{ TEXT1 }}</a></h2>
+                    <img src="{{ LOGO }}"/>
+                    <h4>{{ event.name }} - {{ event.date }}</h4>
+                    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+                    <form action="/new/{{event._id}}" method='POST'>
+                        <div  class="form-group">
+                            <label for="name">Name:</label>
+                            <input  type="text" name="name"  id="name" placeholder="Enter name" >
+                        </div>
+                        <button type="Submit" onclick="update_message()" align="center" name="submit" class="btn btn-danger">Submit</button>
+                    </form>
+                    <h3> RSVP Count : {{counter}} </h3>
+                    <ol>
+                        {% for item in items %}
+                            <li class="text-center" style="line-height: 3em;">
+                                <span>{{ item.name }}</span>
+                                <button style="float: none !important"
+                                        onclick='delete_rsvp("{{event._id}}","{{item._id}}")'
+                                        class="close">
+                                    x
+                                </button>
+                            </li>
+                        {% endfor %}
+                    </ol>
+                    <p class="alert alert-success" style="display: none;"></p>
+                </div>
+            </div>
+        </div>
+        <footer class="footer text-center">
+            <div class="container">
+                <ul class="list-inline">
+                    <li class="text-muted">{{ COMPANY }}</li>
+                </ul>
+            </div>
+        </footer>
+    </body>
+</html>

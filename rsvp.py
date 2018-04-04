@@ -22,47 +22,77 @@ db = client.get_default_database()
 class RSVP(object):
     """Simple Model class for RSVP"""
 
-    def __init__(self, name, email, _id=None):
+    def __init__(self, name, email, event_id=None, _id=None):
         self.name = name
         self.email = email
         self._id = _id
+        self.event_id = event_id
 
     def dict(self):
         _id = str(self._id)
+        event_id = self.event_id
         return {
             "_id": _id,
             "name": self.name,
             "email": self.email,
-            "links": {"self": "{}api/rsvps/{}".format(request.url_root, _id)},
+            "links": {
+                "self": "{}api/rsvps/{}/{}".format(
+                    request.url_root, event_id, _id
+                )
+            },
         }
 
     def delete(self):
-        db.rsvpdata.find_one_and_delete({"_id": self._id})
+        db['event-{}'.format(self.event_id)].find_one_and_delete(
+            {"_id": self._id}
+        )
 
     @staticmethod
-    def find_all():
-        return [RSVP(**doc) for doc in db.rsvpdata.find()]
+    def find_all(event_id):
+        return [
+            RSVP(event_id=event_id, **doc)
+            for doc in db['event-{}'.format(event_id)].find()
+        ]
 
     @staticmethod
-    def find_one(id):
-        doc = db.rsvpdata.find_one({"_id": ObjectId(id)})
-        return doc and RSVP(doc['name'], doc['email'], doc['_id'])
+    def find_one(event_id, rsvp_id):
+        doc = db['event-{}'.format(event_id)].find_one(
+            {"_id": ObjectId(rsvp_id)}
+        )
+        return doc and RSVP(doc['name'], doc['email'], event_id, doc['_id'])
 
     @staticmethod
-    def new(name, email):
+    def new(name, email, event_id):
         doc = {"name": name, "email": email}
-        result = db.rsvpdata.insert_one(doc)
-        return RSVP(name, email, result.inserted_id)
+        result = db['event-{}'.format(event_id)].insert_one(doc)
+        return RSVP(name, email, event_id, result.inserted_id)
 
 
 @app.route('/')
 def rsvp():
-    _items = db.rsvpdata.find()
+    _items = db.events.find()
     items = [item for item in _items]
     count = len(items)
     return render_template(
-        'profile.html',
+        'index.html',
         counter=count,
+        items=items,
+        TEXT1=TEXT1,
+        LOGO=LOGO,
+        COMPANY=COMPANY,
+    )
+
+
+@app.route('/event/<id>', methods=['GET'])
+def event(id):
+    event = db.events.find_one({"_id": ObjectId(id)})
+    _items = db['event-{}'.format(id)].find()
+    items = [item for item in _items]
+    count = len(items)
+    return render_template(
+        'event.html',
+        counter=count,
+        event=event,
         items=items,
         TEXT1=TEXT1,
         TEXT2=TEXT2,
@@ -71,17 +101,24 @@ def rsvp():
     )
 
 
-@app.route('/new', methods=['POST'])
-def new():
+@app.route('/new/<id>', methods=['POST'])
+def new(id):
     item_doc = {'name': request.form['name'], 'email': 'email@example.com'}
-    db.rsvpdata.insert_one(item_doc)
+    db['event-{}'.format(id)].insert_one(item_doc)
+    return redirect(url_for('event', id=id))
+
+
+@app.route('/event', methods=['POST'])
+def create_event():
+    item_doc = {'name': request.form['name'], 'date': request.form['date']}
+    db.events.insert_one(item_doc)
     return redirect(url_for('rsvp'))
 
 
-@app.route('/api/rsvps', methods=['GET', 'POST'])
-def api_rsvps():
+@app.route('/api/rsvps/<id>', methods=['GET', 'POST'])
+def api_rsvps(id):
     if request.method == 'GET':
-        docs = [rsvp.dict() for rsvp in RSVP.find_all()]
+        docs = [rsvp.dict() for rsvp in RSVP.find_all(id)]
         return json.dumps(docs, indent=True)
 
     else:
@@ -96,13 +133,13 @@ def api_rsvps():
         if 'email' not in doc:
             return '{"error": "email field is missing"}', 400
 
-        rsvp = RSVP.new(name=doc['name'], email=doc['email'])
+        rsvp = RSVP.new(name=doc['name'], email=doc['email'], event_id=id)
         return json.dumps(rsvp.dict(), indent=True)
 
 
-@app.route('/api/rsvps/<id>', methods=['GET', 'DELETE'])
-def api_rsvp(id):
-    rsvp = RSVP.find_one(id)
+@app.route('/api/rsvps/<event_id>/<rsvp_id>', methods=['GET', 'DELETE'])
+def api_rsvp(event_id, rsvp_id):
+    rsvp = RSVP.find_one(event_id, rsvp_id)
     if not rsvp:
         return json.dumps({"error": "not found"}), 404
 
