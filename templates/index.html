@@ -1,11 +1,6 @@
-<!doctype html>
-<html>
-    <title>RSVP App!</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel="icon" href="{{ LOGO }}" type="image/png" sizes="16x16">
-    <script type="text/javascript" src= "{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script type="text/javascript" src= "{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+{% extends "base.html" %}
+
+{% block scripts %}
     <script>
      update_message = function(){
          if ($('#name').val() === "" || $('#date').val() === '') {
@@ -14,42 +9,27 @@
          $(".alert").text('Creating event ...').show();
      }
     </script>
-    <body>
-        <div class="jumbotron">
-            <div class="container">
-                <div align="center">
-                    <h2>{{ TEXT1 }}</h2>
-                    <img src="{{ LOGO }}"/>
-                    <h4>{{ TEXT2 }}</h4>
-                    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-                    <form action="/event" method='POST'>
-                        <div  class="form-group">
-                            <label for="name">Name</label>
-                            <input type="text" name="name" id="name" placeholder="Event name" required>
-                            <label for="date">Date</label>
-                            <input type="date" name="date" id="date" required>
-                        </div>
-                        <button type="Submit" onclick="update_message('yo')" align="center" name="submit" class="btn btn-danger">Submit</button>
-                    </form>
-                    <h3>Events</h3>
-                    <ol>
-                        {% for item in items %}
-                            <li class="text-center" style="line-height: 3em;">
-                                <span><a href="/event/{{item._id}}">{{ item.name }}</a></span>
-                                (<span>{{ item.date }}</span>)
-                            </li>
-                        {% endfor %}
-                    </ol>
-                    <p class="alert alert-info" style="display: none;"></p>
-                </div>
-            </div>
+{% endblock %}
+
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <form action="/event" method='POST'>
+        <div  class="form-group">
+            <label for="name">Name</label>
+            <input type="text" name="name" id="name" placeholder="Event name" required>
+            <label for="date">Date</label>
+            <input type="date" name="date" id="date" required>
         </div>
-        <footer class="footer text-center">
-            <div class="container">
-                <ul class="list-inline">
-                    <li class="text-muted">{{ COMPANY }}</li>
-                </ul>
-            </div>
-        </footer>
-    </body>
-</html>
+        <button type="Submit" onclick="update_message('yo')" align="center" name="submit" class="btn btn-danger">Submit</button>
+    </form>
+    <h3>Events</h3>
+    <ol>
+        {% for item in items %}
+            <li class="text-center" style="line-height: 3em;">
+                <span><a href="/event/{{item._id}}">{{ item.name }}</a></span>
+                (<span>{{ item.date }}</span>)
+            </li>
+        {% endfor %}
+    </ol>
+    <p class="alert alert-info" style="display: none;"></p>
+{% endblock %}

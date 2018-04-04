@@ -95,7 +95,7 @@ def event(id):
         event=event,
         items=items,
         TEXT1=TEXT1,
-        TEXT2=TEXT2,
+        TEXT2='{} - {}'.format(event['name'], event['date']),
         LOGO=LOGO,
         COMPANY=COMPANY,
     )

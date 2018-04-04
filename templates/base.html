@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+    <title>RSVP App!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="icon" href="{{ LOGO }}" type="image/png" sizes="16x16">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script type="text/javascript" src= "{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script type="text/javascript" src= "{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    {% block scripts %}
+    {% endblock %}
+    <body>
+        <div class="jumbotron">
+            <div class="container">
+                <div align="center">
+                    <h2><a href="/">{{ TEXT1 }}</a></h2>
+                    <h4>{{ TEXT2 }}</h4>
+                    {% block content %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+        <footer class="footer text-center">
+            <div class="container">
+                <ul class="list-inline">
+                    <li><img width="32px" src="{{ LOGO }}"/></li>
+                    <li class="text-muted">{{ COMPANY }}</li>
+                </ul>
+            </div>
+        </footer>
+    </body>
+</html>
