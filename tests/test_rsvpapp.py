@@ -38,20 +38,26 @@ class TestRSVP(BaseTest):
 
 class TestRSVPApp(BaseTest):
 
-    def test_rsvp(self):
-        user_data = {
-            'name': 'test_name', 'email': 'test_email@test_domain.com'
-        }
-        event_id = '5ac4cbcd5747f16c623e48d7'
-        response = self.client.post(
-            '/new/{}'.format(event_id), data=user_data, follow_redirects=True
-        )
-        assert response.status_code == 200
-
     def test_create_event(self):
         event_data = {'name': 'test_event', 'date': '2018-01-01'}
         response = self.client.post(
             '/event', data=event_data, follow_redirects=True
+        )
+        assert response.status_code == 200
+
+    def test_rsvp(self):
+        event_data = {'name': 'test_event', 'date': '2018-01-01'}
+        response = self.client.post(
+            '/event', data=event_data, follow_redirects=True
+        )
+        response = self.client.get('/api/events', follow_redirects=True)
+        events = json.loads(response.data)
+        event_id = events[0]['_id']
+        user_data = {
+            'name': 'test_name', 'email': 'test_email@test_domain.com'
+        }
+        response = self.client.post(
+            '/new/{}'.format(event_id), data=user_data, follow_redirects=True
         )
         assert response.status_code == 200
 

@@ -115,6 +115,16 @@ def create_event():
     if item_doc['name'] and item_doc['date']:
         db.events.insert_one(item_doc)
     return redirect(url_for('rsvp'))
+# FIXME: Add POST method
+@app.route('/api/events/', methods=['GET'])
+def api_events():
+    return json.dumps(
+        [
+            dict(_id=str(event['_id']), name=event['name'], date=event['date'])
+            for event in db.events.find()
+        ],
+        indent=True,
+    )
 
 
 @app.route('/api/rsvps/<id>', methods=['GET', 'POST'])
