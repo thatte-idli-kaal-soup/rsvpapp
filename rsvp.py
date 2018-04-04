@@ -71,7 +71,7 @@ def rsvp():
 
 @app.route('/new', methods=['POST'])
 def new():
-    item_doc = {'name': request.form['name'], 'email': request.form['email']}
+    item_doc = {'name': request.form['name'], 'email': 'email@example.com'}
     db.rsvpdata.insert_one(item_doc)
     return redirect(url_for('rsvp'))
 
