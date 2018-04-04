@@ -6,6 +6,23 @@
     <link rel="icon" href="{{ LOGO }}" type="image/png" sizes="16x16">
     <script type="text/javascript" src= "{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script type="text/javascript" src= "{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script>
+     delete_rsvp = function(id){
+         console.log(id);
+         fetch("/api/rsvps/" + id, {method: "DELETE"}).then(function(response){
+             if (response.status == 200){
+                 window.location.href = "/";
+             } else {
+                 alert("Failed to delete RSVP!");
+             }
+         });
+
+     }
+
+     update_message = function(){
+         $(".alert").text('RSVP Successful!').show();
+     }
+    </script>
     <body>
         <div class="jumbotron">
             <div class="container">
@@ -19,14 +36,22 @@
                             <label for="name">Name:</label>
                             <input  type="text" name="name"  id="name" placeholder="Enter name" >
                         </div>
-                        <button type="Submit" onclick="alert('RSVP Succeeded!')" align="center" name="submit" class="btn btn-danger">Submit</button>
+                        <button type="Submit" onclick="update_message()" align="center" name="submit" class="btn btn-danger">Submit</button>
                     </form>
                     <h3> RSVP Count : {{counter}} </h3>
                     <ol>
                         {% for item in items %}
-                            <li class="text-center">{{ item.name }}</li>
+                            <li class="text-center">
+                                <span>{{ item.name }}</span>
+                                <button style="float: none !important"
+                                        onclick='delete_rsvp("{{item._id}}")'
+                                        class="close">
+                                    x
+                                </button>
+                            </li>
                         {% endfor %}
                     </ol>
+                    <p class="alert alert-success" style="display: none;"></p>
                 </div>
             </div>
         </div>
