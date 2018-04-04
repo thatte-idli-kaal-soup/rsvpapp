@@ -1,8 +1,10 @@
-from flask import Flask, render_template, redirect, url_for, request, make_response
-from pymongo import MongoClient
-from bson.objectid import ObjectId
-import os
+import datetime
 import json
+import os
+
+from bson.objectid import ObjectId
+from flask import Flask, render_template, redirect, url_for, request, make_response
+from pymongo import MongoClient, ASCENDING
 
 app = Flask(__name__)
 TEXT1 = os.environ.get('TEXT1', "CloudYuga")
@@ -69,13 +71,15 @@ class RSVP(object):
 
 
 @app.route('/')
-def rsvp():
-    _items = db.events.find()
-    items = [item for item in _items]
+def index():
+    today = datetime.date.today().strftime('%Y-%m-%d')
+    items = list(
+        db.events.find({'date': {"$gte": today}}, sort=[('date', ASCENDING)])
+    )
     count = len(items)
     return render_template(
         'index.html',
-        counter=count,
+        count=count,
         items=items,
         TEXT1=TEXT1,
         LOGO=LOGO,
@@ -86,12 +90,11 @@ def rsvp():
 @app.route('/event/<id>', methods=['GET'])
 def event(id):
     event = db.events.find_one({"_id": ObjectId(id)})
-    _items = db['event-{}'.format(id)].find()
-    items = [item for item in _items]
+    items = list(db['event-{}'.format(id)].find())
     count = len(items)
     return render_template(
         'event.html',
-        counter=count,
+        count=count,
         event=event,
         items=items,
         TEXT1=TEXT1,
@@ -114,7 +117,9 @@ def create_event():
     item_doc = {'name': request.form['name'], 'date': request.form['date']}
     if item_doc['name'] and item_doc['date']:
         db.events.insert_one(item_doc)
-    return redirect(url_for('rsvp'))
+    return redirect(url_for('index'))
+
+
 # FIXME: Add POST method
 @app.route('/api/events/', methods=['GET'])
 def api_events():
