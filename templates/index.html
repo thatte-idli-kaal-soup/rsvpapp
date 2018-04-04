@@ -8,7 +8,10 @@
     <script type="text/javascript" src= "{{ url_for('static', filename='bootstrap.min.js') }}"></script>
     <script>
      update_message = function(){
-         $(".alert").text('Created new event!').show();
+         if ($('#name').val() === "" || $('#date').val() === '') {
+             return;
+         }
+         $(".alert").text('Creating event ...').show();
      }
     </script>
     <body>
@@ -22,11 +25,11 @@
                     <form action="/event" method='POST'>
                         <div  class="form-group">
                             <label for="name">Name</label>
-                            <input type="text" name="name" id="name" placeholder="Event name" >
+                            <input type="text" name="name" id="name" placeholder="Event name" required>
                             <label for="date">Date</label>
-                            <input type="date" name="date" id="date">
+                            <input type="date" name="date" id="date" required>
                         </div>
-                        <button type="Submit" onclick="update_message()" align="center" name="submit" class="btn btn-danger">Submit</button>
+                        <button type="Submit" onclick="update_message('yo')" align="center" name="submit" class="btn btn-danger">Submit</button>
                     </form>
                     <h3>Events</h3>
                     <ol>
@@ -37,7 +40,7 @@
                             </li>
                         {% endfor %}
                     </ol>
-                    <p class="alert alert-success" style="display: none;"></p>
+                    <p class="alert alert-info" style="display: none;"></p>
                 </div>
             </div>
         </div>

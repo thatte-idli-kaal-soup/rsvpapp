@@ -20,7 +20,9 @@
      }
 
      update_message = function(){
-         $(".alert").text('RSVP Successful!').show();
+         if ($('#name').val() !== "") {
+             $(".alert").text('RSVPing...').show();
+         }
      }
     </script>
     <body>
@@ -34,7 +36,7 @@
                     <form action="/new/{{event._id}}" method='POST'>
                         <div  class="form-group">
                             <label for="name">Name:</label>
-                            <input  type="text" name="name"  id="name" placeholder="Enter name" >
+                            <input  type="text" name="name"  id="name" placeholder="Enter name" required>
                         </div>
                         <button type="Submit" onclick="update_message()" align="center" name="submit" class="btn btn-danger">Submit</button>
                     </form>
@@ -51,7 +53,7 @@
                             </li>
                         {% endfor %}
                     </ol>
-                    <p class="alert alert-success" style="display: none;"></p>
+                    <p class="alert alert-info" style="display: none;"></p>
                 </div>
             </div>
         </div>

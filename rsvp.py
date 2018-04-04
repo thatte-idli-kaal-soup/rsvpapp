@@ -104,14 +104,16 @@ def event(id):
 @app.route('/new/<id>', methods=['POST'])
 def new(id):
     item_doc = {'name': request.form['name'], 'email': 'email@example.com'}
-    db['event-{}'.format(id)].insert_one(item_doc)
+    if item_doc['name'] and item_doc['email']:
+        db['event-{}'.format(id)].insert_one(item_doc)
     return redirect(url_for('event', id=id))
 
 
 @app.route('/event', methods=['POST'])
 def create_event():
     item_doc = {'name': request.form['name'], 'date': request.form['date']}
-    db.events.insert_one(item_doc)
+    if item_doc['name'] and item_doc['date']:
+        db.events.insert_one(item_doc)
     return redirect(url_for('rsvp'))
 
 
