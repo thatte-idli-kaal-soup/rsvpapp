@@ -41,7 +41,7 @@
                     <h3> RSVP Count : {{counter}} </h3>
                     <ol>
                         {% for item in items %}
-                            <li class="text-center">
+                            <li class="text-center" style="line-height: 3em;">
                                 <span>{{ item.name }}</span>
                                 <button style="float: none !important"
                                         onclick='delete_rsvp("{{item._id}}")'
