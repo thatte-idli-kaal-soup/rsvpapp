@@ -1,12 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, request, make_response
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-import socket
 import os
 import json
 
 app = Flask(__name__)
-LINK = os.environ.get('LINK', "www.cloudyuga.guru")
 TEXT1 = os.environ.get('TEXT1', "CloudYuga")
 TEXT2 = os.environ.get('TEXT2', "Garage RSVP")
 LOGO = os.environ.get(
@@ -60,11 +58,9 @@ def rsvp():
     _items = db.rsvpdata.find()
     items = [item for item in _items]
     count = len(items)
-    hostname = socket.gethostname()
     return render_template(
         'profile.html',
         counter=count,
-        hostname=hostname,
         items=items,
         TEXT1=TEXT1,
         TEXT2=TEXT2,
