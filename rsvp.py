@@ -21,6 +21,19 @@ client = MongoClient(MONGODB_URI)
 db = client.get_default_database()
 
 
+def format_date(value):
+    try:
+        return datetime.datetime.strptime(value, '%Y-%m-%d').strftime(
+            "%a, %d %b %Y"
+        )
+
+    except ValueError:
+        return value
+
+
+app.jinja_env.filters['format_date'] = format_date
+
+
 class RSVP(object):
     """Simple Model class for RSVP"""
 
@@ -102,7 +115,7 @@ def event(id):
         event=event,
         items=items,
         TEXT1=TEXT1,
-        TEXT2='{} - {}'.format(event['name'], event['date']),
+        TEXT2='{} - {}'.format(event['name'], format_date(event['date'])),
         LOGO=LOGO,
         COMPANY=COMPANY,
     )

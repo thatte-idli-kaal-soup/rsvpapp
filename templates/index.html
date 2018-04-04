@@ -31,7 +31,7 @@
         {% for item in upcoming_events %}
             <li class="text-center" style="line-height: 3em;">
                 <span><a href="/event/{{item._id}}">{{ item.name }}</a></span>
-                (<span>{{ item.date }}</span>)
+                (<span>{{ item.date | format_date }}</span>)
             </li>
         {% endfor %}
     </ol>
@@ -41,7 +41,7 @@
         {% for item in archived_events %}
             <li class="text-center" style="line-height: 3em;">
                 <span><a href="/event/{{item._id}}">{{ item.name }}</a></span>
-                (<span>{{ item.date }}</span>)
+                (<span>{{ item.date | format_date }}</span>)
             </li>
         {% endfor %}
     </ol>    <p class="alert alert-info" style="display: none;"></p>
