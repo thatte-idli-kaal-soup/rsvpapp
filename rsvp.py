@@ -14,9 +14,9 @@ LOGO = os.environ.get(
     "https://raw.githubusercontent.com/cloudyuga/rsvpapp/master/static/cloudyuga.png",
 )
 COMPANY = os.environ.get('COMPANY', "CloudYuga Technology Pvt. Ltd.")
-MONGODB_HOST = os.environ.get('MONGODB_HOST', 'localhost')
-client = MongoClient(MONGODB_HOST, 27017)
-db = client.rsvpdata
+MONGODB_URI = os.environ.get('MONGODB_URI', 'localhost:27017')
+client = MongoClient(MONGODB_URI)
+db = client.rsvpdata if 'localhost' in MONGODB_URI else client.get_default_database()
 
 
 class RSVP(object):
