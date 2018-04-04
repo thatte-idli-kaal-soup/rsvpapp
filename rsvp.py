@@ -4,7 +4,7 @@ import os
 
 from bson.objectid import ObjectId
 from flask import Flask, render_template, redirect, url_for, request, make_response
-from pymongo import MongoClient, ASCENDING
+from pymongo import MongoClient, ASCENDING, DESCENDING
 
 app = Flask(__name__)
 TEXT1 = os.environ.get('TEXT1', "CloudYuga")
@@ -73,14 +73,18 @@ class RSVP(object):
 @app.route('/')
 def index():
     today = datetime.date.today().strftime('%Y-%m-%d')
-    items = list(
+    upcoming_events = list(
         db.events.find({'date': {"$gte": today}}, sort=[('date', ASCENDING)])
     )
-    count = len(items)
+    archived_events = list(
+        db.events.find({'date': {"$lt": today}}, sort=[('date', DESCENDING)])
+    )
+    count = len(upcoming_events)
     return render_template(
         'index.html',
         count=count,
-        items=items,
+        upcoming_events=upcoming_events,
+        archived_events=archived_events,
         TEXT1=TEXT1,
         LOGO=LOGO,
         COMPANY=COMPANY,

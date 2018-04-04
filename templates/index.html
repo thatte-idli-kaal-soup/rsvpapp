@@ -26,14 +26,23 @@
             Submit
         </button>
     </form>
-    <h3>Events</h3>
+    <h3>Upcoming Events</h3>
     <ol>
-        {% for item in items %}
+        {% for item in upcoming_events %}
             <li class="text-center" style="line-height: 3em;">
                 <span><a href="/event/{{item._id}}">{{ item.name }}</a></span>
                 (<span>{{ item.date }}</span>)
             </li>
         {% endfor %}
     </ol>
-    <p class="alert alert-info" style="display: none;"></p>
+    <hr/>
+    <h3>Archived Events</h3>
+    <ol>
+        {% for item in archived_events %}
+            <li class="text-center" style="line-height: 3em;">
+                <span><a href="/event/{{item._id}}">{{ item.name }}</a></span>
+                (<span>{{ item.date }}</span>)
+            </li>
+        {% endfor %}
+    </ol>    <p class="alert alert-info" style="display: none;"></p>
 {% endblock %}
