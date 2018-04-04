@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
 from flask import Flask, render_template, redirect, url_for, request, make_response
@@ -32,6 +33,16 @@ def format_date(value):
 
 
 app.jinja_env.filters['format_date'] = format_date
+
+
+@app.before_request
+def redirect_heroku():
+    """Redirect herokuapp requests to rsvp.thatteidlikaalsoup.team."""
+    urlparts = urlparse(request.url)
+    if urlparts.netloc == 'thatte-idli-rsvp.herokuapp.com':
+        urlparts_list = list(urlparts)
+        urlparts_list[1] = 'rsvp.thatteidlikaalsoup.team'
+        return redirect(urlunparse(urlparts_list), code=301)
 
 
 class RSVP(object):
