@@ -4,7 +4,7 @@ import os
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
-from flask import Flask, render_template, redirect, url_for, request, make_response
+from flask import Flask, render_template, redirect, url_for, request
 from pymongo import MongoClient, ASCENDING, DESCENDING
 
 app = Flask(__name__)
@@ -200,4 +200,7 @@ def api_rsvp(event_id, rsvp_id):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    DEBUG = 'DEBUG' in os.environ
+    if DEBUG:
+        app.jinja_env.cache = None
+    app.run(host='0.0.0.0', debug=DEBUG)
