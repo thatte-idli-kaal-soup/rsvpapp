@@ -19,7 +19,15 @@
              $(".alert").text('RSVPing...').show();
          }
      }
+
+     $(document).ready(function(){
+         new ClipboardJS('#copy-button');
+     });
+
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"
+            integrity="sha256-meF2HJJ2Tcruwz3z4XcxYDRMxKprjdruBHc3InmixCQ="
+            crossorigin="anonymous"></script>
 {% endblock %}
 
 {% block content %}
@@ -43,5 +51,11 @@
             </li>
         {% endfor %}
     </ol>
+    <button class="btn"
+            id="copy-button"
+            data-clipboard-action="copy"
+            data-clipboard-text="{% include 'event.md' %}">
+        Copy to clipboard
+    </button>
     <p class="alert alert-info" style="display: none;"></p>
 {% endblock %}
