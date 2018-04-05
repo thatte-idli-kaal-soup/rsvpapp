@@ -33,7 +33,6 @@
 {% block content %}
     <p class="h2">
         {{ TEXT2 }}
-        <span class="badge badge-success badge-pill">{{count}}</span>
     </p>
     <div class="card">
         <div class="card-body">
@@ -54,13 +53,16 @@
                 <button onclick='delete_rsvp("{{event._id}}","{{item._id}}")' class="close">x</button>
             </li>
         {% endfor %}
+        {% if count %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <button class="btn btn-outline-info btn-sm my-2"
+                        id="copy-button"
+                        data-clipboard-action="copy"
+                        data-clipboard-text="{% include 'event.md' %}">
+                    Copy
+                </button>
+                <span class="badge badge-success badge-pill">{{count}}</span>
+            </li>
+        {% endif %}
     </ul>
-    {% if count %}
-        <button class="btn btn-outline-info btn-sm my-2"
-                id="copy-button"
-                data-clipboard-action="copy"
-                data-clipboard-text="{% include 'event.md' %}">
-            Copy
-        </button>
-    {% endif %}
 {% endblock %}
