@@ -11,7 +11,7 @@ from requests_oauthlib import OAuth2Session
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from auth import Auth
 from requests.exceptions import HTTPError
-from collections import namedtuple
+from pymodm import connect, fields, MongoModel
 
 app = Flask(__name__)
 app.config.update(
@@ -32,6 +32,8 @@ MONGODB_URI = os.environ.get(
 client = MongoClient(MONGODB_URI)
 db = client.get_default_database()
 
+connect(MONGODB_URI)
+
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 login_manager.session_protection = "strong"
@@ -50,7 +52,8 @@ app.jinja_env.filters['format_date'] = format_date
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get_by_id(user_id)
+    print("loading user")
+    return User.objects.raw({"_id":user_id}).first()
 """ OAuth Session creation """
 
 
@@ -128,14 +131,11 @@ class RSVP(object):
         result = db['event-{}'.format(event_id)].insert_one(doc)
         return RSVP(name, email, event_id, result.inserted_id)
 
-class User(object):
-    def __init__(self,  email, name=None, _id=None, active=None,tokens=None):
-        self.name = name
-        self.email = email
-        self._id = _id
-        self.active = active
-        self.tokens = tokens
-        created_at =datetime.datetime.utcnow()
+class User(MongoModel):
+    email = fields.EmailField(primary_key=True)
+    name = fields.CharField()
+    active = fields.CharField()
+    tokens = fields.CharField()
 
     def is_authenticated(self):
         return True
@@ -147,7 +147,7 @@ class User(object):
         return False
 
     def get_id(self):
-        return self._id
+        return self.email
 
     def toJSON(self):
         return json.dumps(self, default=self.__dict__,
@@ -158,10 +158,7 @@ class User(object):
         result = db['user'].insert_one(self.toJSON())
         return result
 
-    def save(self):
-        temp=json.loads(self.toJSON())
-        temp.pop("_id",None)
-        db['user'].find_one_and_update({"_id": ObjectId(self._id)},{"$set" :temp},upsert=True)
+
     @staticmethod
     def get_by_email(email):
         return db['user'].find_one({"email":email})
@@ -279,6 +276,8 @@ def api_rsvp(event_id, rsvp_id):
 
 @app.route('/login')
 def login():
+    print("log in")
+    print(current_user.is_authenticated)
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     print("here a")
@@ -319,23 +318,30 @@ def callback():
         if resp.status_code == 200:
             user_data = resp.json()
             email = user_data['email']
-            user = User.get_by_email(email)
+            print(user_data)
+            print(email)
+            user = User.objects.raw({"_id":email})
+            #print(json.dumps(user))
             if user is None:
                 user = User(email)
                 print("made new one")
             else:
-                user = User(user["email"],_id=user["_id"])
+                user = user.first()
             #user.name = user_data['name']
-            print(token)
             user.set_tokens(json.dumps(token))
             print("type is " )
             print(type(user))
             user.save()
             login_user(user)
+            print("Redirecting to index")
             return redirect(url_for('index'))
         return 'Could not fetch your information.'
 
-
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
