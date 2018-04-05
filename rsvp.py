@@ -4,10 +4,21 @@ import os
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
-from flask import Flask, render_template, redirect, url_for, request, make_response
+from flask import Flask, render_template, redirect, url_for, request, make_response,session
+
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user, UserMixin
+from requests_oauthlib import OAuth2Session
 from pymongo import MongoClient, ASCENDING, DESCENDING
+from auth import Auth
+from requests.exceptions import HTTPError
+from collections import namedtuple
 
 app = Flask(__name__)
+app.config.update(
+    DEBUG=True,
+    SECRET_KEY='...'
+)
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 TEXT1 = os.environ.get('TEXT1', "CloudYuga")
 TEXT2 = os.environ.get('TEXT2', "Garage RSVP")
 LOGO = os.environ.get(
@@ -21,6 +32,9 @@ MONGODB_URI = os.environ.get(
 client = MongoClient(MONGODB_URI)
 db = client.get_default_database()
 
+login_manager = LoginManager(app)
+login_manager.login_view = "login"
+login_manager.session_protection = "strong"
 
 def format_date(value):
     try:
@@ -33,6 +47,27 @@ def format_date(value):
 
 
 app.jinja_env.filters['format_date'] = format_date
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get_by_id(user_id)
+""" OAuth Session creation """
+
+
+def get_google_auth(state=None, token=None):
+    if token:
+        return OAuth2Session(Auth.CLIENT_ID, token=token)
+    if state:
+        return OAuth2Session(
+            Auth.CLIENT_ID,
+            state=state,
+            redirect_uri=Auth.REDIRECT_URI)
+    oauth = OAuth2Session(
+        Auth.CLIENT_ID,
+        redirect_uri=Auth.REDIRECT_URI,
+        scope=Auth.SCOPE)
+    return oauth
+
 
 
 @app.before_request
@@ -93,8 +128,52 @@ class RSVP(object):
         result = db['event-{}'.format(event_id)].insert_one(doc)
         return RSVP(name, email, event_id, result.inserted_id)
 
+class User(object):
+    def __init__(self,  email, name=None, _id=None, active=None,tokens=None):
+        self.name = name
+        self.email = email
+        self._id = _id
+        self.active = active
+        self.tokens = tokens
+        created_at =datetime.datetime.utcnow()
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self._id
+
+    def toJSON(self):
+        return json.dumps(self, default=self.__dict__,
+                          sort_keys=True, indent=4)
+
+    @staticmethod
+    def new(self):
+        result = db['user'].insert_one(self.toJSON())
+        return result
+
+    def save(self):
+        temp=json.loads(self.toJSON())
+        temp.pop("_id",None)
+        db['user'].find_one_and_update({"_id": ObjectId(self._id)},{"$set" :temp},upsert=True)
+    @staticmethod
+    def get_by_email(email):
+        return db['user'].find_one({"email":email})
+    @staticmethod
+    def get_by_id(id):
+        return db['user'].find_one({"_id":id})
+
+    def set_tokens(self,tokens):
+        self.tokens=tokens
 
 @app.route('/')
+@login_required
 def index():
     today = datetime.date.today().strftime('%Y-%m-%d')
     upcoming_events = list(
@@ -197,6 +276,65 @@ def api_rsvp(event_id, rsvp_id):
     elif request.method == 'DELETE':
         rsvp.delete()
         return json.dumps({"deleted": "true"})
+
+@app.route('/login')
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    print("here a")
+    google = get_google_auth()
+    print("here b")
+
+    auth_url, state = google.authorization_url( Auth.AUTH_URI, access_type='offline')
+    print("here c")
+
+    session['oauth_state'] = state
+    print("here d")
+
+    return render_template('login.html', auth_url=auth_url)
+
+
+@app.route('/oauth2callback')
+def callback():
+    print("here")
+    if current_user is not None and current_user.is_authenticated:
+        return redirect(url_for('index'))
+    if 'error' in request.args:
+        if request.args.get('error') == 'access_denied':
+            return 'You denied access.'
+        return 'Error encountered.'
+    if 'code' not in request.args and 'state' not in request.args:
+        return redirect(url_for('login'))
+    else:
+        google = get_google_auth(state=session['oauth_state'])
+        try:
+            token = google.fetch_token(
+                Auth.TOKEN_URI,
+                client_secret=Auth.CLIENT_SECRET,
+                authorization_response=request.url)
+        except HTTPError:
+            return 'HTTPError occurred.'
+        google = get_google_auth(token=token)
+        resp = google.get(Auth.USER_INFO)
+        if resp.status_code == 200:
+            user_data = resp.json()
+            email = user_data['email']
+            user = User.get_by_email(email)
+            if user is None:
+                user = User(email)
+                print("made new one")
+            else:
+                user = User(user["email"],_id=user["_id"])
+            #user.name = user_data['name']
+            print(token)
+            user.set_tokens(json.dumps(token))
+            print("type is " )
+            print(type(user))
+            user.save()
+            login_user(user)
+            return redirect(url_for('index'))
+        return 'Could not fetch your information.'
+
 
 
 if __name__ == '__main__':
