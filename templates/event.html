@@ -3,8 +3,8 @@
 {% block scripts %}
     <script>
      delete_rsvp = function(event_id, rsvp_id){
+         $(".alert").text('Un-RSVPing...').show();
          fetch(`/api/rsvps/${event_id}/${rsvp_id}`, {method: "DELETE"}).then(function(response){
-             console.log(response);
              if (response.status == 200){
                  window.location.href = "";
              } else {
@@ -19,29 +19,50 @@
              $(".alert").text('RSVPing...').show();
          }
      }
+
+     $(document).ready(function(){
+         new ClipboardJS('#copy-button');
+     });
+
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"
+            integrity="sha256-meF2HJJ2Tcruwz3z4XcxYDRMxKprjdruBHc3InmixCQ="
+            crossorigin="anonymous"></script>
 {% endblock %}
 
 {% block content %}
-    <form action="/new/{{event._id}}" method='POST'>
-        <div  class="form-group">
-            <label for="name">Name:</label>
-            <input  type="text" name="name"  id="name" placeholder="Enter name" required>
+    <p class="h2">
+        {{ TEXT2 }}
+    </p>
+    <div class="card">
+        <div class="card-body">
+            <p class="alert alert-info" style="display: none;"></p>
+            <form class="form-inline" action="/new/{{event._id}}" method='POST'>
+                <div class="form-group mx-2">
+                    <input  type="text" name="name" class="form-control" id="name" placeholder="Enter name to RSVP" required>
+                </div>
+                <button type="Submit" onclick="update_message()" align="center" name="submit" class="btn btn-primary">Submit</button>
+            </form>
         </div>
-        <button type="Submit" onclick="update_message()" align="center" name="submit" class="btn btn-danger">Submit</button>
-    </form>
-    <h3> RSVP Count : {{count}} </h3>
-    <ol>
+    </div>
+    <hr/>
+    <ul class="list-group">
         {% for item in items %}
-            <li class="text-center" style="line-height: 3em;">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>{{ item.name }}</span>
-                <button style="float: none !important"
-                        onclick='delete_rsvp("{{event._id}}","{{item._id}}")'
-                        class="close">
-                    x
-                </button>
+                <button onclick='delete_rsvp("{{event._id}}","{{item._id}}")' class="close">x</button>
             </li>
         {% endfor %}
-    </ol>
-    <p class="alert alert-info" style="display: none;"></p>
+        {% if count %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <button class="btn btn-outline-info btn-sm my-2"
+                        id="copy-button"
+                        data-clipboard-action="copy"
+                        data-clipboard-text="{% include 'event.md' %}">
+                    Copy
+                </button>
+                <span class="badge badge-success badge-pill">{{count}}</span>
+            </li>
+        {% endif %}
+    </ul>
 {% endblock %}

@@ -4,47 +4,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="{{description}}">
     <link
-        href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
         rel="stylesheet"
-        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
     <link rel="icon" href="{{ LOGO }}" type="image/png" sizes="16x16">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')|versioned }}">
     <script
         src="https://code.jquery.com/jquery-1.12.4.min.js"
         integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
         crossorigin="anonymous">
     </script>
-    <script
-        src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-        crossorigin="anonymous">
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
     {% block scripts %}
     {% endblock %}
     <body>
-        <div class="jumbotron">
-            <div class="container">
-                <div align="center">
-                    <h2><a href="/">{{ TEXT1 }}</a></h2>
-                    <h4>{{ TEXT2 }}</h4>
-                    {% block content %}
-                    {% endblock %}
-                </div>
-            </div>
-        </div>
-        <footer class="footer text-center">
-            <div class="container">
-                <ul class="list-inline">
-                    <li><img width="24px" src="{{ LOGO }}"/></li>
-                    <li class="text-muted">{{ COMPANY }}</li>
-                    <li>
-                        <a href="https://github.com/thatte-idli-kaal-soup/rsvpapp" target="_blank" >
-                            <img width="24px"
-                                 src="https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png" />
-                        </a>
-                    </li>
-                </ul>
+        <header>
+            <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+                <a class="navbar-brand" href="/"><img width="24px" src="{{ LOGO }}"/> {{TEXT1}}</a>
+            </nav>
+        </header>
+        <main class="container" role="main">
+            {% block content %}
+            {% endblock %}
+        </main>
+        <footer class="footer">
+            <div class="container text-center">
+                <a href="https://github.com/thatte-idli-kaal-soup/rsvpapp" target="_blank" >
+                    <img width="24px"
+                         src="https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png" />
+                </a>
             </div>
         </footer>
     </body>
