@@ -120,13 +120,16 @@ def event(id):
     event = db.events.find_one({"_id": ObjectId(id)})
     items = list(db['event-{}'.format(id)].find())
     count = len(items)
+    event_text = '{} - {}'.format(event['name'], format_date(event['date']))
+    description = 'Call in for {}'.format(event_text)
     return render_template(
         'event.html',
         count=count,
         event=event,
         items=items,
         TEXT1=TEXT1,
-        TEXT2='{} - {}'.format(event['name'], format_date(event['date'])),
+        TEXT2=event_text,
+        description=description,
         LOGO=LOGO,
         COMPANY=COMPANY,
     )
