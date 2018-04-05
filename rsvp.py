@@ -4,10 +4,12 @@ import os
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, send_file
+from flaskext.versioned import Versioned
 from pymongo import MongoClient, ASCENDING, DESCENDING
 
 app = Flask(__name__)
+versioned = Versioned(app)
 TEXT1 = os.environ.get('TEXT1', "CloudYuga")
 TEXT2 = os.environ.get('TEXT2', "Garage RSVP")
 LOGO = os.environ.get(
@@ -43,6 +45,11 @@ def redirect_heroku():
         urlparts_list = list(urlparts)
         urlparts_list[1] = 'rsvp.thatteidlikaalsoup.team'
         return redirect(urlunparse(urlparts_list), code=301)
+
+
+@app.route('/version-<version>/<path:static_file>')
+def versioned_static(version, static_file):
+    return send_file(static_file)
 
 
 class RSVP(object):
