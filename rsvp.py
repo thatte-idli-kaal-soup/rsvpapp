@@ -25,7 +25,7 @@ db = client.get_default_database()
 def format_date(value):
     try:
         return datetime.datetime.strptime(value, '%Y-%m-%d').strftime(
-            "%a, %d %b %Y"
+            "%a, %d %b '%y"
         )
 
     except ValueError:
