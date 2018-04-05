@@ -1,6 +1,8 @@
 import datetime
 import json
 import os
+from random import choice
+import string
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
@@ -34,6 +36,14 @@ def format_date(value):
         return value
 
 
+def random_id():
+    return ObjectId(
+        bytes(
+            ''.join(choice(string.ascii_letters) for _ in range(12)), 'ascii'
+        )
+    )
+
+
 app.jinja_env.filters['format_date'] = format_date
 
 
@@ -58,8 +68,10 @@ class RSVP(object):
     def __init__(self, name, email, event_id=None, _id=None):
         self.name = name
         self.email = email
-        self._id = _id
-        self.event_id = event_id
+        self._id = ObjectId(_id) if isinstance(_id, str) else _id
+        self.event_id = ObjectId(event_id) if isinstance(
+            event_id, str
+        ) else event_id
 
     def dict(self):
         _id = str(self._id)
@@ -76,29 +88,38 @@ class RSVP(object):
         }
 
     def delete(self):
-        db['event-{}'.format(self.event_id)].find_one_and_delete(
-            {"_id": self._id}
+        db.events.find_one_and_update(
+            {'_id': self.event_id}, {'$pull': {'rsvps': {'_id': self._id}}}
         )
 
     @staticmethod
     def find_all(event_id):
-        return [
-            RSVP(event_id=event_id, **doc)
-            for doc in db['event-{}'.format(event_id)].find()
+        event = db.events.find_one({'_id': ObjectId(event_id)})
+        return [] if event is None or 'rsvps' not in event else [
+            RSVP(event_id=event_id, **doc) for doc in event.get('rsvps', [])
         ]
 
     @staticmethod
     def find_one(event_id, rsvp_id):
-        doc = db['event-{}'.format(event_id)].find_one(
-            {"_id": ObjectId(rsvp_id)}
+        _id = ObjectId(rsvp_id)
+        event = db.events.find_one(
+            {'_id': ObjectId(event_id)},
+            {'rsvps': {'$elemMatch': {'_id': _id}}},
         )
-        return doc and RSVP(doc['name'], doc['email'], event_id, doc['_id'])
+        if event is None or 'rsvps' not in event:
+            return
+
+        doc = event['rsvps'][0]
+        return RSVP(doc['name'], doc['email'], event_id, doc['_id'])
 
     @staticmethod
     def new(name, email, event_id):
-        doc = {"name": name, "email": email}
-        result = db['event-{}'.format(event_id)].insert_one(doc)
-        return RSVP(name, email, event_id, result.inserted_id)
+        doc = {"name": name, "email": email, "_id": random_id()}
+        result = db.events.find_one_and_update(
+            {'_id': ObjectId(event_id)}, {'$push': {'rsvps': doc}}
+        )
+        assert result is not None, "Event does not exist"
+        return RSVP(name, email, event_id, str(doc['_id']))
 
 
 @app.route('/')
@@ -125,15 +146,15 @@ def index():
 @app.route('/event/<id>', methods=['GET'])
 def event(id):
     event = db.events.find_one({"_id": ObjectId(id)})
-    items = list(db['event-{}'.format(id)].find())
-    count = len(items)
+    rsvps = event.get('rsvps', [])
+    count = len(rsvps)
     event_text = '{} - {}'.format(event['name'], format_date(event['date']))
     description = 'Call in for {}'.format(event_text)
     return render_template(
         'event.html',
         count=count,
         event=event,
-        items=items,
+        items=rsvps,
         TEXT1=TEXT1,
         TEXT2=event_text,
         description=description,
@@ -142,12 +163,13 @@ def event(id):
     )
 
 
-@app.route('/new/<id>', methods=['POST'])
-def new(id):
-    item_doc = {'name': request.form['name'], 'email': 'email@example.com'}
-    if item_doc['name'] and item_doc['email']:
-        db['event-{}'.format(id)].insert_one(item_doc)
-    return redirect(url_for('event', id=id))
+@app.route('/new/<event_id>', methods=['POST'])
+def new(event_id):
+    name = request.form['name']
+    email = 'email@example.com'
+    if name:
+        RSVP.new(name, email, event_id)
+    return redirect(url_for('event', id=event_id))
 
 
 @app.route('/event', methods=['POST'])
@@ -170,10 +192,10 @@ def api_events():
     )
 
 
-@app.route('/api/rsvps/<id>', methods=['GET', 'POST'])
-def api_rsvps(id):
+@app.route('/api/rsvps/<event_id>', methods=['GET', 'POST'])
+def api_rsvps(event_id):
     if request.method == 'GET':
-        docs = [rsvp.dict() for rsvp in RSVP.find_all(id)]
+        docs = [rsvp.dict() for rsvp in RSVP.find_all(event_id)]
         return json.dumps(docs, indent=True)
 
     else:
@@ -188,7 +210,7 @@ def api_rsvps(id):
         if 'email' not in doc:
             return '{"error": "email field is missing"}', 400
 
-        rsvp = RSVP.new(name=doc['name'], email=doc['email'], event_id=id)
+        rsvp = RSVP.new(doc['name'], doc['email'], event_id)
         return json.dumps(rsvp.dict(), indent=True)
 
 

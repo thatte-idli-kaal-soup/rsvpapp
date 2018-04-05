@@ -1,8 +1,6 @@
 import rsvp
 import mongomock
-import unittest
 import json
-from bson.objectid import ObjectId
 
 
 class BaseTest:
@@ -16,18 +14,25 @@ class BaseTest:
 class TestRSVP(BaseTest):
 
     def test_dict(self):
-        doc = rsvp.RSVP("test name", "test@example.com", "1", "1")
+        event_id = rsvp.random_id()
+        rsvp_id = rsvp.random_id()
+        doc = rsvp.RSVP("test name", "test@example.com", event_id, rsvp_id)
         with rsvp.app.test_request_context():
             assert doc.dict() == {
-                "_id": "1",
+                "_id": str(rsvp_id),
                 "name": "test name",
                 "email": "test@example.com",
-                "links": {"self": "http://localhost/api/rsvps/1/1"},
+                "links": {
+                    "self": "http://localhost/api/rsvps/{}/{}".format(
+                        event_id, rsvp_id
+                    )
+                },
             }
 
     def test_new(self):
+        event = {'name': 'test-event', 'date': '2018-01-01'}
+        event_id = str(rsvp.db.events.insert_one(event).inserted_id)
         RSVP = rsvp.RSVP
-        event_id = "1"
         doc = RSVP.new("test name", "test@example.com", event_id)
         assert doc.name == "test name"
         assert doc.email == "test@example.com"
@@ -73,28 +78,33 @@ class TestApi(BaseTest):
         return json.loads(response.data)
 
     def test_rsvps_empty(self):
-        assert self.jsonget("/api/rsvps/1") == []
+        event_id = rsvp.random_id()
+        assert self.jsonget("/api/rsvps/{}".format(event_id)) == []
 
     def test_rsvps_create(self):
-        assert self.jsonget("/api/rsvps/1") == []
+        event = {'name': 'test-event', 'date': '2018-01-01'}
+        event_id = rsvp.db.events.insert_one(event).inserted_id
+        assert self.jsonget("/api/rsvps/{}".format(event_id)) == []
         doc = self.jsonpost(
-            "/api/rsvps/1",
+            "/api/rsvps/{}".format(event_id),
             '{"name": "test name", "email": "test@example.com"}',
         )
         assert doc['name'] == 'test name'
         assert doc['email'] == 'test@example.com'
         assert doc['_id'] is not None
-        assert len(self.jsonget("/api/rsvps/1")) == 1
+        assert len(self.jsonget("/api/rsvps/{}".format(event_id))) == 1
 
     def test_rsvps_delete(self):
-        assert self.jsonget("/api/rsvps/1") == []
+        event = {'name': 'test-event', 'date': '2018-01-01'}
+        event_id = rsvp.db.events.insert_one(event).inserted_id
+        assert self.jsonget("/api/rsvps/{}".format(event_id)) == []
         doc = self.jsonpost(
-            "/api/rsvps/1",
+            "/api/rsvps/{}".format(event_id),
             '{"name": "test name", "email": "test@example.com"}',
         )
-        assert len(self.jsonget("/api/rsvps/1")) == 1
-        path = "/api/rsvps/1/" + doc['_id']
+        assert len(self.jsonget("/api/rsvps/{}".format(event_id))) == 1
+        path = "/api/rsvps/{}/".format(event_id) + doc['_id']
         self.client.delete(path)
-        assert self.jsonget("/api/rsvps/1") == []
+        assert self.jsonget("/api/rsvps/{}".format(event_id)) == []
         response = self.client.get(path)
         assert response.status_code == 404
