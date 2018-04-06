@@ -179,19 +179,6 @@ class User(MongoModel):
             self, default=self.__dict__, sort_keys=True, indent=4
         )
 
-    @staticmethod
-    def new(self):
-        result = db['user'].insert_one(self.toJSON())
-        return result
-
-    @staticmethod
-    def get_by_email(email):
-        return db['user'].find_one({"email": email})
-
-    @staticmethod
-    def get_by_id(id):
-        return db['user'].find_one({"_id": id})
-
     def set_tokens(self, tokens):
         self.tokens = tokens
 
