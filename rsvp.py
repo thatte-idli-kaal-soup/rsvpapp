@@ -60,7 +60,6 @@ app.jinja_env.filters['format_date'] = format_date
 
 @login_manager.user_loader
 def load_user(user_id):
-    print("loading user")
     return User.objects.raw({"_id": user_id}).first()
 
 
@@ -306,26 +305,19 @@ def api_rsvp(event_id, rsvp_id):
 
 @app.route('/login')
 def login():
-    print("log in")
-    print(current_user.is_authenticated)
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
-    print("here a")
     google = get_google_auth()
-    print("here b")
     auth_url, state = google.authorization_url(
         Auth.AUTH_URI, access_type='offline'
     )
-    print("here c")
     session['oauth_state'] = state
-    print("here d")
     return render_template('login.html', auth_url=auth_url)
 
 
 @app.route('/oauth2callback')
 def callback():
-    print("here")
     if current_user is not None and current_user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -354,22 +346,15 @@ def callback():
         if resp.status_code == 200:
             user_data = resp.json()
             email = user_data['email']
-            print(user_data)
-            print(email)
             user = User.objects.raw({"_id": email})
-            # print(json.dumps(user))
             if user is None:
                 user = User(email)
-                print("made new one")
             else:
                 user = user.first()
             # user.name = user_data['name']
             user.set_tokens(json.dumps(token))
-            print("type is ")
-            print(type(user))
             user.save()
             login_user(user)
-            print("Redirecting to index")
             return redirect(url_for('index'))
 
         return 'Could not fetch your information.'
