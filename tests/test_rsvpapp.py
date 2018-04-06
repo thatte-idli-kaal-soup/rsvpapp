@@ -9,6 +9,9 @@ class BaseTest:
         rsvp.client = mongomock.MongoClient()
         rsvp.db = rsvp.client.mock_db_function
         self.client = rsvp.app.test_client()
+        # FIXME: Test for logged in/out too
+        rsvp.app.config.update(LOGIN_DISABLED=True)
+        rsvp.app.login_manager.init_app(rsvp.app)
 
 
 class TestRSVP(BaseTest):

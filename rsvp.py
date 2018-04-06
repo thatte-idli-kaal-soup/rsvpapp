@@ -12,14 +12,13 @@ from flaskext.versioned import Versioned
 from pymodm import connect
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from requests.exceptions import HTTPError
-from requests_oauthlib import OAuth2Session
 
-from auth import Auth
+from auth import Auth, get_google_auth
 from models import User
 
 app = Flask(__name__)
 versioned = Versioned(app)
-app.config.update(DEBUG=True, SECRET_KEY='...')
+app.config.update(SECRET_KEY='...')
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 TEXT1 = os.environ.get('TEXT1', "CloudYuga")
 TEXT2 = os.environ.get('TEXT2', "Garage RSVP")
@@ -67,21 +66,6 @@ def load_user(user_id):
 
     except User.DoesNotExist:
         return
-
-
-def get_google_auth(state=None, token=None):
-    if token:
-        return OAuth2Session(Auth.CLIENT_ID, token=token)
-
-    if state:
-        return OAuth2Session(
-            Auth.CLIENT_ID, state=state, redirect_uri=Auth.REDIRECT_URI
-        )
-
-    oauth = OAuth2Session(
-        Auth.CLIENT_ID, redirect_uri=Auth.REDIRECT_URI, scope=Auth.SCOPE
-    )
-    return oauth
 
 
 @app.before_request
@@ -182,6 +166,7 @@ def index():
 
 
 @app.route('/event/<id>', methods=['GET'])
+@login_required
 def event(id):
     event = db.events.find_one({"_id": ObjectId(id)})
     rsvps = event.get('rsvps', [])
@@ -202,6 +187,7 @@ def event(id):
 
 
 @app.route('/new/<event_id>', methods=['POST'])
+@login_required
 def new(event_id):
     name = request.form['name']
     email = 'email@example.com'
@@ -211,6 +197,7 @@ def new(event_id):
 
 
 @app.route('/event', methods=['POST'])
+@login_required
 def create_event():
     item_doc = {'name': request.form['name'], 'date': request.form['date']}
     if item_doc['name'] and item_doc['date']:
