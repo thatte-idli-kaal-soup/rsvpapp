@@ -5,15 +5,17 @@ from random import choice
 import string
 from urllib.parse import urlparse, urlunparse
 
-from auth import Auth
 from bson.objectid import ObjectId
 from flask import Flask, render_template, redirect, url_for, request, session, send_file
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 from flaskext.versioned import Versioned
-from pymodm import connect, fields, MongoModel
+from pymodm import connect
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from requests.exceptions import HTTPError
 from requests_oauthlib import OAuth2Session
+
+from auth import Auth
+from models import User
 
 app = Flask(__name__)
 versioned = Versioned(app)
@@ -60,10 +62,11 @@ app.jinja_env.filters['format_date'] = format_date
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.objects.raw({"_id": user_id}).first()
+    try:
+        return User.objects.get({"_id": user_id})
 
-
-""" OAuth Session creation """
+    except User.DoesNotExist:
+        return
 
 
 def get_google_auth(state=None, token=None):
@@ -154,33 +157,6 @@ class RSVP(object):
         )
         assert result is not None, "Event does not exist"
         return RSVP(name, email, event_id, str(doc['_id']))
-
-
-class User(MongoModel):
-    email = fields.EmailField(primary_key=True)
-    name = fields.CharField()
-    active = fields.CharField()
-    tokens = fields.CharField()
-
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return self.email
-
-    def toJSON(self):
-        return json.dumps(
-            self, default=self.__dict__, sort_keys=True, indent=4
-        )
-
-    def set_tokens(self, tokens):
-        self.tokens = tokens
 
 
 @app.route('/')
