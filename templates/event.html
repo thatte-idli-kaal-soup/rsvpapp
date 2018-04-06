@@ -24,6 +24,11 @@
          new ClipboardJS('#copy-button');
      });
 
+     // Enable tooltips
+     $(function () {
+         $('[data-toggle="tooltip"]').tooltip()
+     })
+
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"
             integrity="sha256-meF2HJJ2Tcruwz3z4XcxYDRMxKprjdruBHc3InmixCQ="
@@ -49,8 +54,11 @@
     <ul class="list-group">
         {% for item in items %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>{{ item.name }}</span>
-                <button onclick='delete_rsvp("{{event._id}}","{{item._id}}")' class="close">x</button>
+                <span data-toggle="tooltip"
+                      title="Call in by {{item.email}}">{{item.name}}</span>
+                {% if current_user.email == item.email or item.email == 'email@example.com' %}
+                    <button onclick='delete_rsvp("{{event._id}}","{{item._id}}")' class="close">x</button>
+                {% endif %}
             </li>
         {% endfor %}
         {% if count %}

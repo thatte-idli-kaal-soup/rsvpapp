@@ -190,7 +190,7 @@ def event(id):
 @login_required
 def new(event_id):
     name = request.form['name']
-    email = 'email@example.com'
+    email = current_user.email
     if name:
         RSVP.new(name, email, event_id)
     return redirect(url_for('event', id=event_id))
