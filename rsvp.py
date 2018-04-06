@@ -300,7 +300,13 @@ def login():
         Auth.AUTH_URI, access_type='offline'
     )
     session['oauth_state'] = state
-    return render_template('login.html', auth_url=auth_url)
+    return render_template(
+        'login.html',
+        auth_url=auth_url,
+        TEXT1=TEXT1,
+        LOGO=LOGO,
+        COMPANY=COMPANY,
+    )
 
 
 @app.route('/oauth2callback')
