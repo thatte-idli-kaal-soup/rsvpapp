@@ -346,12 +346,10 @@ def callback():
         if resp.status_code == 200:
             user_data = resp.json()
             email = user_data['email']
-            user = User.objects.raw({"_id": email})
-            if user is None:
+            try:
+                user = User.objects.raw({"_id": email}).first()
+            except User.DoesNotExist:
                 user = User(email)
-            else:
-                user = user.first()
-            # user.name = user_data['name']
             user.set_tokens(json.dumps(token))
             user.save()
             login_user(user)
