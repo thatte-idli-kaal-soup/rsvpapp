@@ -4,7 +4,7 @@ import os
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
-from flask import Flask, render_template, redirect, url_for, request, send_file
+from flask import Flask, flash, render_template, redirect, url_for, request, send_file
 from flaskext.versioned import Versioned
 from pymongo import MongoClient, ASCENDING, DESCENDING
 
@@ -14,6 +14,8 @@ app = Flask(__name__)
 versioned = Versioned(app)
 TEXT1 = os.environ.get('TEXT1', "CloudYuga")
 TEXT2 = os.environ.get('TEXT2', "Garage RSVP")
+SECRET_KEY = os.environ.get('SECRET_KEY', 'Our awesome secret key')
+app.config['SECRET_KEY'] = SECRET_KEY
 LOGO = os.environ.get(
     'LOGO',
     "https://raw.githubusercontent.com/cloudyuga/rsvpapp/master/static/cloudyuga.png",
@@ -25,6 +27,10 @@ MONGODB_URI = os.environ.get(
 client = MongoClient(MONGODB_URI)
 db = client.get_default_database()
 app.jinja_env.filters['format_date'] = format_date
+
+
+class DuplicateRSVPError(Exception):
+    pass
 
 
 class RSVP(object):
@@ -79,12 +85,26 @@ class RSVP(object):
 
     @staticmethod
     def new(name, email, event_id):
-        doc = {"name": name, "email": email, "_id": random_id()}
-        result = db.events.find_one_and_update(
-            {'_id': ObjectId(event_id)}, {'$push': {'rsvps': doc}}
-        )
-        assert result is not None, "Event does not exist"
-        return RSVP(name, email, event_id, str(doc['_id']))
+        check_doc = {"name": name, "email": email}
+        event = db.events.find_one({'_id': ObjectId(event_id)}, {'rsvps': 1})
+        assert event is not None, "Event does not exist"
+        rsvps = [
+            {'name': rsvp['name'], 'email': rsvp['email']}
+            for rsvp in event['rsvps']
+        ]
+        if check_doc in rsvps:
+            raise DuplicateRSVPError(
+                '{name} already has an RSVP'.format(**check_doc)
+            )
+
+        else:
+            doc = check_doc
+            doc['_id'] = random_id()
+            db.events.find_one_and_update(
+                {'_id': ObjectId(event_id)}, {'$push': {'rsvps': doc}}
+            )
+            assert event is not None, "Event does not exist"
+            return RSVP(name, email, event_id, str(doc['_id']))
 
 
 # Views ####
@@ -149,7 +169,10 @@ def new(event_id):
     name = request.form['name']
     email = 'email@example.com'
     if name:
-        RSVP.new(name, email, event_id)
+        try:
+            RSVP.new(name, email, event_id)
+        except DuplicateRSVPError:
+            flash('{} has already RSVP-ed!'.format(name), 'warning')
     return redirect(url_for('event', id=event_id))
 
 
