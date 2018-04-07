@@ -1,14 +1,14 @@
 import datetime
 import json
 import os
-from random import choice
-import string
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
 from flask import Flask, render_template, redirect, url_for, request, send_file
 from flaskext.versioned import Versioned
 from pymongo import MongoClient, ASCENDING, DESCENDING
+
+from utils import format_date, random_id
 
 app = Flask(__name__)
 versioned = Versioned(app)
@@ -24,42 +24,7 @@ MONGODB_URI = os.environ.get(
 )
 client = MongoClient(MONGODB_URI)
 db = client.get_default_database()
-
-
-def format_date(value):
-    try:
-        return datetime.datetime.strptime(value, '%Y-%m-%d').strftime(
-            "%a, %d %b '%y"
-        )
-
-    except ValueError:
-        return value
-
-
-def random_id():
-    return ObjectId(
-        bytes(
-            ''.join(choice(string.ascii_letters) for _ in range(12)), 'ascii'
-        )
-    )
-
-
 app.jinja_env.filters['format_date'] = format_date
-
-
-@app.before_request
-def redirect_heroku():
-    """Redirect herokuapp requests to rsvp.thatteidlikaalsoup.team."""
-    urlparts = urlparse(request.url)
-    if urlparts.netloc == 'thatte-idli-rsvp.herokuapp.com':
-        urlparts_list = list(urlparts)
-        urlparts_list[1] = 'rsvp.thatteidlikaalsoup.team'
-        return redirect(urlunparse(urlparts_list), code=301)
-
-
-@app.route('/version-<version>/<path:static_file>')
-def versioned_static(version, static_file):
-    return send_file(static_file)
 
 
 class RSVP(object):
@@ -120,6 +85,22 @@ class RSVP(object):
         )
         assert result is not None, "Event does not exist"
         return RSVP(name, email, event_id, str(doc['_id']))
+
+
+# Views ####
+@app.before_request
+def redirect_heroku():
+    """Redirect herokuapp requests to rsvp.thatteidlikaalsoup.team."""
+    urlparts = urlparse(request.url)
+    if urlparts.netloc == 'thatte-idli-rsvp.herokuapp.com':
+        urlparts_list = list(urlparts)
+        urlparts_list[1] = 'rsvp.thatteidlikaalsoup.team'
+        return redirect(urlunparse(urlparts_list), code=301)
+
+
+@app.route('/version-<version>/<path:static_file>')
+def versioned_static(version, static_file):
+    return send_file(static_file)
 
 
 @app.route('/')
