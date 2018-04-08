@@ -90,7 +90,7 @@ class RSVP(object):
         assert event is not None, "Event does not exist"
         rsvps = [
             {'name': rsvp['name'], 'email': rsvp['email']}
-            for rsvp in event['rsvps']
+            for rsvp in event.get('rsvps', [])
         ]
         if check_doc in rsvps:
             raise DuplicateRSVPError(
