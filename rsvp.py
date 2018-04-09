@@ -11,21 +11,13 @@ from models import Event, RSVP, db
 from utils import format_date
 
 app = Flask(__name__)
+app.config.from_envvar('SETTINGS')
 versioned = Versioned(app)
-app.config['MONGODB_SETTINGS'] = {
-    'host': os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/rsvpdata')
-}
 db.init_app(app)
-TEXT1 = os.environ.get('TEXT1', "CloudYuga")
-TEXT2 = os.environ.get('TEXT2', "Garage RSVP")
-SECRET_KEY = os.environ.get('SECRET_KEY', 'Our awesome secret key')
-app.config['SECRET_KEY'] = SECRET_KEY
-LOGO = os.environ.get(
-    'LOGO',
-    "https://raw.githubusercontent.com/cloudyuga/rsvpapp/master/static/cloudyuga.png",
-)
-COMPANY = os.environ.get('COMPANY', "CloudYuga Technology Pvt. Ltd.")
 app.jinja_env.filters['format_date'] = format_date
+TEXT1 = app.config['TEXT1']
+LOGO = app.config['LOGO']
+COMPANY = app.config['COMPANY']
 
 
 class DuplicateRSVPError(Exception):
@@ -174,7 +166,5 @@ def api_rsvp(event_id, rsvp_id):
 
 
 if __name__ == '__main__':
-    DEBUG = 'DEBUG' in os.environ
-    if DEBUG:
-        app.jinja_env.cache = None
-    app.run(host='0.0.0.0', debug=DEBUG)
+    app.jinja_env.cache = None
+    app.run(host='0.0.0.0')

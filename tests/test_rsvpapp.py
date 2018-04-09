@@ -1,19 +1,13 @@
+import os
 import datetime
 import json
 
 import mongoengine
 import mongomock
 
-import rsvp
+os.environ['SETTINGS'] = 'settings/test.py'
 
-URI = 'mongomock://localhost:27017/rsvpdata'
-config = {'MONGODB_SETTINGS': {'host': URI}}
-extensions = rsvp.app.extensions
-connections = extensions['mongoengine'][rsvp.db]['conn']
-connections.close()
-mongoengine.connection.disconnect()
-extensions.pop('mongoengine')
-rsvp.db.init_app(rsvp.app, config)
+import rsvp
 
 
 class BaseTest:
