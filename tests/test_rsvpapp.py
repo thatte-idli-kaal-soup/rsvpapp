@@ -28,7 +28,9 @@ class BaseTest:
 class TestRSVPApp(BaseTest):
 
     def test_create_event(self):
-        event_data = {'event-name': 'test_event', 'date': '2018-01-01'}
+        event_data = {
+            'event-name': 'test_event', 'date': '2018-01-01', 'time': '06:00'
+        }
         response = self.client.post(
             '/event', data=event_data, follow_redirects=True
         )
@@ -36,7 +38,9 @@ class TestRSVPApp(BaseTest):
 
     def test_rsvp(self):
         date = datetime.datetime.today().strftime('%Y-%m-%d')
-        event_data = {'event-name': 'test_event', 'date': date}
+        event_data = {
+            'event-name': 'test_event', 'date': date, 'time': '06:00'
+        }
         response = self.client.post(
             '/event', data=event_data, follow_redirects=True
         )
@@ -56,7 +60,9 @@ class TestRSVPApp(BaseTest):
         assert user_data['note'] in str(response.data)
 
     def test_rsvp_archived_doesnot_work(self):
-        event_data = {'event-name': 'test_event', 'date': '2018-01-01'}
+        event_data = {
+            'event-name': 'test_event', 'date': '2018-01-01', 'time': '06:00'
+        }
         response = self.client.post(
             '/event', data=event_data, follow_redirects=True
         )
