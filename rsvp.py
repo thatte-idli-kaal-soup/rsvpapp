@@ -13,6 +13,10 @@ from utils import format_date, random_id
 
 app = Flask(__name__)
 versioned = Versioned(app)
+app.config['MONGODB_SETTINGS'] = {
+    'host': os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/rsvpdata')
+}
+db.init_app(app)
 TEXT1 = os.environ.get('TEXT1', "CloudYuga")
 TEXT2 = os.environ.get('TEXT2', "Garage RSVP")
 SECRET_KEY = os.environ.get('SECRET_KEY', 'Our awesome secret key')
@@ -155,10 +159,4 @@ if __name__ == '__main__':
     DEBUG = 'DEBUG' in os.environ
     if DEBUG:
         app.jinja_env.cache = None
-    app.config['MONGODB_SETTINGS'] = {
-        'host': os.environ.get(
-            'MONGODB_URI', 'mongodb://localhost:27017/rsvpdata'
-        )
-    }
-    db.init_app(app)
     app.run(host='0.0.0.0', debug=DEBUG)
