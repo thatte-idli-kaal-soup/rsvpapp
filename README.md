@@ -26,6 +26,9 @@ export TEXT2="Practice RSVP"
 export COMPANY="Thatte Idli Kaal Soup"
 export DEBUG=1
 export SETTINGS="settings/conf.py"
+# Google Auth
+export GOOGLE_CLIENT_ID="yyy"
+export GOOGLE_CLIENT_SECRET="xxx"
 # If not using https (use only for local development!)
 export OAUTHLIB_INSECURE_TRANSPORT=1
 ```
