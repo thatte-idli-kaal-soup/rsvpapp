@@ -37,12 +37,16 @@ class TestRSVPApp(BaseTest):
         events = json.loads(response.data)
         event_id = events[0]['_id']['$oid']
         user_data = {
-            'name': 'test_name', 'email': 'test_email@test_domain.com'
+            'name': 'test_name',
+            'email': 'test_email@test_domain.com',
+            'note': 'my awesome note',
         }
         response = self.client.post(
             '/new/{}'.format(event_id), data=user_data, follow_redirects=True
         )
         assert response.status_code == 200
+        assert user_data['name'] in str(response.data)
+        assert user_data['note'] in str(response.data)
 
 
 class TestApi(BaseTest):

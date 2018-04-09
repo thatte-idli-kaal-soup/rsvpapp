@@ -90,11 +90,12 @@ def event(id):
 def new(event_id):
     event = Event.objects(id=event_id).first()
     name = request.form['name']
-    email = 'email@example.com'
     if len(event.rsvps.filter(name=name)) > 0:
         flash('{} has already RSVP-ed!'.format(name), 'warning')
     elif name:
-        rsvp = RSVP(name=name, email=email)
+        email = 'email@example.com'
+        note = request.form['note']
+        rsvp = RSVP(name=name, email=email, note=note)
         event.rsvps.append(rsvp)
         event.save()
     return redirect(url_for('event', id=event_id))

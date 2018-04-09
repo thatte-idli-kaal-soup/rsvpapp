@@ -9,6 +9,7 @@ class RSVP(db.EmbeddedDocument):
     id = db.ObjectIdField(default=random_id, primary_key=True)
     name = db.StringField(unique=True)
     email = db.EmailField()
+    note = db.StringField()
 
 
 class Event(db.Document):
