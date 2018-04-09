@@ -52,8 +52,8 @@ def versioned_static(version, static_file):
 @app.route('/')
 def index():
     today = datetime.date.today().strftime('%Y-%m-%d')
-    upcoming_events = Event.objects(date__gte=today)
-    archived_events = Event.objects(date__lt=today)
+    upcoming_events = Event.objects.filter(date__gte=today).order_by('date')
+    archived_events = Event.objects.filter(date__lt=today).order_by('-date')
     count = len(upcoming_events)
     return render_template(
         'index.html',
