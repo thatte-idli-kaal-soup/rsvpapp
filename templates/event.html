@@ -58,8 +58,8 @@
         {% for item in items %}
             <li class="list-group-item">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span data-toggle="tooltip" title="Call in by {{item.email}}">{{item.name}}</span>
-                    {% if not event.archived and current_user.email == item.email or item.email == 'email@example.com' %}
+                    <span data-toggle="tooltip" title="RSVP by {{item.email}}">{{item.name}}</span>
+                    {% if not event.archived and current_user.email == item.email or item.email == 'anonymous@user.com' %}
                         <button onclick='delete_rsvp("{{event.id}}","{{item.id}}")' class="close">x</button>
                     {% endif %}
                 </div>

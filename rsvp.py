@@ -70,6 +70,7 @@ def index():
 
 
 @app.route('/archived')
+@login_required
 def archived():
     archived_events = Event.objects.filter(archived=True).order_by('-date')
     return render_template(
@@ -82,7 +83,6 @@ def archived():
 
 
 @app.route('/event/<id>', methods=['GET'])
-@login_required
 def event(id):
     event = Event.objects(id=id).first()
     rsvps = event.rsvps
@@ -103,7 +103,6 @@ def event(id):
 
 
 @app.route('/new/<event_id>', methods=['POST'])
-@login_required
 def new(event_id):
     event = Event.objects(id=event_id).first()
     name = request.form['name']
@@ -114,7 +113,7 @@ def new(event_id):
     elif name:
         email = current_user.email if hasattr(
             current_user, 'email'
-        ) else 'test@example.com'
+        ) else 'anonymous@user.com'
         note = request.form['note']
         rsvp = RSVP(name=name, email=email, note=note)
         event.rsvps.append(rsvp)
