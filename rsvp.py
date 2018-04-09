@@ -54,6 +54,9 @@ def index():
     today = datetime.date.today().strftime('%Y-%m-%d')
     upcoming_events = Event.objects.filter(date__gte=today).order_by('date')
     archived_events = Event.objects.filter(date__lt=today).order_by('-date')
+    # FIXME: Run this in a cron job!
+    upcoming_events.update(archived=False)
+    archived_events.update(archived=True)
     count = len(upcoming_events)
     return render_template(
         'index.html',
@@ -90,7 +93,9 @@ def event(id):
 def new(event_id):
     event = Event.objects(id=event_id).first()
     name = request.form['name']
-    if len(event.rsvps.filter(name=name)) > 0:
+    if event.archived:
+        flash('Cannot modify an archived event!', 'warning')
+    elif len(event.rsvps.filter(name=name)) > 0:
         flash('{} has already RSVP-ed!'.format(name), 'warning')
     elif name:
         email = 'email@example.com'
@@ -121,22 +126,24 @@ def api_rsvps(event_id):
     if request.method == 'GET':
         return event.to_json()
 
-    else:
-        try:
-            doc = json.loads(request.data)
-        except ValueError:
-            return '{"error": "expecting JSON payload"}', 400
+    if event.archived:
+        return json.dumps({"error": "cannot modify archived event"}), 404
 
-        if 'name' not in doc:
-            return '{"error": "name field is missing"}', 400
+    try:
+        doc = json.loads(request.data)
+    except ValueError:
+        return '{"error": "expecting JSON payload"}', 400
 
-        if 'email' not in doc:
-            return '{"error": "email field is missing"}', 400
+    if 'name' not in doc:
+        return '{"error": "name field is missing"}', 400
 
-        rsvp = RSVP(**doc)
-        event.rsvps.append(rsvp)
-        event.save()
-        return rsvp.to_json()
+    if 'email' not in doc:
+        return '{"error": "email field is missing"}', 400
+
+    rsvp = RSVP(**doc)
+    event.rsvps.append(rsvp)
+    event.save()
+    return rsvp.to_json()
 
 
 @app.route('/api/rsvps/<event_id>/<rsvp_id>', methods=['GET', 'DELETE'])
@@ -150,7 +157,10 @@ def api_rsvp(event_id, rsvp_id):
     if request.method == 'GET':
         return rsvp.to_json(indent=True)
 
-    elif request.method == 'DELETE':
+    if event.archived:
+        return json.dumps({"error": "cannot modify archived event"}), 404
+
+    if request.method == 'DELETE':
         event.rsvps.remove(rsvp)
         event.save()
         return json.dumps({"deleted": "true"})

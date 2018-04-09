@@ -19,3 +19,4 @@ class Event(db.Document):
     rsvps = db.EmbeddedDocumentListField(RSVP)
     name = db.StringField(required=True)
     date = db.DateTimeField(required=True)
+    archived = db.BooleanField(required=True, default=False)

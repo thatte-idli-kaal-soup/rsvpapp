@@ -1,7 +1,10 @@
-import rsvp
+import datetime
+import json
+
 import mongoengine
 import mongomock
-import json
+
+import rsvp
 
 URI = 'mongomock://localhost:27017/rsvpdata'
 config = {'MONGODB_SETTINGS': {'host': URI}}
@@ -17,6 +20,9 @@ class BaseTest:
 
     def setup_method(self, method):
         self.client = rsvp.app.test_client()
+        with rsvp.app.test_request_context():
+            connection = rsvp.db.connection
+            connection.drop_database('rsvpdata')
 
 
 class TestRSVPApp(BaseTest):
@@ -29,7 +35,8 @@ class TestRSVPApp(BaseTest):
         assert response.status_code == 200
 
     def test_rsvp(self):
-        event_data = {'name': 'test_event', 'date': '2018-01-01'}
+        date = datetime.datetime.today().strftime('%Y-%m-%d')
+        event_data = {'name': 'test_event', 'date': date}
         response = self.client.post(
             '/event', data=event_data, follow_redirects=True
         )
@@ -47,6 +54,25 @@ class TestRSVPApp(BaseTest):
         assert response.status_code == 200
         assert user_data['name'] in str(response.data)
         assert user_data['note'] in str(response.data)
+
+    def test_rsvp_archived_doesnot_work(self):
+        event_data = {'name': 'test_event', 'date': '2018-01-01'}
+        response = self.client.post(
+            '/event', data=event_data, follow_redirects=True
+        )
+        response = self.client.get('/api/events', follow_redirects=True)
+        events = json.loads(response.data)
+        event_id = events[0]['_id']['$oid']
+        user_data = {
+            'name': 'test_name',
+            'email': 'test_email@test_domain.com',
+            'note': 'my awesome note',
+        }
+        response = self.client.post(
+            '/new/{}'.format(event_id), data=user_data, follow_redirects=True
+        )
+        assert response.status_code == 200
+        assert user_data['name'] not in str(response.data)
 
 
 class TestApi(BaseTest):
