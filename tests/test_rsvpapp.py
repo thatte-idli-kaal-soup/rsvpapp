@@ -2,43 +2,15 @@ import rsvp
 import mongomock
 import json
 
+URI = 'mongomock://localhost:27017/rsvpdata'
+rsvp.app.config['MONGODB_SETTINGS'] = {'host': URI}
+rsvp.db.init_app(rsvp.app)
+
 
 class BaseTest:
 
     def setup_method(self, method):
-        rsvp.client = mongomock.MongoClient()
-        rsvp.db = rsvp.client.mock_db_function
         self.client = rsvp.app.test_client()
-
-
-class TestRSVP(BaseTest):
-
-    def test_dict(self):
-        event_id = rsvp.random_id()
-        rsvp_id = rsvp.random_id()
-        doc = rsvp.RSVP("test name", "test@example.com", event_id, rsvp_id)
-        with rsvp.app.test_request_context():
-            assert doc.dict() == {
-                "_id": str(rsvp_id),
-                "name": "test name",
-                "email": "test@example.com",
-                "links": {
-                    "self": "http://localhost/api/rsvps/{}/{}".format(
-                        event_id, rsvp_id
-                    )
-                },
-            }
-
-    def test_new(self):
-        event = {'name': 'test-event', 'date': '2018-01-01'}
-        event_id = str(rsvp.db.events.insert_one(event).inserted_id)
-        RSVP = rsvp.RSVP
-        doc = RSVP.new("test name", "test@example.com", event_id)
-        assert doc.name == "test name"
-        assert doc.email == "test@example.com"
-        assert doc._id is not None
-        assert RSVP.find_one(event_id, doc._id) is not None
-        assert len(RSVP.find_all(event_id)) == 1
 
 
 class TestRSVPApp(BaseTest):
@@ -57,7 +29,7 @@ class TestRSVPApp(BaseTest):
         )
         response = self.client.get('/api/events', follow_redirects=True)
         events = json.loads(response.data)
-        event_id = events[0]['_id']
+        event_id = events[0]['_id']['$oid']
         user_data = {
             'name': 'test_name', 'email': 'test_email@test_domain.com'
         }
@@ -77,14 +49,13 @@ class TestApi(BaseTest):
         response = self.client.post(path, data=data)
         return json.loads(response.data)
 
-    def test_rsvps_empty(self):
-        event_id = rsvp.random_id()
-        assert self.jsonget("/api/rsvps/{}".format(event_id)) == []
-
     def test_rsvps_create(self):
-        event = {'name': 'test-event', 'date': '2018-01-01'}
-        event_id = rsvp.db.events.insert_one(event).inserted_id
-        assert self.jsonget("/api/rsvps/{}".format(event_id)) == []
+        data = {'name': 'test-event', 'date': '2018-01-01'}
+        with rsvp.app.test_request_context():
+            event = rsvp.Event(**data)
+            event.save()
+            event_id = event.id
+        assert self.jsonget("/api/rsvps/{}".format(event_id))['rsvps'] == []
         doc = self.jsonpost(
             "/api/rsvps/{}".format(event_id),
             '{"name": "test name", "email": "test@example.com"}',
@@ -92,19 +63,26 @@ class TestApi(BaseTest):
         assert doc['name'] == 'test name'
         assert doc['email'] == 'test@example.com'
         assert doc['_id'] is not None
-        assert len(self.jsonget("/api/rsvps/{}".format(event_id))) == 1
+        assert len(
+            self.jsonget("/api/rsvps/{}".format(event_id))['rsvps']
+        ) == 1
 
     def test_rsvps_delete(self):
-        event = {'name': 'test-event', 'date': '2018-01-01'}
-        event_id = rsvp.db.events.insert_one(event).inserted_id
-        assert self.jsonget("/api/rsvps/{}".format(event_id)) == []
+        data = {'name': 'test-event', 'date': '2018-01-01'}
+        with rsvp.app.test_request_context():
+            event = rsvp.Event(**data)
+            event.save()
+            event_id = event.id
+        assert self.jsonget("/api/rsvps/{}".format(event_id))['rsvps'] == []
         doc = self.jsonpost(
             "/api/rsvps/{}".format(event_id),
             '{"name": "test name", "email": "test@example.com"}',
         )
-        assert len(self.jsonget("/api/rsvps/{}".format(event_id))) == 1
-        path = "/api/rsvps/{}/".format(event_id) + doc['_id']
+        assert len(
+            self.jsonget("/api/rsvps/{}".format(event_id))['rsvps']
+        ) == 1
+        path = "/api/rsvps/{}/".format(event_id) + doc['_id']['$oid']
         self.client.delete(path)
-        assert self.jsonget("/api/rsvps/{}".format(event_id)) == []
+        assert self.jsonget("/api/rsvps/{}".format(event_id))['rsvps'] == []
         response = self.client.get(path)
         assert response.status_code == 404

@@ -6,8 +6,9 @@ from urllib.parse import urlparse, urlunparse
 from bson.objectid import ObjectId
 from flask import Flask, flash, render_template, redirect, url_for, request, send_file
 from flaskext.versioned import Versioned
-from pymongo import MongoClient, ASCENDING, DESCENDING
+from mongoengine.errors import DoesNotExist
 
+from models import Event, RSVP, db
 from utils import format_date, random_id
 
 app = Flask(__name__)
@@ -21,90 +22,11 @@ LOGO = os.environ.get(
     "https://raw.githubusercontent.com/cloudyuga/rsvpapp/master/static/cloudyuga.png",
 )
 COMPANY = os.environ.get('COMPANY', "CloudYuga Technology Pvt. Ltd.")
-MONGODB_URI = os.environ.get(
-    'MONGODB_URI', 'mongodb://localhost:27017/rsvpdata'
-)
-client = MongoClient(MONGODB_URI)
-db = client.get_default_database()
 app.jinja_env.filters['format_date'] = format_date
 
 
 class DuplicateRSVPError(Exception):
     pass
-
-
-class RSVP(object):
-    """Simple Model class for RSVP"""
-
-    def __init__(self, name, email, event_id=None, _id=None):
-        self.name = name
-        self.email = email
-        self._id = ObjectId(_id) if isinstance(_id, str) else _id
-        self.event_id = ObjectId(event_id) if isinstance(
-            event_id, str
-        ) else event_id
-
-    def dict(self):
-        _id = str(self._id)
-        event_id = self.event_id
-        return {
-            "_id": _id,
-            "name": self.name,
-            "email": self.email,
-            "links": {
-                "self": "{}api/rsvps/{}/{}".format(
-                    request.url_root, event_id, _id
-                )
-            },
-        }
-
-    def delete(self):
-        db.events.find_one_and_update(
-            {'_id': self.event_id}, {'$pull': {'rsvps': {'_id': self._id}}}
-        )
-
-    @staticmethod
-    def find_all(event_id):
-        event = db.events.find_one({'_id': ObjectId(event_id)})
-        return [] if event is None or 'rsvps' not in event else [
-            RSVP(event_id=event_id, **doc) for doc in event.get('rsvps', [])
-        ]
-
-    @staticmethod
-    def find_one(event_id, rsvp_id):
-        _id = ObjectId(rsvp_id)
-        event = db.events.find_one(
-            {'_id': ObjectId(event_id)},
-            {'rsvps': {'$elemMatch': {'_id': _id}}},
-        )
-        if event is None or 'rsvps' not in event:
-            return
-
-        doc = event['rsvps'][0]
-        return RSVP(doc['name'], doc['email'], event_id, doc['_id'])
-
-    @staticmethod
-    def new(name, email, event_id):
-        check_doc = {"name": name, "email": email}
-        event = db.events.find_one({'_id': ObjectId(event_id)}, {'rsvps': 1})
-        assert event is not None, "Event does not exist"
-        rsvps = [
-            {'name': rsvp['name'], 'email': rsvp['email']}
-            for rsvp in event.get('rsvps', [])
-        ]
-        if check_doc in rsvps:
-            raise DuplicateRSVPError(
-                '{name} already has an RSVP'.format(**check_doc)
-            )
-
-        else:
-            doc = check_doc
-            doc['_id'] = random_id()
-            db.events.find_one_and_update(
-                {'_id': ObjectId(event_id)}, {'$push': {'rsvps': doc}}
-            )
-            assert event is not None, "Event does not exist"
-            return RSVP(name, email, event_id, str(doc['_id']))
 
 
 # Views ####
@@ -126,12 +48,8 @@ def versioned_static(version, static_file):
 @app.route('/')
 def index():
     today = datetime.date.today().strftime('%Y-%m-%d')
-    upcoming_events = list(
-        db.events.find({'date': {"$gte": today}}, sort=[('date', ASCENDING)])
-    )
-    archived_events = list(
-        db.events.find({'date': {"$lt": today}}, sort=[('date', DESCENDING)])
-    )
+    upcoming_events = Event.objects(date__gte=today)
+    archived_events = Event.objects(date__lt=today)
     count = len(upcoming_events)
     return render_template(
         'index.html',
@@ -146,8 +64,8 @@ def index():
 
 @app.route('/event/<id>', methods=['GET'])
 def event(id):
-    event = db.events.find_one({"_id": ObjectId(id)})
-    rsvps = event.get('rsvps', [])
+    event = Event.objects(id=id).first()
+    rsvps = event.rsvps
     count = len(rsvps)
     event_text = '{} - {}'.format(event['name'], format_date(event['date']))
     description = 'Call in for {}'.format(event_text)
@@ -166,41 +84,37 @@ def event(id):
 
 @app.route('/new/<event_id>', methods=['POST'])
 def new(event_id):
+    event = Event.objects(id=event_id).first()
     name = request.form['name']
     email = 'email@example.com'
-    if name:
-        try:
-            RSVP.new(name, email, event_id)
-        except DuplicateRSVPError:
-            flash('{} has already RSVP-ed!'.format(name), 'warning')
+    if len(event.rsvps.filter(name=name)) > 0:
+        flash('{} has already RSVP-ed!'.format(name), 'warning')
+    elif name:
+        rsvp = RSVP(name=name, email=email)
+        event.rsvps.append(rsvp)
+        event.save()
     return redirect(url_for('event', id=event_id))
 
 
 @app.route('/event', methods=['POST'])
 def create_event():
     item_doc = {'name': request.form['name'], 'date': request.form['date']}
-    if item_doc['name'] and item_doc['date']:
-        db.events.insert_one(item_doc)
+    event = Event(**item_doc)
+    event.save()
     return redirect(url_for('index'))
 
 
 # FIXME: Add POST method
 @app.route('/api/events/', methods=['GET'])
 def api_events():
-    return json.dumps(
-        [
-            dict(_id=str(event['_id']), name=event['name'], date=event['date'])
-            for event in db.events.find()
-        ],
-        indent=True,
-    )
+    return Event.objects.all().to_json()
 
 
 @app.route('/api/rsvps/<event_id>', methods=['GET', 'POST'])
 def api_rsvps(event_id):
+    event = Event.objects.get(id=event_id)
     if request.method == 'GET':
-        docs = [rsvp.dict() for rsvp in RSVP.find_all(event_id)]
-        return json.dumps(docs, indent=True)
+        return event.to_json()
 
     else:
         try:
@@ -214,21 +128,26 @@ def api_rsvps(event_id):
         if 'email' not in doc:
             return '{"error": "email field is missing"}', 400
 
-        rsvp = RSVP.new(doc['name'], doc['email'], event_id)
-        return json.dumps(rsvp.dict(), indent=True)
+        rsvp = RSVP(**doc)
+        event.rsvps.append(rsvp)
+        event.save()
+        return rsvp.to_json()
 
 
 @app.route('/api/rsvps/<event_id>/<rsvp_id>', methods=['GET', 'DELETE'])
 def api_rsvp(event_id, rsvp_id):
-    rsvp = RSVP.find_one(event_id, rsvp_id)
-    if not rsvp:
+    event = Event.objects.get_or_404(id=event_id)
+    try:
+        rsvp = event.rsvps.get(id=ObjectId(rsvp_id))
+    except DoesNotExist:
         return json.dumps({"error": "not found"}), 404
 
     if request.method == 'GET':
-        return json.dumps(rsvp.dict(), indent=True)
+        return rsvp.to_json(indent=True)
 
     elif request.method == 'DELETE':
-        rsvp.delete()
+        event.rsvps.remove(rsvp)
+        event.save()
         return json.dumps({"deleted": "true"})
 
 
@@ -236,4 +155,10 @@ if __name__ == '__main__':
     DEBUG = 'DEBUG' in os.environ
     if DEBUG:
         app.jinja_env.cache = None
+    app.config['MONGODB_SETTINGS'] = {
+        'host': os.environ.get(
+            'MONGODB_URI', 'mongodb://localhost:27017/rsvpdata'
+        )
+    }
+    db.init_app(app)
     app.run(host='0.0.0.0', debug=DEBUG)

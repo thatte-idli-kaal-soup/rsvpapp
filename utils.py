@@ -7,9 +7,7 @@ from bson.objectid import ObjectId
 
 def format_date(value):
     try:
-        return datetime.datetime.strptime(value, '%Y-%m-%d').strftime(
-            "%a, %d %b '%y"
-        )
+        return value.strftime("%a, %d %b '%y")
 
     except ValueError:
         return value

@@ -20,7 +20,7 @@
             {% for item in upcoming_events %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span>
-                        <span><a href="/event/{{item._id}}">{{ item.name }}</a></span>
+                        <span><a href="/event/{{item.id}}">{{ item.name }}</a></span>
                         {% if item.rsvps %}
                             <span class="badge badge-primary badge-pill">{{item.rsvps|length}}</span>
                         {% endif %}
@@ -59,7 +59,7 @@
             {% for item in archived_events %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span>
-                        <span><a href="/event/{{item._id}}">{{ item.name }}</a></span>
+                        <span><a href="/event/{{item.id}}">{{ item.name }}</a></span>
                         {% if item.rsvps %}
                             <span class="badge badge-secondary badge-pill">{{item.rsvps|length}}</span>
                         {% endif %}

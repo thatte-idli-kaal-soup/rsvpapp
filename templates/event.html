@@ -37,7 +37,7 @@
     <div class="card">
         <div class="card-body">
             <p class="alert alert-info" style="display: none;"></p>
-            <form class="form-inline" action="/new/{{event._id}}" method='POST'>
+            <form class="form-inline" action="/new/{{event.id}}" method='POST'>
                 <div class="form-group mx-2">
                     <input  type="text" name="name" class="form-control" id="name" placeholder="Enter name to RSVP" required>
                 </div>
@@ -50,7 +50,7 @@
         {% for item in items %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>{{ item.name }}</span>
-                <button onclick='delete_rsvp("{{event._id}}","{{item._id}}")' class="close">x</button>
+                <button onclick='delete_rsvp("{{event.id}}","{{item.id}}")' class="close">x</button>
             </li>
         {% endfor %}
         {% if count %}
