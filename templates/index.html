@@ -3,7 +3,7 @@
 {% block scripts %}
     <script>
      update_message = function(){
-         if ($('#name').val() === "" || $('#date').val() === '') {
+         if ($('#event-name').val() === "" || $('#date').val() === '') {
              return;
          }
          $(".alert").text('Creating event ...').show();
@@ -19,7 +19,12 @@
         <ul class="list-group">
             {% for item in upcoming_events %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><a href="/event/{{item._id}}">{{ item.name }}</a></span>
+                    <span>
+                        <span><a href="/event/{{item.id}}">{{ item.name }}</a></span>
+                        {% if item.rsvps %}
+                            <span class="badge badge-primary badge-pill">{{item.rsvps|length}}</span>
+                        {% endif %}
+                    </span>
                     <span>{{ item.date | format_date }}</span>
                 </li>
             {% endfor %}
@@ -31,12 +36,22 @@
             <div class="h2 card-title">Add new Event</div>
             <div class="card-text">
                 <p class="alert alert-info" style="display: none;"></p>
-                <form class="form-inline" action="/event" method='POST'>
-                    <div  class="form-group mx-2">
-                        <input type="text" class="form-control" name="name" id="name" placeholder="Event name" required>
+                <form class="form" action="/event" method='POST'>
+                    <div class="form-group row">
+                        <label for="event-name" class="col-sm-2 col-form-label">Name</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="event-name" id="event-name" placeholder="Event name" required>
+                        </div>
                     </div>
-                    <div class="form-group mx-2">
-                        <input type="date" class="form-control" name="date" id="date" required>
+                    <div class="form-group row">
+                        <label for="date" class="col-sm-2 col-form-label">Date</label>
+                        <div class="col-sm-4">
+                            <input type="date" class="form-control" name="date" id="date" required>
+                        </div>
+                        <label for="time" class="col-sm-2 col-form-label">Time</label>
+                        <div class="col-sm-4">
+                            <input type="time" class="form-control" name="time" id="time" value="06:00" required>
+                        </div>
                     </div>
                     <button type="Submit" onclick="update_message()"
                             align="center" name="submit"
@@ -46,17 +61,5 @@
                 </form>
             </div>
         </div>
-    </section>
-    <hr />
-    <section>
-        <h2>Archived Events <span class="badge badge-secondary badge-pill">{{archived_events|length}}</span></h2>
-        <ul class="list-group">
-            {% for item in archived_events %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><a href="/event/{{item._id}}">{{ item.name }}</a></span>
-                    <span>{{ item.date | format_date }}</span>
-                </li>
-            {% endfor %}
-        </ul>
     </section>
 {% endblock %}

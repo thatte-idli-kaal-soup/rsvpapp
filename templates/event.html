@@ -7,11 +7,11 @@
          fetch(`/api/rsvps/${event_id}/${rsvp_id}`, {method: "DELETE"}).then(function(response){
              if (response.status == 200){
                  window.location.href = "";
-             } else {
-                 alert("Failed to delete RSVP!");
              }
+             return response.json();
+         }).then(function(data){
+             $(".alert").text(data.error).show();
          });
-
      }
 
      update_message = function(){
@@ -39,25 +39,34 @@
     <p class="h2">
         {{ TEXT2 }}
     </p>
-    <div class="card">
-        <div class="card-body">
-            <p class="alert alert-info" style="display: none;"></p>
-            <form class="form-inline" action="/new/{{event._id}}" method='POST'>
-                <div class="form-group mx-2">
-                    <input  type="text" name="name" class="form-control" id="name" placeholder="Enter name to RSVP" required>
-                </div>
-                <button type="Submit" onclick="update_message()" align="center" name="submit" class="btn btn-primary">Submit</button>
-            </form>
+    {% if not event.archived %}
+        <div class="card">
+            <div class="card-body">
+                <p class="alert alert-info" style="display: none;"></p>
+                <form class="form-inline" action="/new/{{event.id}}" method='POST'>
+                    <div class="form-group required mx-2">
+                        <input  type="text" name="name" class="form-control" id="name" placeholder="Enter name to RSVP" required autofocus>
+                    </div>
+                    <button type="Submit" onclick="update_message()" align="center" name="submit" class="btn btn-primary mr-2">Submit</button>
+                    <input type="text" name="note" class="form-control" id="note" placeholder="Additional note (optional)">
+                </form>
+            </div>
         </div>
-    </div>
+    {% endif %}
     <hr/>
     <ul class="list-group">
         {% for item in items %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span data-toggle="tooltip"
-                      title="Call in by {{item.email}}">{{item.name}}</span>
-                {% if current_user.email == item.email or item.email == 'email@example.com' %}
-                    <button onclick='delete_rsvp("{{event._id}}","{{item._id}}")' class="close">x</button>
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span data-toggle="tooltip" title="Call in by {{item.email}}">{{item.name}}</span>
+                    {% if not event.archived and current_user.email == item.email or item.email == 'email@example.com' %}
+                        <button onclick='delete_rsvp("{{event.id}}","{{item.id}}")' class="close">x</button>
+                    {% endif %}
+                </div>
+                {% if item.note %}
+                    <div class="small text-muted">
+                        {{ item.note }}
+                    </div>
                 {% endif %}
             </li>
         {% endfor %}

@@ -1,73 +1,86 @@
-import rsvp
-import mongomock
+import datetime
 import json
+
+import mongoengine
+
+import rsvp
+
+URI = 'mongomock://localhost:27017/rsvpdata'
+config = {'MONGODB_SETTINGS': {'host': URI}}
+extensions = rsvp.app.extensions
+connections = extensions['mongoengine'][rsvp.db]['conn']
+connections.close()
+mongoengine.connection.disconnect()
+extensions.pop('mongoengine')
+rsvp.db.init_app(rsvp.app, config)
+rsvp.app.config.update(LOGIN_DISABLED=True)
+rsvp.app.login_manager.init_app(rsvp.app)
 
 
 class BaseTest:
 
     def setup_method(self, method):
-        rsvp.client = mongomock.MongoClient()
-        rsvp.db = rsvp.client.mock_db_function
         self.client = rsvp.app.test_client()
-        # FIXME: Test for logged in/out too
-        rsvp.app.config.update(LOGIN_DISABLED=True)
-        rsvp.app.login_manager.init_app(rsvp.app)
-
-
-class TestRSVP(BaseTest):
-
-    def test_dict(self):
-        event_id = rsvp.random_id()
-        rsvp_id = rsvp.random_id()
-        doc = rsvp.RSVP("test name", "test@example.com", event_id, rsvp_id)
         with rsvp.app.test_request_context():
-            assert doc.dict() == {
-                "_id": str(rsvp_id),
-                "name": "test name",
-                "email": "test@example.com",
-                "links": {
-                    "self": "http://localhost/api/rsvps/{}/{}".format(
-                        event_id, rsvp_id
-                    )
-                },
-            }
-
-    def test_new(self):
-        event = {'name': 'test-event', 'date': '2018-01-01'}
-        event_id = str(rsvp.db.events.insert_one(event).inserted_id)
-        RSVP = rsvp.RSVP
-        doc = RSVP.new("test name", "test@example.com", event_id)
-        assert doc.name == "test name"
-        assert doc.email == "test@example.com"
-        assert doc._id is not None
-        assert RSVP.find_one(event_id, doc._id) is not None
-        assert len(RSVP.find_all(event_id)) == 1
+            connection = rsvp.db.connection
+            connection.drop_database('rsvpdata')
 
 
 class TestRSVPApp(BaseTest):
 
     def test_create_event(self):
-        event_data = {'name': 'test_event', 'date': '2018-01-01'}
+        event_data = {
+            'event-name': 'test_event', 'date': '2018-01-01', 'time': '06:00'
+        }
         response = self.client.post(
             '/event', data=event_data, follow_redirects=True
         )
         assert response.status_code == 200
 
     def test_rsvp(self):
-        event_data = {'name': 'test_event', 'date': '2018-01-01'}
+        date = datetime.datetime.today().strftime('%Y-%m-%d')
+        event_data = {
+            'event-name': 'test_event', 'date': date, 'time': '06:00'
+        }
         response = self.client.post(
             '/event', data=event_data, follow_redirects=True
         )
         response = self.client.get('/api/events', follow_redirects=True)
         events = json.loads(response.data)
-        event_id = events[0]['_id']
+        event_id = events[0]['_id']['$oid']
         user_data = {
-            'name': 'test_name', 'email': 'test_email@test_domain.com'
+            'name': 'test_name',
+            'email': 'test_email@test_domain.com',
+            'note': 'my awesome note',
         }
         response = self.client.post(
             '/new/{}'.format(event_id), data=user_data, follow_redirects=True
         )
         assert response.status_code == 200
+        assert user_data['name'] in str(response.data)
+        assert user_data['note'] in str(response.data)
+
+    def test_rsvp_archived_doesnot_work(self):
+        event_data = {
+            'event-name': 'test_event', 'date': '2018-01-01', 'time': '06:00'
+        }
+        response = self.client.post(
+            '/event', data=event_data, follow_redirects=True
+        )
+        response = self.client.get('/api/events', follow_redirects=True)
+        events = json.loads(response.data)
+        event_id = events[0]['_id']['$oid']
+        rsvp.Event.objects.filter(id=event_id).update(archived=True)
+        user_data = {
+            'name': 'test_name',
+            'email': 'test_email@test_domain.com',
+            'note': 'my awesome note',
+        }
+        response = self.client.post(
+            '/new/{}'.format(event_id), data=user_data, follow_redirects=True
+        )
+        assert response.status_code == 200
+        assert user_data['name'] not in str(response.data)
 
 
 class TestApi(BaseTest):
@@ -80,14 +93,13 @@ class TestApi(BaseTest):
         response = self.client.post(path, data=data)
         return json.loads(response.data)
 
-    def test_rsvps_empty(self):
-        event_id = rsvp.random_id()
-        assert self.jsonget("/api/rsvps/{}".format(event_id)) == []
-
     def test_rsvps_create(self):
-        event = {'name': 'test-event', 'date': '2018-01-01'}
-        event_id = rsvp.db.events.insert_one(event).inserted_id
-        assert self.jsonget("/api/rsvps/{}".format(event_id)) == []
+        data = {'name': 'test-event', 'date': '2018-01-01'}
+        with rsvp.app.test_request_context():
+            event = rsvp.Event(**data)
+            event.save()
+            event_id = event.id
+        assert self.jsonget("/api/rsvps/{}".format(event_id))['rsvps'] == []
         doc = self.jsonpost(
             "/api/rsvps/{}".format(event_id),
             '{"name": "test name", "email": "test@example.com"}',
@@ -95,19 +107,26 @@ class TestApi(BaseTest):
         assert doc['name'] == 'test name'
         assert doc['email'] == 'test@example.com'
         assert doc['_id'] is not None
-        assert len(self.jsonget("/api/rsvps/{}".format(event_id))) == 1
+        assert len(
+            self.jsonget("/api/rsvps/{}".format(event_id))['rsvps']
+        ) == 1
 
     def test_rsvps_delete(self):
-        event = {'name': 'test-event', 'date': '2018-01-01'}
-        event_id = rsvp.db.events.insert_one(event).inserted_id
-        assert self.jsonget("/api/rsvps/{}".format(event_id)) == []
+        data = {'name': 'test-event', 'date': '2018-01-01'}
+        with rsvp.app.test_request_context():
+            event = rsvp.Event(**data)
+            event.save()
+            event_id = event.id
+        assert self.jsonget("/api/rsvps/{}".format(event_id))['rsvps'] == []
         doc = self.jsonpost(
             "/api/rsvps/{}".format(event_id),
             '{"name": "test name", "email": "test@example.com"}',
         )
-        assert len(self.jsonget("/api/rsvps/{}".format(event_id))) == 1
-        path = "/api/rsvps/{}/".format(event_id) + doc['_id']
+        assert len(
+            self.jsonget("/api/rsvps/{}".format(event_id))['rsvps']
+        ) == 1
+        path = "/api/rsvps/{}/".format(event_id) + doc['_id']['$oid']
         self.client.delete(path)
-        assert self.jsonget("/api/rsvps/{}".format(event_id)) == []
+        assert self.jsonget("/api/rsvps/{}".format(event_id))['rsvps'] == []
         response = self.client.get(path)
         assert response.status_code == 404

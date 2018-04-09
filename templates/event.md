@@ -3,4 +3,7 @@
 {% for item in items -%}
     {{loop.index}}. {{ item.name }}
 {% endfor %}
-Call in here: {{request.url}}
+
+{% if not event.archived -%}
+    Call in here: {{request.url}}
+{% endif %}
