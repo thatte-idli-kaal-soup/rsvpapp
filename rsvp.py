@@ -1,4 +1,3 @@
-import datetime
 import json
 import os
 from urllib.parse import urlparse, urlunparse
@@ -9,7 +8,7 @@ from flaskext.versioned import Versioned
 from mongoengine.errors import DoesNotExist
 
 from models import Event, RSVP, db
-from utils import format_date, random_id
+from utils import format_date
 
 app = Flask(__name__)
 versioned = Versioned(app)
@@ -51,12 +50,8 @@ def versioned_static(version, static_file):
 
 @app.route('/')
 def index():
-    today = datetime.date.today().strftime('%Y-%m-%d')
-    upcoming_events = Event.objects.filter(date__gte=today).order_by('date')
-    archived_events = Event.objects.filter(date__lt=today).order_by('-date')
-    # FIXME: Run this in a cron job!
-    upcoming_events.update(archived=False)
-    archived_events.update(archived=True)
+    upcoming_events = Event.objects.filter(archived=False).order_by('date')
+    archived_events = Event.objects.filter(archived=True).order_by('-date')
     count = len(upcoming_events)
     return render_template(
         'index.html',
