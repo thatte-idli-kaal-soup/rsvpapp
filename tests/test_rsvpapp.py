@@ -63,6 +63,7 @@ class TestRSVPApp(BaseTest):
         response = self.client.get('/api/events', follow_redirects=True)
         events = json.loads(response.data)
         event_id = events[0]['_id']['$oid']
+        rsvp.Event.objects.filter(id=event_id).update(archived=True)
         user_data = {
             'name': 'test_name',
             'email': 'test_email@test_domain.com',
