@@ -111,7 +111,9 @@ def new(event_id):
 
 @app.route('/event', methods=['POST'])
 def create_event():
-    item_doc = {'name': request.form['name'], 'date': request.form['date']}
+    item_doc = {
+        'name': request.form['event-name'], 'date': request.form['date']
+    }
     event = Event(**item_doc)
     event.save()
     return redirect(url_for('index'))

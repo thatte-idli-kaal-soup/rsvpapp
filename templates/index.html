@@ -3,7 +3,7 @@
 {% block scripts %}
     <script>
      update_message = function(){
-         if ($('#name').val() === "" || $('#date').val() === '') {
+         if ($('#event-name').val() === "" || $('#date').val() === '') {
              return;
          }
          $(".alert").text('Creating event ...').show();
@@ -38,7 +38,7 @@
                 <p class="alert alert-info" style="display: none;"></p>
                 <form class="form-inline" action="/event" method='POST'>
                     <div  class="form-group mx-2">
-                        <input type="text" class="form-control" name="name" id="name" placeholder="Event name" required>
+                        <input type="text" class="form-control" name="event-name" id="event-name" placeholder="Event name" required>
                     </div>
                     <div class="form-group mx-2">
                         <input type="date" class="form-control" name="date" id="date" required>
