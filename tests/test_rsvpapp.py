@@ -1,10 +1,16 @@
 import rsvp
+import mongoengine
 import mongomock
 import json
 
 URI = 'mongomock://localhost:27017/rsvpdata'
-rsvp.app.config['MONGODB_SETTINGS'] = {'host': URI}
-rsvp.db.init_app(rsvp.app)
+config = {'MONGODB_SETTINGS': {'host': URI}}
+extensions = rsvp.app.extensions
+connections = extensions['mongoengine'][rsvp.db]['conn']
+connections.close()
+mongoengine.connection.disconnect()
+extensions.pop('mongoengine')
+rsvp.db.init_app(rsvp.app, config)
 
 
 class BaseTest:
