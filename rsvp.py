@@ -192,7 +192,7 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
-    google = get_google_auth()
+    google = get_google_auth(redirect_uri=url_for('callback', _external=True))
     auth_url, state = google.authorization_url(
         Auth.AUTH_URI, access_type='offline'
     )
@@ -221,7 +221,10 @@ def callback():
         return redirect(url_for('login'))
 
     else:
-        google = get_google_auth(state=session['oauth_state'])
+        google = get_google_auth(
+            state=session['oauth_state'],
+            redirect_uri=url_for('callback', _external=True),
+        )
         try:
             token = google.fetch_token(
                 Auth.TOKEN_URI,
@@ -231,7 +234,9 @@ def callback():
         except HTTPError:
             return 'HTTPError occurred.'
 
-        google = get_google_auth(token=token)
+        google = get_google_auth(
+            token=token, redirect_uri=url_for('callback', _external=True)
+        )
         resp = google.get(Auth.USER_INFO)
         if resp.status_code == 200:
             user_data = resp.json()
