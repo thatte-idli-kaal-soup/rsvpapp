@@ -7,7 +7,7 @@ from rsvp import app
 from models import Event
 
 with app.test_request_context():
-    today = datetime.date.today().strftime('%Y-%m-%d')
+    today = datetime.datetime.now()
     upcoming_events = Event.objects.filter(date__gte=today).order_by('date')
     archived_events = Event.objects.filter(date__lt=today).order_by('-date')
     upcoming_events.update(archived=False)

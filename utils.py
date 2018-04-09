@@ -7,7 +7,8 @@ from bson.objectid import ObjectId
 
 def format_date(value):
     try:
-        return value.strftime("%a, %d %b '%y")
+        format = "%a, %d %b '%y, %H:%M" if value.hour != 0 or value.minute != 0 else "%a, %d %b '%y"
+        return value.strftime(format)
 
     except ValueError:
         return value

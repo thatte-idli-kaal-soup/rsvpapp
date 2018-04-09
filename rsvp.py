@@ -111,8 +111,10 @@ def new(event_id):
 
 @app.route('/event', methods=['POST'])
 def create_event():
+    date = request.form['date']
+    time = request.form['time']
     item_doc = {
-        'name': request.form['event-name'], 'date': request.form['date']
+        'name': request.form['event-name'], 'date': '{} {}'.format(date, time)
     }
     event = Event(**item_doc)
     event.save()
