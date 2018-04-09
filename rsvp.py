@@ -51,12 +51,20 @@ def versioned_static(version, static_file):
 @app.route('/')
 def index():
     upcoming_events = Event.objects.filter(archived=False).order_by('date')
-    archived_events = Event.objects.filter(archived=True).order_by('-date')
-    count = len(upcoming_events)
     return render_template(
         'index.html',
-        count=count,
         upcoming_events=upcoming_events,
+        TEXT1=TEXT1,
+        LOGO=LOGO,
+        COMPANY=COMPANY,
+    )
+
+
+@app.route('/archived')
+def archived():
+    archived_events = Event.objects.filter(archived=True).order_by('-date')
+    return render_template(
+        'archived.html',
         archived_events=archived_events,
         TEXT1=TEXT1,
         LOGO=LOGO,
