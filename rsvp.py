@@ -197,11 +197,7 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
-    google = get_google_auth(
-        redirect_uri=url_for(
-            'callback', _external=True, next=request.args.get('next')
-        )
-    )
+    google = get_google_auth(redirect_uri=url_for('callback', _external=True))
     auth_url, state = google.authorization_url(
         Auth.AUTH_URI, access_type='offline', next=request.args.get('next')
     )
