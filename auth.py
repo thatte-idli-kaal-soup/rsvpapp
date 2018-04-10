@@ -1,5 +1,6 @@
 import os
 
+from flask import url_for
 from requests_oauthlib import OAuth2Session
 
 
@@ -13,7 +14,8 @@ class Auth:
     SCOPE = ['profile', 'email']
 
 
-def get_google_auth(state=None, token=None, redirect_uri=None):
+def get_google_auth(state=None, token=None):
+    redirect_uri = url_for('callback', _external=True)
     if token:
         return OAuth2Session(Auth.CLIENT_ID, token=token)
 

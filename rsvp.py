@@ -1,5 +1,4 @@
 import json
-import os
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
@@ -197,9 +196,9 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
-    google = get_google_auth(redirect_uri=url_for('callback', _external=True))
+    google = get_google_auth()
     auth_url, state = google.authorization_url(
-        Auth.AUTH_URI, access_type='offline', next=request.args.get('next')
+        Auth.AUTH_URI, access_type='offline'
     )
     session['oauth_state'] = state
     return render_template(
@@ -226,12 +225,7 @@ def callback():
         return redirect(url_for('login'), next=request.args.get('next'))
 
     else:
-        google = get_google_auth(
-            state=session['oauth_state'],
-            redirect_uri=url_for(
-                'callback', _external=True, next=request.args.get('next')
-            ),
-        )
+        google = get_google_auth(state=session['oauth_state'])
         try:
             token = google.fetch_token(
                 Auth.TOKEN_URI,
@@ -241,12 +235,7 @@ def callback():
         except HTTPError:
             return 'HTTPError occurred.'
 
-        google = get_google_auth(
-            token=token,
-            redirect_uri=url_for(
-                'callback', _external=True, next=request.args.get('next')
-            ),
-        )
+        google = get_google_auth(token=token)
         resp = google.get(Auth.USER_INFO)
         if resp.status_code == 200:
             user_data = resp.json()
