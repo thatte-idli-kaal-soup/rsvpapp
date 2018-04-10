@@ -134,6 +134,12 @@ def create_event():
     return redirect(url_for('index'))
 
 
+@app.route('/hello', methods=['GET'])
+@login_required
+def hello():
+    return render_template('hello.html', TEXT1=TEXT1, LOGO=LOGO)
+
+
 # FIXME: Add POST method
 @app.route('/api/events/', methods=['GET'])
 def api_events():
