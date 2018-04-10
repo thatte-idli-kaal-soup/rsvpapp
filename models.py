@@ -27,6 +27,8 @@ class User(db.Document):
     name = db.StringField()
     active = db.BooleanField(default=True)
     tokens = db.StringField()
+    upi_id = db.StringField()
+    blood_group = db.StringField()
 
     @property
     def is_authenticated(self):

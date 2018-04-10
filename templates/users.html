@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for user in users %}
+        {% if loop.index % 3 == 1 %}
+            <div class="row">
+        {% endif %}
+        {% set is_self = current_user.email == user.email %}
+        <div class="col-sm-4">
+            <div class="card bg-{% if is_self %}dark text-white{% else %}light{% endif %} mb-3">
+                <div class="card-header">{{ user.name }}</div>
+                <div class="card-body">
+                    {% if is_self %}
+                        <form class="form" action="/user" method="POST">
+                            <input type="hidden" name="email" value={{user.email}}>
+                            <input type="text" class="form-control my-2" name="upi-id" id="upi-id" placeholder="UPI ID" value="{{user.upi_id or ''}}">
+                            <input type="text" class="form-control my-2" name="blood-group" id="blood-group" placeholder="Blood Group" value="{{user.blood_group or ''}}">
+                            <button type="submit" align="center" name="submit" class="btn btn-info my-1">
+                                Submit
+                            </button>
+                        </form>
+                    {% else %}
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span></span> <span>{{user.email}}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>UPI ID</span> <span>{{user.upi_id or '-'}}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Blood Group</span> <span>{{user.blood_group or '-'}}</span>
+                            </li>
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% if loop.index % 3 == 0 or loop.last %}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
