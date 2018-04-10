@@ -112,7 +112,7 @@ def new(event_id):
     elif name:
         email = current_user.email if hasattr(
             current_user, 'email'
-        ) else 'anonymous@user.com'
+        ) else 'email@example.com'
         note = request.form['note']
         rsvp = RSVP(name=name, email=email, note=note)
         event.rsvps.append(rsvp)
