@@ -193,14 +193,16 @@ def api_rsvp(event_id, rsvp_id):
 
 @app.route('/login')
 def login():
+    next_url = request.args.get('next', url_for('index'))
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(next_url)
 
     google = get_google_auth()
     auth_url, state = google.authorization_url(
         Auth.AUTH_URI, access_type='offline'
     )
     session['oauth_state'] = state
+    session['next_url'] = next_url
     return render_template(
         'login.html',
         auth_url=auth_url,
@@ -213,7 +215,7 @@ def login():
 @app.route('/oauth2callback')
 def callback():
     if current_user is not None and current_user.is_authenticated:
-        return redirect(request.args.get('next', url_for('index')))
+        return redirect(session['next_url'])
 
     if 'error' in request.args:
         if request.args.get('error') == 'access_denied':
@@ -222,7 +224,7 @@ def callback():
         return 'Error encountered.'
 
     if 'code' not in request.args and 'state' not in request.args:
-        return redirect(url_for('login'), next=request.args.get('next'))
+        return redirect(url_for('login'))
 
     else:
         google = get_google_auth(state=session['oauth_state'])
@@ -248,7 +250,7 @@ def callback():
             user.name = user_data['name']
             user.save()
             login_user(user)
-            return redirect(request.args.get('next', url_for('index')))
+            return redirect(session['next_url'])
 
         return 'Could not fetch your information.'
 
