@@ -254,6 +254,7 @@ def callback():
             except User.DoesNotExist:
                 user = User(email)
             user.set_tokens(json.dumps(token))
+            user.name = user_data['name']
             user.save()
             login_user(user)
             return redirect(request.args.get('next', url_for('index')))
