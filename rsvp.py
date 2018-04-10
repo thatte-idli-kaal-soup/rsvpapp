@@ -150,10 +150,13 @@ def users():
 @login_required
 def update_user():
     email = request.form['email']
-    user = User.objects.get_or_404(email=email)
-    user.upi_id = request.form['upi-id']
-    user.blood_group = request.form['blood-group']
-    user.save()
+    if email != current_user.email:
+        flash('You can only modify your information', 'danger')
+    else:
+        user = User.objects.get_or_404(email=email)
+        user.upi_id = request.form['upi-id']
+        user.blood_group = request.form['blood-group']
+        user.save()
     return redirect(url_for('users'))
 
 
