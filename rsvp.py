@@ -191,9 +191,13 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
-    google = get_google_auth(redirect_uri=url_for('callback', _external=True))
+    google = get_google_auth(
+        redirect_uri=url_for(
+            'callback', _external=True, next=request.args.get('next')
+        )
+    )
     auth_url, state = google.authorization_url(
-        Auth.AUTH_URI, access_type='offline'
+        Auth.AUTH_URI, access_type='offline', next=request.args.get('next')
     )
     session['oauth_state'] = state
     return render_template(
@@ -208,7 +212,7 @@ def login():
 @app.route('/oauth2callback')
 def callback():
     if current_user is not None and current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(request.args.get('next', url_for('index')))
 
     if 'error' in request.args:
         if request.args.get('error') == 'access_denied':
@@ -217,12 +221,14 @@ def callback():
         return 'Error encountered.'
 
     if 'code' not in request.args and 'state' not in request.args:
-        return redirect(url_for('login'))
+        return redirect(url_for('login'), next=request.args.get('next'))
 
     else:
         google = get_google_auth(
             state=session['oauth_state'],
-            redirect_uri=url_for('callback', _external=True),
+            redirect_uri=url_for(
+                'callback', _external=True, next=request.args.get('next')
+            ),
         )
         try:
             token = google.fetch_token(
@@ -234,7 +240,10 @@ def callback():
             return 'HTTPError occurred.'
 
         google = get_google_auth(
-            token=token, redirect_uri=url_for('callback', _external=True)
+            token=token,
+            redirect_uri=url_for(
+                'callback', _external=True, next=request.args.get('next')
+            ),
         )
         resp = google.get(Auth.USER_INFO)
         if resp.status_code == 200:
@@ -247,7 +256,7 @@ def callback():
             user.set_tokens(json.dumps(token))
             user.save()
             login_user(user)
-            return redirect(url_for('index'))
+            return redirect(request.args.get('next', url_for('index')))
 
         return 'Could not fetch your information.'
 

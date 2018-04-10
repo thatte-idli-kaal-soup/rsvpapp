@@ -28,6 +28,7 @@ class User(db.Document):
     active = db.BooleanField(default=True)
     tokens = db.StringField()
 
+    @property
     def is_authenticated(self):
         return True
 
