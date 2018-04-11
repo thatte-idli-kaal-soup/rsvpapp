@@ -20,3 +20,7 @@ def random_id():
             ''.join(choice(string.ascii_letters) for _ in range(12)), 'ascii'
         )
     )
+
+
+def rsvp_by(rsvp):
+    return rsvp.rsvp_by.fetch().name if rsvp.rsvp_by else 'Anonymous'

@@ -11,7 +11,7 @@ from requests.exceptions import HTTPError
 
 from auth import Auth, get_google_auth
 from models import db, Event, RSVP, User
-from utils import format_date
+from utils import format_date, rsvp_by
 
 app = Flask(__name__)
 app.config.from_envvar('SETTINGS')
@@ -21,6 +21,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = "login"
 login_manager.session_protection = "strong"
 app.jinja_env.filters['format_date'] = format_date
+app.jinja_env.filters['rsvp_by'] = rsvp_by
 TEXT1 = app.config['TEXT1']
 LOGO = app.config['LOGO']
 COMPANY = app.config['COMPANY']
