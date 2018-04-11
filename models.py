@@ -21,6 +21,7 @@ class Event(db.Document):
     date = db.DateTimeField(required=True)
     archived = db.BooleanField(required=True, default=False)
     created_by = db.LazyReferenceField('User')
+    cancelled = db.BooleanField(required=True, default=False)
 
 
 class User(db.Document):

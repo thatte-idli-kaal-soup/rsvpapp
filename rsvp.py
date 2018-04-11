@@ -110,9 +110,7 @@ def new(event_id):
     elif len(event.rsvps.filter(name=name)) > 0:
         flash('{} has already RSVP-ed!'.format(name), 'warning')
     elif name:
-        email = current_user.email if hasattr(
-            current_user, 'email'
-        ) else 'email@example.com'
+        email = current_user.email if current_user.is_authenticated else 'email@example.com'
         note = request.form['note']
         rsvp = RSVP(name=name, email=email, note=note)
         event.rsvps.append(rsvp)
@@ -128,7 +126,7 @@ def create_event():
     item_doc = {
         'name': request.form['event-name'],
         'date': '{} {}'.format(date, time),
-        'created_by': current_user.email,
+        'created_by': current_user.email if current_user.is_authenticated else None,
     }
     event = Event(**item_doc)
     event.save()
@@ -162,10 +160,25 @@ def update_user():
     return redirect(url_for('users'))
 
 
-# FIXME: Add POST method
 @app.route('/api/events/', methods=['GET'])
 def api_events():
     return Event.objects.all().to_json()
+
+
+@app.route('/api/event/<event_id>', methods=['PATCH'])
+def api_event(event_id):
+    try:
+        doc = json.loads(request.data)
+    except ValueError:
+        return '{"error": "expecting JSON payload"}', 400
+
+    allowed_fields = {'cancelled', 'archived'}
+    event = Event.objects.get_or_404(id=event_id)
+    for field in allowed_fields:
+        if field in doc:
+            setattr(event, field, doc[field])
+    event.save()
+    return event.to_json()
 
 
 @app.route('/api/rsvps/<event_id>', methods=['GET', 'POST'])

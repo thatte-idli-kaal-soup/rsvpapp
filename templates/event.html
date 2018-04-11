@@ -37,9 +37,14 @@
 
 {% block content %}
     <p class="h2">
-        {{ TEXT2 }}
+        {% if event.cancelled %}
+            <del>{{ TEXT2 }}</del>
+            <span class="badge badge-danger">Cancelled</span>
+        {% else %}
+            {{ TEXT2 }}
+        {% endif %}
     </p>
-    {% if not event.archived %}
+    {% if not event.archived and not event.cancelled %}
         <div class="card">
             <div class="card-body">
                 <p class="alert alert-info" style="display: none;"></p>
@@ -59,7 +64,7 @@
             <li class="list-group-item">
                 <div class="d-flex justify-content-between align-items-center">
                     <span data-toggle="tooltip" title="RSVP by {{item.email}}">{{item.name}}</span>
-                    {% if not event.archived and current_user.email == item.email or item.email == 'email@example.com'  %}
+                    {% if not event.cancelled and not event.archived and current_user.email == item.email or item.email == 'email@example.com'  %}
                         <button onclick='delete_rsvp("{{event.id}}","{{item.id}}")' class="close">x</button>
                     {% endif %}
                 </div>

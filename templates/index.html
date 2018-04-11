@@ -8,6 +8,22 @@
          }
          $(".alert").text('Creating event ...').show();
      }
+
+     cancel_event = function(event_id){
+         $(".alert").text('Cancelling event ...').show();
+         fetch(`/api/event/${event_id}`,
+               {method: "PATCH",
+                body: JSON.stringify({cancelled: true}),
+                headers: {'content-type': 'application/json'}}).then(function(response){
+             if (response.status == 200){
+                 window.location.href = "";
+             }
+             return response.json();
+         }).then(function(data){
+             $(".alert").text(data.error).show();
+         });
+     }
+
     </script>
 {% endblock %}
 
@@ -19,13 +35,24 @@
         <ul class="list-group">
             {% for item in upcoming_events %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {% if item.cancelled %}
+                        <del>
+                    {% endif %}
                     <span>
                         <span><a href="/event/{{item.id}}">{{ item.name }}</a></span>
                         {% if item.rsvps %}
                             <span class="badge badge-primary badge-pill">{{item.rsvps|length}}</span>
                         {% endif %}
+                        {% if item.created_by.id == current_user.email and not item.cancelled %}
+                            <button class="btn btn-danger btn-sm" onclick='cancel_event("{{item.id}}")'>
+                                <small>cancel</small>
+                            </button>
+                        {% endif %}
                     </span>
                     <span>{{ item.date | format_date }}</span>
+                    {% if item.cancelled %}
+                        </del>
+                    {% endif %}
                 </li>
             {% endfor %}
         </ul>
