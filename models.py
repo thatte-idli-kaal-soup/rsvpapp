@@ -10,9 +10,9 @@ db = MongoEngine()
 class RSVP(db.EmbeddedDocument):
     id = db.ObjectIdField(default=random_id, primary_key=True)
     name = db.StringField(unique=True)
-    email = db.EmailField()
     note = db.StringField()
     date = db.DateTimeField(required=True, default=datetime.datetime.now)
+    rsvp_by = db.LazyReferenceField('User')
 
 
 class Event(db.Document):

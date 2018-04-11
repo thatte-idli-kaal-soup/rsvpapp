@@ -37,11 +37,7 @@ class TestRSVPApp(BaseTest):
         response = self.client.get('/api/events', follow_redirects=True)
         events = json.loads(response.data)
         event_id = events[0]['_id']['$oid']
-        user_data = {
-            'name': 'test_name',
-            'email': 'test_email@test_domain.com',
-            'note': 'my awesome note',
-        }
+        user_data = {'name': 'test_name', 'note': 'my awesome note'}
         response = self.client.post(
             '/new/{}'.format(event_id), data=user_data, follow_redirects=True
         )
@@ -60,11 +56,7 @@ class TestRSVPApp(BaseTest):
         events = json.loads(response.data)
         event_id = events[0]['_id']['$oid']
         rsvp.Event.objects.filter(id=event_id).update(archived=True)
-        user_data = {
-            'name': 'test_name',
-            'email': 'test_email@test_domain.com',
-            'note': 'my awesome note',
-        }
+        user_data = {'name': 'test_name', 'note': 'my awesome note'}
         response = self.client.post(
             '/new/{}'.format(event_id), data=user_data, follow_redirects=True
         )
@@ -91,10 +83,10 @@ class TestApi(BaseTest):
         assert self.jsonget("/api/rsvps/{}".format(event_id))['rsvps'] == []
         doc = self.jsonpost(
             "/api/rsvps/{}".format(event_id),
-            '{"name": "test name", "email": "test@example.com"}',
+            '{"name": "test name", "rsvp_by": "test@example.com"}',
         )
         assert doc['name'] == 'test name'
-        assert doc['email'] == 'test@example.com'
+        assert doc['rsvp_by'] == 'test@example.com'
         assert doc['_id'] is not None
         assert len(
             self.jsonget("/api/rsvps/{}".format(event_id))['rsvps']
@@ -108,8 +100,7 @@ class TestApi(BaseTest):
             event_id = event.id
         assert self.jsonget("/api/rsvps/{}".format(event_id))['rsvps'] == []
         doc = self.jsonpost(
-            "/api/rsvps/{}".format(event_id),
-            '{"name": "test name", "email": "test@example.com"}',
+            "/api/rsvps/{}".format(event_id), '{"name": "test name"}'
         )
         assert len(
             self.jsonget("/api/rsvps/{}".format(event_id))['rsvps']

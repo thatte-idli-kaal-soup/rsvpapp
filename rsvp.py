@@ -110,9 +110,9 @@ def new(event_id):
     elif len(event.rsvps.filter(name=name)) > 0:
         flash('{} has already RSVP-ed!'.format(name), 'warning')
     elif name:
-        email = current_user.email if current_user.is_authenticated else 'email@example.com'
+        rsvp_by = current_user.email if current_user.is_authenticated else None
         note = request.form['note']
-        rsvp = RSVP(name=name, email=email, note=note)
+        rsvp = RSVP(name=name, rsvp_by=rsvp_by, note=note)
         event.rsvps.append(rsvp)
         event.save()
     return redirect(url_for('event', id=event_id))
@@ -197,9 +197,6 @@ def api_rsvps(event_id):
 
     if 'name' not in doc:
         return '{"error": "name field is missing"}', 400
-
-    if 'email' not in doc:
-        return '{"error": "email field is missing"}', 400
 
     rsvp = RSVP(**doc)
     event.rsvps.append(rsvp)
