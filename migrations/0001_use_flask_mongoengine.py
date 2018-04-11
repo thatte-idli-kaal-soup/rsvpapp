@@ -5,16 +5,14 @@ import sys
 from pymongo import MongoClient
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from utils import random_id
-
 MONGODB_URI = os.environ.get(
     'MONGODB_URI', 'mongodb://localhost:27017/rsvpdata'
 )
+client = MongoClient(MONGODB_URI)
+db = client.get_default_database()
 
 
-def up(db):
-    client = MongoClient(MONGODB_URI)
-    db = client.get_default_database()
+def up(_):
     db.events.rename('event', dropTarget=True)
     for event in db.event.find():
         if isinstance(event['date'], datetime.datetime):
@@ -32,7 +30,5 @@ def up(db):
         )
 
 
-def down(db):
-    client = MongoClient(MONGODB_URI)
-    db = client.get_default_database()
+def down(_):
     db.event.rename('events', dropTarget=True)
