@@ -42,6 +42,9 @@
             <span class="badge badge-danger">Cancelled</span>
         {% else %}
             {{ TEXT2 }}
+            {% if event.archived %}
+                <span class="badge badge-secondary">Archived</span>
+            {% endif %}
         {% endif %}
     </p>
     {% if not event.archived and not event.cancelled %}
