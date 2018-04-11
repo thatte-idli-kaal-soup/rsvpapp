@@ -20,6 +20,7 @@ class Event(db.Document):
     name = db.StringField(required=True)
     date = db.DateTimeField(required=True)
     archived = db.BooleanField(required=True, default=False)
+    created_by = db.LazyReferenceField('User')
 
 
 class User(db.Document):

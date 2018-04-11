@@ -126,7 +126,9 @@ def create_event():
     date = request.form['date']
     time = request.form['time']
     item_doc = {
-        'name': request.form['event-name'], 'date': '{} {}'.format(date, time)
+        'name': request.form['event-name'],
+        'date': '{} {}'.format(date, time),
+        'created_by': current_user.email,
     }
     event = Event(**item_doc)
     event.save()
