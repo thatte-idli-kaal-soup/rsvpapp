@@ -1,17 +1,4 @@
-import os
-import sys
-
-from pymongo import MongoClient
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-MONGODB_URI = os.environ.get(
-    'MONGODB_URI', 'mongodb://localhost:27017/rsvpdata'
-)
-client = MongoClient(MONGODB_URI)
-db = client.get_default_database()
-
-
-def up(_):
+def up(db):
     for event in db.event.find():
         for rsvp in event['rsvps']:
             if 'email' not in rsvp:
@@ -31,7 +18,7 @@ def up(_):
             )
 
 
-def down(_):
+def down(db):
     for event in db.event.find():
         print(event)
         for rsvp in event['rsvps']:
