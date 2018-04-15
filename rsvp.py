@@ -88,7 +88,7 @@ def event(id):
     rsvps = event.rsvps
     count = len(rsvps)
     event_text = '{} - {}'.format(event['name'], format_date(event['date']))
-    description = 'Call in for {}'.format(event_text)
+    description = 'RSVP for {}'.format(event_text)
     return render_template(
         'event.html',
         count=count,

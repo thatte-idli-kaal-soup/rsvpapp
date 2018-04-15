@@ -5,5 +5,5 @@
 {% endfor %}
 
 {% if not event.archived -%}
-    Call in here: {{request.url}}
+    RSVP here: {{request.url}}
 {% endif %}
