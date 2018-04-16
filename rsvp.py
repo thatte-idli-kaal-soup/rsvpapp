@@ -7,7 +7,14 @@ from bson.objectid import ObjectId
 from flask import Flask, flash, render_template, redirect, url_for, request, send_file, session
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized
-from flask_login import LoginManager, login_required, login_user, logout_user, current_user
+from flask_login import (
+    current_user,
+    fresh_login_required,
+    LoginManager,
+    login_required,
+    login_user,
+    logout_user,
+)
 from flaskext.versioned import Versioned
 from mongoengine.errors import DoesNotExist
 
@@ -26,7 +33,8 @@ blueprint = make_google_blueprint(
 app.register_blueprint(blueprint, url_prefix="/login")
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
-login_manager.session_protection = "strong"
+login_manager.refresh_view = "refresh"
+login_manager.session_protection = "basic"
 app.jinja_env.filters['format_date'] = format_date
 app.jinja_env.filters['rsvp_by'] = rsvp_by
 TEXT1 = app.config['TEXT1']
@@ -56,9 +64,9 @@ def google_logged_in(blueprint, token):
         user = User.objects.get(email=email)
     except User.DoesNotExist:
         user = User(email=email, name=info['name'])
-        # FIXME: Tokens?
         user.save()
-    login_user(user)
+    # FIXME: May not be ideal, but we are trying not to annoy people!
+    login_user(user, remember=True)
     return redirect(session.get('next_url', url_for('index')))
 
 
@@ -156,21 +164,15 @@ def create_event():
     return redirect(url_for('index'))
 
 
-@app.route('/hello', methods=['GET'])
-@login_required
-def hello():
-    return render_template('hello.html', TEXT1=TEXT1, LOGO=LOGO)
-
-
 @app.route('/users', methods=['GET'])
-@login_required
+@fresh_login_required
 def users():
     users = sorted(User.objects, key=lambda u: u.name.lower())
     return render_template('users.html', TEXT1=TEXT1, LOGO=LOGO, users=users)
 
 
 @app.route('/user', methods=['POST'])
-@login_required
+@fresh_login_required
 def update_user():
     email = request.form['email']
     if email != current_user.email:
@@ -253,6 +255,15 @@ def login():
     if current_user.is_authenticated:
         return redirect(next_url)
 
+    session['next_url'] = next_url
+    return render_template(
+        'login.html', TEXT1=TEXT1, LOGO=LOGO, COMPANY=COMPANY
+    )
+
+
+@app.route('/refresh')
+def refresh():
+    next_url = request.args.get('next', url_for('index'))
     session['next_url'] = next_url
     return render_template(
         'login.html', TEXT1=TEXT1, LOGO=LOGO, COMPANY=COMPANY

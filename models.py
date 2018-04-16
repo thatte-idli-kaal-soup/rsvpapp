@@ -29,7 +29,6 @@ class User(db.Document, UserMixin):
     email = db.EmailField(primary_key=True)
     name = db.StringField()
     active = db.BooleanField(default=True)
-    tokens = db.StringField()
     upi_id = db.StringField()
     blood_group = db.StringField()
 
