@@ -1,6 +1,7 @@
 alley==0.0.3
 attrs==17.4.0
 backcall==0.1.0
+blinker==1.4
 certifi==2018.1.18
 chardet==3.0.4
 click==6.7
