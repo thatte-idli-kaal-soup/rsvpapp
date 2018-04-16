@@ -7,6 +7,7 @@ click==6.7
 decorator==4.2.1
 flake8==3.5.0
 Flask==0.12.2
+Flask-Dance==0.14.0
 Flask-Login==0.4.1
 flask-mongoengine==0.9.5
 https://github.com/pilt/flask-versioned/archive/c6591bc9a5605242d5d82dd4e3bf30c11452748e.zip
@@ -19,6 +20,7 @@ ipython-genutils==0.2.0
 itsdangerous==0.24
 jedi==0.11.1
 Jinja2==2.10
+lazy==1.3
 MarkupSafe==1.0
 mccabe==0.6.1
 mock==2.0.0
@@ -47,6 +49,7 @@ simplegeneric==0.8.1
 six==1.11.0
 traitlets==4.3.2
 urllib3==1.22
+URLObject==2.4.3
 wcwidth==0.1.7
 Werkzeug==0.14.1
 WTForms==2.1

@@ -1,5 +1,6 @@
 import datetime
 
+from flask_login import UserMixin
 from flask_mongoengine import MongoEngine
 
 from utils import random_id
@@ -24,7 +25,7 @@ class Event(db.Document):
     cancelled = db.BooleanField(required=True, default=False)
 
 
-class User(db.Document):
+class User(db.Document, UserMixin):
     email = db.EmailField(primary_key=True)
     name = db.StringField()
     active = db.BooleanField(default=True)
@@ -32,19 +33,5 @@ class User(db.Document):
     upi_id = db.StringField()
     blood_group = db.StringField()
 
-    @property
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        return self.active
-
-    def is_anonymous(self):
-        return False
-
     def get_id(self):
         return self.email
-
-    def set_tokens(self, tokens):
-        self.tokens = tokens
-        self.save()

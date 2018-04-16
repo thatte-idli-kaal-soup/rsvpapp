@@ -1,15 +1,16 @@
 import json
+import os
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
 
 from flask import Flask, flash, render_template, redirect, url_for, request, send_file, session
+from flask_dance.contrib.google import make_google_blueprint, google
+from flask_dance.consumer import oauth_authorized
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 from flaskext.versioned import Versioned
 from mongoengine.errors import DoesNotExist
-from requests.exceptions import HTTPError
 
-from auth import Auth, get_google_auth
 from models import db, Event, RSVP, User
 from utils import format_date, rsvp_by
 
@@ -17,6 +18,12 @@ app = Flask(__name__)
 app.config.from_envvar('SETTINGS')
 versioned = Versioned(app)
 db.init_app(app)
+blueprint = make_google_blueprint(
+    client_id=os.environ['GOOGLE_CLIENT_ID'],
+    client_secret=os.environ['GOOGLE_CLIENT_SECRET'],
+    scope=["profile", "email"],
+)
+app.register_blueprint(blueprint, url_prefix="/login")
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 login_manager.session_protection = "strong"
@@ -38,6 +45,21 @@ def load_user(user_id):
 
     except User.DoesNotExist:
         return
+
+
+@oauth_authorized.connect_via(blueprint)
+def google_logged_in(blueprint, token):
+    response = google.get("/oauth2/v2/userinfo")
+    info = response.json()
+    email = info['email']
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        user = User(email=email, name=info['name'])
+        # FIXME: Tokens?
+        user.save()
+    login_user(user)
+    return redirect(session.get('next_url', url_for('index')))
 
 
 # Views ####
@@ -231,62 +253,10 @@ def login():
     if current_user.is_authenticated:
         return redirect(next_url)
 
-    google = get_google_auth()
-    auth_url, state = google.authorization_url(
-        Auth.AUTH_URI, access_type='offline'
-    )
-    session['oauth_state'] = state
     session['next_url'] = next_url
     return render_template(
-        'login.html',
-        auth_url=auth_url,
-        TEXT1=TEXT1,
-        LOGO=LOGO,
-        COMPANY=COMPANY,
+        'login.html', TEXT1=TEXT1, LOGO=LOGO, COMPANY=COMPANY
     )
-
-
-@app.route('/oauth2callback')
-def callback():
-    if current_user is not None and current_user.is_authenticated:
-        return redirect(session['next_url'])
-
-    if 'error' in request.args:
-        if request.args.get('error') == 'access_denied':
-            return 'You denied access.'
-
-        return 'Error encountered.'
-
-    if 'code' not in request.args and 'state' not in request.args:
-        return redirect(url_for('login'))
-
-    else:
-        google = get_google_auth(state=session['oauth_state'])
-        try:
-            token = google.fetch_token(
-                Auth.TOKEN_URI,
-                client_secret=Auth.CLIENT_SECRET,
-                authorization_response=request.url,
-            )
-        except HTTPError:
-            return 'HTTPError occurred.'
-
-        google = get_google_auth(token=token)
-        resp = google.get(Auth.USER_INFO)
-        if resp.status_code == 200:
-            user_data = resp.json()
-            email = user_data['email']
-            try:
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
-                user = User(email)
-            user.set_tokens(json.dumps(token))
-            user.name = user_data['name']
-            user.save()
-            login_user(user)
-            return redirect(session['next_url'])
-
-        return 'Could not fetch your information.'
 
 
 @app.route('/logout')

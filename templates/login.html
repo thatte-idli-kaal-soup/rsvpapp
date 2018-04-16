@@ -1,5 +1,5 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <a href="{{auth_url}}" class="btn btn-primary btn-block">Login with Google</a>
+    <a href="{{url_for('google.login')}}" class="btn btn-primary btn-block">Login with Google</a>
 {% endblock %}
