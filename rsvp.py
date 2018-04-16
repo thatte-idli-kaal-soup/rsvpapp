@@ -113,6 +113,7 @@ def archived():
 
 
 @app.route('/event/<id>', methods=['GET'])
+@login_required
 def event(id):
     event = Event.objects(id=id).first()
     rsvps = event.rsvps
@@ -133,6 +134,7 @@ def event(id):
 
 
 @app.route('/new/<event_id>', methods=['POST'])
+@login_required
 def new(event_id):
     event = Event.objects(id=event_id).first()
     name = request.form['name']
