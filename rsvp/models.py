@@ -3,7 +3,7 @@ import datetime
 from flask_login import UserMixin
 from flask_mongoengine import MongoEngine
 
-from utils import random_id
+from .utils import random_id
 
 db = MongoEngine()
 

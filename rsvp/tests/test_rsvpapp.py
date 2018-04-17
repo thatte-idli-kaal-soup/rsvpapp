@@ -1,17 +1,15 @@
-import os
 import datetime
 import json
 
-os.environ['SETTINGS'] = 'settings/test.py'
-import rsvp
+from rsvp import app, models, views  # noqa
 
 
 class BaseTest:
 
     def setup_method(self, method):
-        self.client = rsvp.app.test_client()
-        with rsvp.app.test_request_context():
-            connection = rsvp.db.connection
+        self.client = app.test_client()
+        with app.test_request_context():
+            connection = models.db.connection
             connection.drop_database('rsvpdata')
 
 
@@ -55,7 +53,7 @@ class TestRSVPApp(BaseTest):
         response = self.client.get('/api/events', follow_redirects=True)
         events = json.loads(response.data)
         event_id = events[0]['_id']['$oid']
-        rsvp.Event.objects.filter(id=event_id).update(archived=True)
+        models.Event.objects.filter(id=event_id).update(archived=True)
         user_data = {'name': 'test_name', 'note': 'my awesome note'}
         response = self.client.post(
             '/new/{}'.format(event_id), data=user_data, follow_redirects=True
@@ -76,8 +74,8 @@ class TestApi(BaseTest):
 
     def test_rsvps_create(self):
         data = {'name': 'test-event', 'date': '2018-01-01'}
-        with rsvp.app.test_request_context():
-            event = rsvp.Event(**data)
+        with app.test_request_context():
+            event = models.Event(**data)
             event.save()
             event_id = event.id
         assert self.jsonget("/api/rsvps/{}".format(event_id))['rsvps'] == []
@@ -94,8 +92,8 @@ class TestApi(BaseTest):
 
     def test_rsvps_delete(self):
         data = {'name': 'test-event', 'date': '2018-01-01'}
-        with rsvp.app.test_request_context():
-            event = rsvp.Event(**data)
+        with app.test_request_context():
+            event = models.Event(**data)
             event.save()
             event_id = event.id
         assert self.jsonget("/api/rsvps/{}".format(event_id))['rsvps'] == []
