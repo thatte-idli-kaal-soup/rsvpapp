@@ -6,9 +6,9 @@ import click
 import mongoengine.errors
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models import Event
 from rsvp import app
-from utils import format_date
+from rsvp.models import Event
+from rsvp.utils import format_date
 
 
 @click.group()
