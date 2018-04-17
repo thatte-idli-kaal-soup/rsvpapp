@@ -63,6 +63,28 @@ def alley(ctx, path, command, extra=None):
         click.echo('Failed to run alley!')
 
 
+@click.command()
+@click.pass_context
+def backup(ctx):
+    command = ['mongodump']
+    if ctx.obj['db']:
+        command.extend(['--db', ctx.obj['db']])
+    if ctx.obj['host']:
+        command.extend(['--host', ctx.obj['host']])
+    if ctx.obj['port']:
+        command.extend(['--port', ctx.obj['port']])
+    if ctx.obj['username']:
+        command.extend(['-u', ctx.obj['username']])
+    if ctx.obj['password']:
+        command.extend(['-p', ctx.obj['password']])
+    click.echo('Running command:: {}'.format(' '.join(command)))
+    try:
+        subprocess.check_call(command)
+    except subprocess.CalledProcessError:
+        print('Failed to run mongodump!')
+
+
 cli.add_command(alley)
+cli.add_command(backup)
 if __name__ == '__main__':
     cli(obj={})
