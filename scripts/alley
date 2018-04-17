@@ -5,7 +5,6 @@ from urllib.parse import urlparse
 
 
 def main(mongodb_uri):
-    # mongodb_uri = 'mongodb://heroku_cdbwn214:1gnk7hfqe9mvra4srsvfo81fhl@ds233769.mlab.com:33769/heroku_cdbwn214'
     parsed = urlparse(mongodb_uri)
     db = parsed.path.lstrip('/')
     if '@' in parsed.netloc:
