@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
+import os
 import subprocess
 import sys
 from urllib.parse import urlparse
 
+import click
 
-def main(mongodb_uri):
+
+@click.group()
+@click.pass_context
+def cli(ctx):
+    """A CLI to manage DB related actions"""
+    mongodb_uri = os.environ.get('MONGODB_URI', '')
+    if not mongodb_uri:
+        print("You must set MONGODB_URI env var to use this script")
+        sys.exit(1)
     parsed = urlparse(mongodb_uri)
     db = parsed.path.lstrip('/')
     if '@' in parsed.netloc:
@@ -14,32 +24,44 @@ def main(mongodb_uri):
         server = parsed.netloc
         username = password = ''
     host, port = server.split(':')
-    args = sys.argv[1:]
+    ctx.obj.update(
+        {
+            'username': username,
+            'password': password,
+            'host': host,
+            'port': port,
+            'db': db,
+        }
+    )
+
+
+@click.command()
+@click.pass_context
+def alley(ctx):
+    args = sys.argv[2:]
     for arg in args:
         assert not arg.startswith(
             '-'
         ), 'This script constructs all the options!'
     command = ['alley']
-    if db:
-        command.extend(['-db', db])
-    if host:
-        command.extend(['-h', host])
-    if port:
-        command.extend(['-p', port])
-    if username:
-        command.extend(['-u', username])
-    if password:
-        command.extend(['-w', password])
+    if ctx.obj['db']:
+        command.extend(['-db', ctx.obj['db']])
+    if ctx.obj['host']:
+        command.extend(['-h', ctx.obj['host']])
+    if ctx.obj['port']:
+        command.extend(['-p', ctx.obj['port']])
+    if ctx.obj['username']:
+        command.extend(['-u', ctx.obj['username']])
+    if ctx.obj['password']:
+        command.extend(['-w', ctx.obj['password']])
     command.extend(args)
     print('Running command:: {}'.format(' '.join(command)))
-    subprocess.check_call(command)
+    try:
+        subprocess.check_call(command)
+    except subprocess.CalledProcessError:
+        print('Failed to run alley!')
 
 
+cli.add_command(alley)
 if __name__ == '__main__':
-    import os
-
-    mongodb_uri = os.environ.get('MONGODB_URI', '')
-    if not mongodb_uri:
-        print("You must set MONGODB_URI env var to use this script")
-        sys.exit(1)
-    main(mongodb_uri)
+    cli(obj={})
