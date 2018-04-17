@@ -98,6 +98,18 @@ def index():
         COMPANY=COMPANY,
     )
 
+@app.route('/create')
+@role_required("admin")
+def create():
+    upcoming_events = Event.objects.filter(archived=False).order_by('date')
+    return render_template(
+        'create-event.html',
+        upcoming_events=upcoming_events,
+        TEXT1=TEXT1,
+        LOGO=LOGO,
+        COMPANY=COMPANY,
+    )
+
 
 @app.route('/archived')
 @login_required
@@ -152,7 +164,6 @@ def new(event_id):
 
 
 @app.route('/event', methods=['POST'])
-@role_required("admin")
 def create_event():
     date = request.form['date']
     time = request.form['time']
