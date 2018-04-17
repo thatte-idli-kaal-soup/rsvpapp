@@ -1,6 +1,6 @@
 def up(db):
     for event in db.event.find():
-        for rsvp in event['rsvps']:
+        for rsvp in event.get('rsvps', []):
             if 'email' not in rsvp:
                 continue
 
@@ -21,7 +21,7 @@ def up(db):
 def down(db):
     for event in db.event.find():
         print(event)
-        for rsvp in event['rsvps']:
+        for rsvp in event.get('rsvps', []):
             if 'rsvp_by' not in rsvp:
                 continue
 
