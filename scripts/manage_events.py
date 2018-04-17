@@ -21,16 +21,11 @@ def cli():
 def archive_events():
     """Archive old events."""
     click.echo('Archiving events...')
-    with app.test_request_context():
-        today = datetime.datetime.now()
-        upcoming_events = Event.objects.filter(date__gte=today).order_by(
-            'date'
-        )
-        archived_events = Event.objects.filter(date__lt=today).order_by(
-            '-date'
-        )
-        upcoming_events.update(archived=False)
-        archived_events.update(archived=True)
+    today = datetime.datetime.now()
+    upcoming_events = Event.objects.filter(date__gte=today).order_by('date')
+    archived_events = Event.objects.filter(date__lt=today).order_by('-date')
+    upcoming_events.update(archived=False)
+    archived_events.update(archived=True)
 
 
 @click.command()
