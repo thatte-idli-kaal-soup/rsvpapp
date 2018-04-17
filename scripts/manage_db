@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from datetime import datetime
 import os
 import subprocess
 import sys
@@ -78,10 +79,14 @@ def backup(ctx):
     if ctx.obj['password']:
         command.extend(['-p', ctx.obj['password']])
     click.echo('Running command:: {}'.format(' '.join(command)))
+    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     try:
         subprocess.check_call(command)
+        subprocess.check_call(
+            ['tar', 'czf', 'dump-{}.tar.gz'.format(timestamp), 'dump/']
+        )
     except subprocess.CalledProcessError:
-        print('Failed to run mongodump!')
+        click.echo('Failed to run backup!')
 
 
 cli.add_command(alley)
