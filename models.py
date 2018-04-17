@@ -31,6 +31,8 @@ class User(db.Document, UserMixin):
     active = db.BooleanField(default=True)
     upi_id = db.StringField()
     blood_group = db.StringField()
+    nick = db.StringField()
+    dob = db.DateTimeField()
 
     def get_id(self):
         return self.email

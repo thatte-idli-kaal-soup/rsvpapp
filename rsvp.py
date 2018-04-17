@@ -183,6 +183,8 @@ def update_user():
         user = User.objects.get_or_404(email=email)
         user.upi_id = request.form['upi-id']
         user.blood_group = request.form['blood-group']
+        user.nick = request.form['nick']
+        user.dob = request.form['dob']
         user.save()
     return redirect(url_for('users'))
 
