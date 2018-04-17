@@ -19,7 +19,7 @@ from flaskext.versioned import Versioned
 from mongoengine.errors import DoesNotExist
 
 from models import db, Event, RSVP, User
-from utils import format_date, rsvp_by
+from utils import format_date, rsvp_by,role_required
 
 app = Flask(__name__)
 app.config.from_envvar('SETTINGS')
@@ -152,7 +152,7 @@ def new(event_id):
 
 
 @app.route('/event', methods=['POST'])
-@login_required
+@role_required("admin")
 def create_event():
     date = request.form['date']
     time = request.form['time']

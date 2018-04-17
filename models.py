@@ -33,6 +33,9 @@ class User(db.Document, UserMixin):
     blood_group = db.StringField()
     nick = db.StringField()
     dob = db.DateTimeField()
+    roles = db.SortedListField(db.StringField())
 
     def get_id(self):
         return self.email
+    def has_role(self, role):
+        return role in self.roles
