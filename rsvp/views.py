@@ -137,11 +137,13 @@ def update_user():
 
 
 @app.route('/api/events/', methods=['GET'])
+@login_required
 def api_events():
     return Event.objects.all().to_json()
 
 
 @app.route('/api/event/<event_id>', methods=['PATCH'])
+@login_required
 def api_event(event_id):
     try:
         doc = json.loads(request.data)
@@ -158,6 +160,7 @@ def api_event(event_id):
 
 
 @app.route('/api/rsvps/<event_id>', methods=['GET', 'POST'])
+@login_required
 def api_rsvps(event_id):
     event = Event.objects.get(id=event_id)
     if request.method == 'GET':
@@ -181,6 +184,7 @@ def api_rsvps(event_id):
 
 
 @app.route('/api/rsvps/<event_id>/<rsvp_id>', methods=['GET', 'DELETE'])
+@login_required
 def api_rsvp(event_id, rsvp_id):
     event = Event.objects.get_or_404(id=event_id)
     try:

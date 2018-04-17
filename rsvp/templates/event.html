@@ -4,7 +4,8 @@
     <script>
      delete_rsvp = function(event_id, rsvp_id){
          $(".alert").text('Un-RSVPing...').show();
-         fetch(`/api/rsvps/${event_id}/${rsvp_id}`, {method: "DELETE"}).then(function(response){
+         fetch(`/api/rsvps/${event_id}/${rsvp_id}`,
+               {credentials: 'same-origin', method: "DELETE"}).then(function(response){
              if (response.status == 200){
                  window.location.href = "";
              }

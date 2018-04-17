@@ -13,6 +13,7 @@
          $(".alert").text('Cancelling event ...').show();
          fetch(`/api/event/${event_id}`,
                {method: "PATCH",
+                credentials: 'same-origin',
                 body: JSON.stringify({cancelled: true}),
                 headers: {'content-type': 'application/json'}}).then(function(response){
              if (response.status == 200){
