@@ -2,6 +2,9 @@ import datetime
 
 
 def up(db):
+    if 'events' not in db.collection_names():
+        return
+
     db.events.rename('event', dropTarget=True)
     for event in db.event.find():
         if isinstance(event['date'], datetime.datetime):
