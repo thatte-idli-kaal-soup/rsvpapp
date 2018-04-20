@@ -20,6 +20,15 @@ blueprint = make_google_blueprint(
     scope=["profile", "email"],
 )
 app.register_blueprint(blueprint, url_prefix="/login")
+TEXT1 = app.config['TEXT1']
+LOGO = app.config['LOGO']
+COMPANY = app.config['COMPANY']
+
+
+# Context processors
+@app.context_processor
+def inject_branding():
+    return dict(TEXT1=TEXT1, LOGO=LOGO, COMPANY=COMPANY)
 
 
 @oauth_authorized.connect_via(blueprint)
