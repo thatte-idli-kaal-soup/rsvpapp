@@ -1,6 +1,6 @@
 import datetime
 
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 from flask_mongoengine import MongoEngine
 
 from .utils import random_id
@@ -37,5 +37,12 @@ class User(db.Document, UserMixin):
 
     def get_id(self):
         return self.email
+
     def has_role(self, role):
         return role in self.roles
+
+
+class AnonymousUser(AnonymousUserMixin):
+
+    def has_role(self, role):
+        return False

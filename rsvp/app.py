@@ -6,7 +6,7 @@ from flask_dance.consumer import oauth_authorized
 from flask_login import LoginManager, login_user
 from flaskext.versioned import Versioned
 
-from .models import db, User
+from .models import db, User, AnonymousUser
 from .utils import format_date, rsvp_by
 
 app = Flask(__name__)
@@ -42,6 +42,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = "login"
 login_manager.refresh_view = "refresh"
 login_manager.session_protection = "basic"
+login_manager.anonymous_user = AnonymousUser
 
 
 @login_manager.user_loader
