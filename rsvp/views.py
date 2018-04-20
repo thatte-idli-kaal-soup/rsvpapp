@@ -222,3 +222,8 @@ def refresh():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+@app.route('/approval_awaited/<name>')
+def approval_awaited(name):
+    return render_template('approval_awaited.html', name=name)
