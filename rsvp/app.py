@@ -6,7 +6,7 @@ from flask_dance.consumer import oauth_authorized
 from flask_login import LoginManager, login_user
 from flaskext.versioned import Versioned
 
-from .models import db, User
+from .models import db, User, AnonymousUser
 from .utils import format_date, rsvp_by
 
 app = Flask(__name__)
@@ -20,6 +20,15 @@ blueprint = make_google_blueprint(
     scope=["profile", "email"],
 )
 app.register_blueprint(blueprint, url_prefix="/login")
+TEXT1 = app.config['TEXT1']
+LOGO = app.config['LOGO']
+COMPANY = app.config['COMPANY']
+
+
+# Context processors
+@app.context_processor
+def inject_branding():
+    return dict(TEXT1=TEXT1, LOGO=LOGO, COMPANY=COMPANY)
 
 
 @oauth_authorized.connect_via(blueprint)
@@ -42,6 +51,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = "login"
 login_manager.refresh_view = "refresh"
 login_manager.session_protection = "basic"
+login_manager.anonymous_user = AnonymousUser
 
 
 @login_manager.user_loader

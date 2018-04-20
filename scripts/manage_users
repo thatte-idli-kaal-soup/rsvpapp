@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+import os
+import sys
+
+import click
+from mongoengine.queryset.visitor import Q
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from rsvp.models import User
+
+
+@click.group()
+def cli():
+    """A CLI to manage users"""
+
+
+@click.command()
+def list_users():
+    for user in User.objects.all():
+        click.echo('{}\t{}'.format(user.email, ', '.join(user.roles)))
+
+
+@click.command()
+def list_roles():
+    roles = {
+        role
+        for user in User.objects.only('roles')
+        for role in (user.roles or [])
+    }
+    for role in roles:
+        users = User.objects(roles__in=[role]).only('email')
+        users_count = users.count()
+        if users_count <= 3:
+            display_users = ', '.join(users.values_list('email'))
+        else:
+            display_users = '{} users'.format(users_count)
+        click.echo('{}\t{}'.format(role, display_users))
+
+
+@click.command()
+@click.argument('role', type=str)
+@click.option('--all', default=False, is_flag=True)
+@click.argument('users', type=str, nargs=-1)
+def add_role(role, users, all):
+    """Add a role to the specified users."""
+    if all:
+        click.echo('Adding role {} to all users'.format(role))
+        User.objects(roles__nin=[role]).update(push__roles=role)
+    else:
+        users = User.objects(Q(email__in=users) & Q(roles__nin=[role]))
+        click.echo('Adding role {} to {} users'.format(role, users.count()))
+        users.update(push__roles=role)
+
+
+@click.command()
+@click.argument('role', type=str)
+@click.option('--all', default=False, is_flag=True)
+@click.argument('users', type=str, nargs=-1)
+def remove_role(role, users, all):
+    """Remove a role for the specified users."""
+    if all:
+        click.echo('Removing role {} from all users'.format(role))
+        User.objects(roles__in=[role]).update(pull__roles=role)
+    else:
+        click.echo('Removing role {} from {} users'.format(role, len(users)))
+        users = User.objects(Q(email__in=users) & Q(roles__in=[role]))
+        users.update(pull__roles=role)
+
+
+cli.add_command(list_users)
+cli.add_command(list_roles)
+cli.add_command(add_role)
+cli.add_command(remove_role)
+if __name__ == '__main__':
+    cli()

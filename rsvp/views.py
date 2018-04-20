@@ -9,12 +9,8 @@ from flask_login import (
 from mongoengine.errors import DoesNotExist
 
 from .models import Event, RSVP, User
-from .utils import format_date
+from .utils import format_date, role_required
 from . import app
-
-TEXT1 = app.config['TEXT1']
-LOGO = app.config['LOGO']
-COMPANY = app.config['COMPANY']
 
 
 # Views ####
@@ -37,26 +33,14 @@ def versioned_static(version, static_file):
 @login_required
 def index():
     upcoming_events = Event.objects.filter(archived=False).order_by('date')
-    return render_template(
-        'index.html',
-        upcoming_events=upcoming_events,
-        TEXT1=TEXT1,
-        LOGO=LOGO,
-        COMPANY=COMPANY,
-    )
+    return render_template('index.html', upcoming_events=upcoming_events)
 
 
 @app.route('/archived')
 @login_required
 def archived():
     archived_events = Event.objects.filter(archived=True).order_by('-date')
-    return render_template(
-        'archived.html',
-        archived_events=archived_events,
-        TEXT1=TEXT1,
-        LOGO=LOGO,
-        COMPANY=COMPANY,
-    )
+    return render_template('archived.html', archived_events=archived_events)
 
 
 @app.route('/event/<id>', methods=['GET'])
@@ -72,11 +56,8 @@ def event(id):
         count=count,
         event=event,
         items=rsvps,
-        TEXT1=TEXT1,
         TEXT2=event_text,
         description=description,
-        LOGO=LOGO,
-        COMPANY=COMPANY,
     )
 
 
@@ -99,7 +80,6 @@ def new(event_id):
 
 
 @app.route('/event', methods=['POST'])
-@login_required
 def create_event():
     date = request.form['date']
     time = request.form['time']
@@ -117,7 +97,7 @@ def create_event():
 @fresh_login_required
 def users():
     users = sorted(User.objects, key=lambda u: u.name.lower())
-    return render_template('users.html', TEXT1=TEXT1, LOGO=LOGO, users=users)
+    return render_template('users.html', users=users)
 
 
 @app.route('/user', methods=['POST'])
@@ -211,18 +191,14 @@ def login():
         return redirect(next_url)
 
     session['next_url'] = next_url
-    return render_template(
-        'login.html', TEXT1=TEXT1, LOGO=LOGO, COMPANY=COMPANY
-    )
+    return render_template('login.html')
 
 
 @app.route('/refresh')
 def refresh():
     next_url = request.args.get('next', url_for('index'))
     session['next_url'] = next_url
-    return render_template(
-        'login.html', TEXT1=TEXT1, LOGO=LOGO, COMPANY=COMPANY
-    )
+    return render_template('login.html')
 
 
 @app.route('/logout')
