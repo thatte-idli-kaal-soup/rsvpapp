@@ -41,8 +41,18 @@ class User(db.Document, UserMixin):
     def has_role(self, role):
         return role in self.roles
 
+    def has_any_role(self, *roles):
+        for role in roles:
+            if role in self.roles:
+                return True
+
+        return False
+
 
 class AnonymousUser(AnonymousUserMixin):
 
     def has_role(self, role):
+        return False
+
+    def has_any_role(self, *args):
         return False

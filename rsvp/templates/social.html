@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <p class="h1">Find us on the web!</p>
+
+    {% for platform in social %}
+        <a class="h2" href="{{platform.url}}" target="_blank" title="{{platform.name}}">
+            <i class="fab fa-{{platform.name|lower}}"></i>
+        </a>
+        {% if platform.password %}
+            <div class="input-group">
+                <input type="password" class="form-control pwd" value="{{ platform.password }}" readonly>
+                <span class="input-group-btn">
+                    <button class="btn btn-default reveal" type="button"><i class="fas fa-eye"></i></button>
+                </span>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+     $(".reveal").on('click',function() {
+         var $pwd = $(this).parent().parent().find(".pwd");
+         if ($pwd.attr('type') === 'password') {
+             $pwd.attr('type', 'text');
+         } else {
+             $pwd.attr('type', 'password');
+         }
+     });
+    </script>
+{% endblock %}

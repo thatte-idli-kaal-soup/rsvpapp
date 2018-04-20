@@ -12,3 +12,25 @@ LOGO = os.environ.get(
 )
 COMPANY = os.environ.get('COMPANY', "CloudYuga Technology Pvt. Ltd.")
 DEBUG = 'DEBUG' in os.environ
+SOCIAL = [
+    {
+        'name': 'Instagram',
+        'url': 'https://www.instagram.com/thatteidlikaalsoup/',
+        'type': 'account',
+    },
+    {
+        'name': 'YouTube',
+        'url': 'https://www.youtube.com/channel/UCq1eqfGIwd2Emnqy165FoTw',
+        'type': 'account',
+    },
+    {
+        'name': 'Facebook',
+        'url': 'https://www.facebook.com/Thatteidlikaalsoup/',
+        'type': 'page',
+    },
+    {
+        'name': 'GitHub',
+        'url': 'https://github.com/thatte-idli-kaal-soup/',
+        'type': 'page',
+    },
+]

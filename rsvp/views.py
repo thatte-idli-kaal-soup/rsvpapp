@@ -1,3 +1,4 @@
+import copy
 import json
 from urllib.parse import urlparse, urlunparse
 
@@ -9,11 +10,10 @@ from flask_login import (
 from mongoengine.errors import DoesNotExist
 
 from .models import Event, RSVP, User
-from .utils import format_date, role_required
+from .utils import format_date, generate_password
 from . import app
 
 
-# Views ####
 @app.before_request
 def redirect_heroku():
     """Redirect herokuapp requests to rsvp.thatteidlikaalsoup.team."""
@@ -29,6 +29,7 @@ def versioned_static(version, static_file):
     return send_file(static_file)
 
 
+# Views ####
 @app.route('/')
 @login_required
 def index():
@@ -100,6 +101,19 @@ def users():
     return render_template('users.html', users=users)
 
 
+@app.route('/social', methods=['GET'])
+@fresh_login_required
+def social():
+    social = copy.deepcopy(app.config['SOCIAL'])
+    if current_user.has_any_role('admin', 'social-admin'):
+        for platform in social:
+            if not platform['type'] == 'account':
+                continue
+
+            platform['password'] = generate_password(platform, app.secret_key)
+    return render_template('social.html', social=social)
+
+
 @app.route('/user', methods=['POST'])
 @fresh_login_required
 def update_user():
@@ -116,6 +130,7 @@ def update_user():
     return redirect(url_for('users'))
 
 
+# API ####
 @app.route('/api/events/', methods=['GET'])
 @login_required
 def api_events():
@@ -184,6 +199,7 @@ def api_rsvp(event_id, rsvp_id):
         return json.dumps({"deleted": "true"})
 
 
+# Login/Logout ####
 @app.route('/login')
 def login():
     next_url = request.args.get('next', url_for('index'))
