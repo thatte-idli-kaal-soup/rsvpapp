@@ -80,7 +80,6 @@ def new(event_id):
 
 
 @app.route('/event', methods=['POST'])
-@role_required("admin")
 def create_event():
     date = request.form['date']
     time = request.form['time']
