@@ -41,9 +41,13 @@ def google_logged_in(blueprint, token):
     except User.DoesNotExist:
         user = User(email=email, name=info['name'])
         user.save()
-    # FIXME: May not be ideal, but we are trying not to annoy people!
-    login_user(user, remember=True)
-    return redirect(session.get('next_url', url_for('index')))
+    if not app.config['PRIVATE_APP'] or user.has_role('approved-user'):
+        # FIXME: May not be ideal, but we are trying not to annoy people!
+        login_user(user, remember=True)
+        next_ = redirect(session.get('next_url', url_for('index')))
+    else:
+        next_ = redirect(url_for('approval_awaited', name=user.name))
+    return next_
 
 
 # Setup Login Manager
