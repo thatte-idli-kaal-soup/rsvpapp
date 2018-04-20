@@ -16,7 +16,15 @@ def cli():
 
 @click.command()
 def list_users():
-    for user in User.objects.all():
+    for user in User.objects.all().order_by('email'):
+        click.echo('{}\t{}'.format(user.email, ', '.join(user.roles)))
+
+
+@click.command()
+@click.argument('role', type=str)
+def list_role_users(role):
+    click.echo('Listing users with the role - {}'.format(role))
+    for user in User.objects(roles__in=[role]).order_by('email'):
         click.echo('{}\t{}'.format(user.email, ', '.join(user.roles)))
 
 
@@ -27,7 +35,7 @@ def list_roles():
         for user in User.objects.only('roles')
         for role in (user.roles or [])
     }
-    for role in roles:
+    for role in sorted(roles):
         users = User.objects(roles__in=[role]).only('email')
         users_count = users.count()
         if users_count <= 3:
@@ -69,6 +77,7 @@ def remove_role(role, users, all):
 
 cli.add_command(list_users)
 cli.add_command(list_roles)
+cli.add_command(list_role_users)
 cli.add_command(add_role)
 cli.add_command(remove_role)
 if __name__ == '__main__':
