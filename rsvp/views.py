@@ -10,7 +10,7 @@ from flask_login import (
 from mongoengine.errors import DoesNotExist
 
 from .models import Event, RSVP, User
-from .utils import format_date, generate_password
+from .utils import format_date, generate_password, role_required
 from . import app
 
 
@@ -101,19 +101,6 @@ def users():
     return render_template('users.html', users=users)
 
 
-@app.route('/social', methods=['GET'])
-@fresh_login_required
-def social():
-    social = copy.deepcopy(app.config['SOCIAL'])
-    if current_user.has_any_role('admin', 'social-admin'):
-        for platform in social:
-            if not platform['type'] == 'account':
-                continue
-
-            platform['password'] = generate_password(platform, app.secret_key)
-    return render_template('social.html', social=social)
-
-
 @app.route('/user', methods=['POST'])
 @fresh_login_required
 def update_user():
@@ -128,6 +115,28 @@ def update_user():
         user.dob = request.form['dob']
         user.save()
     return redirect(url_for('users'))
+
+
+@app.route('/approve_user/<email>', methods=['GET'])
+@role_required('admin')
+def approve_user(email):
+    user = User.objects.get_or_404(email=email)
+    if not user.has_role('approved-user'):
+        user.update(push__roles='approved-user')
+    return redirect(url_for('users'))
+
+
+@app.route('/social', methods=['GET'])
+@fresh_login_required
+def social():
+    social = copy.deepcopy(app.config['SOCIAL'])
+    if current_user.has_any_role('admin', 'social-admin'):
+        for platform in social:
+            if not platform['type'] == 'account':
+                continue
+
+            platform['password'] = generate_password(platform, app.secret_key)
+    return render_template('social.html', social=social)
 
 
 # API ####

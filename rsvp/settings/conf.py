@@ -4,7 +4,8 @@ MONGODB_SETTINGS = {
     'host': os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/rsvpdata')
 }
 SECRET_KEY = os.environ.get('SECRET_KEY', 'Our awesome secret key')
-PRIVATE_APP = False
+# Flag to specify if users need to be approved to use the app
+PRIVATE_APP = True
 # Other shit
 TEXT1 = os.environ.get('TEXT1', "CloudYuga")
 LOGO = os.environ.get(
