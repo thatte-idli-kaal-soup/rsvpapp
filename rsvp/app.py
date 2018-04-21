@@ -3,7 +3,7 @@ import os
 from flask import Flask, redirect, session, url_for
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized
-from flask_login import LoginManager, login_user
+from flask_login import current_user, LoginManager, login_user
 from flaskext.versioned import Versioned
 
 from .models import db, User, AnonymousUser
@@ -29,6 +29,17 @@ COMPANY = app.config['COMPANY']
 @app.context_processor
 def inject_branding():
     return dict(TEXT1=TEXT1, LOGO=LOGO, COMPANY=COMPANY)
+
+
+@app.context_processor
+def inject_notifications():
+    if current_user.has_role('admin'):
+        approval_awaited_count = User.objects(
+            roles__nin=['approved-user']
+        ).count()
+        return dict(approval_awaited_count=approval_awaited_count)
+
+    return dict()
 
 
 @oauth_authorized.connect_via(blueprint)
