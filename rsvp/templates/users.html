@@ -8,38 +8,17 @@
         {% set is_self = current_user.email == user.email %}
         <div class="col-sm-4">
             <div class="card bg-{% if is_self %}dark text-white{% else %}light{% endif %} mb-3">
-                <div class="card-header">{{ user.name }}</div>
+                <div class="card-header">
+                    {{ user.name }}
+                    {% for role in user.roles %}
+                        <span class="badge badge-info">{{role}}</span>
+                    {% endfor %}
+                </div>
                 <div class="card-body">
                     {% if is_self %}
-                        <form class="form" action="/user" method="POST">
-                            <input type="hidden" name="email" value={{user.email}}>
-                            <input type="text" class="form-control my-2" name="nick" id="nick" placeholder="Nick" value="{{user.nick or ''}}">
-                            <input type="date" class="form-control my-2" name="dob" id="dob" placeholder="Date of Birth" value="{% if user.dob %}{{user.dob.strftime('%Y-%m-%d')}}{% else %}{% endif %}">
-                            <input type="text" class="form-control my-2" name="upi-id" id="upi-id" placeholder="UPI ID" value="{{user.upi_id or ''}}">
-                            <input type="text" class="form-control my-2" name="blood-group" id="blood-group" placeholder="Blood Group" value="{{user.blood_group or ''}}">
-                            <button type="submit" align="center" name="submit" class="btn btn-info my-1">
-                                Submit
-                            </button>
-                        </form>
+                        {% include 'user_form.html' %}
                     {% else %}
-                        <ul class="list-group">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span></span> <span>{{user.email}}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Nick</span> <span>{{user.nick or '-'}}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Date of Birth</span>
-                                <span>{% if user.dob %}{{user.dob|format_date}}{% else %}-{% endif %}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>UPI ID</span> <span>{{user.upi_id or '-'}}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Blood Group</span> <span>{{user.blood_group or '-'}}</span>
-                            </li>
-                        </ul>
+                        {% include 'user_display.html' %}
                     {% endif %}
                 </div>
             </div>
@@ -48,5 +27,5 @@
             </div>
         {% endif %}
     {% endfor %}
-    <p class="h6">{{users|length}} Registered Users</p>
+    <p class="h6">{{users|length}} users have registered</p>
 {% endblock %}
