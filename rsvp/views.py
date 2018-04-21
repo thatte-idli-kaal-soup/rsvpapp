@@ -126,6 +126,16 @@ def approve_user(email):
     return redirect(url_for('users'))
 
 
+@app.route('/approve_users/', methods=['GET'])
+@role_required('admin')
+def approve_users():
+    users = sorted(
+        User.objects(roles__nin=['approved-user']),
+        key=lambda u: u.name.lower(),
+    )
+    return render_template('approve_users.html', users=users)
+
+
 @app.route('/social', methods=['GET'])
 @fresh_login_required
 def social():
