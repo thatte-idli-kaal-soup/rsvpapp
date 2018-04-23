@@ -97,7 +97,10 @@ def create_event():
 @app.route('/users', methods=['GET'])
 @fresh_login_required
 def users():
-    users = sorted(User.objects, key=lambda u: u.name.lower())
+    users = sorted(
+        User.objects(email__ne=current_user.email),
+        key=lambda u: u.name.lower(),
+    )
     return render_template('users.html', users=users)
 
 
@@ -112,8 +115,9 @@ def update_user():
         user.upi_id = request.form['upi-id']
         user.blood_group = request.form['blood-group']
         user.nick = request.form['nick']
-        user.dob = request.form['dob']
+        user.dob = request.form['dob'] or None
         user.save()
+        flash('Successfully updated your information', 'info')
     return redirect(url_for('users'))
 
 

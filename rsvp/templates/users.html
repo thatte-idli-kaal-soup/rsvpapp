@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {% set user = current_user %}
+    {% include 'user_form.html' %}
+
     {% for user in users %}
         {% if loop.index % 3 == 1 %}
             <div class="row">
         {% endif %}
-        {% set is_self = current_user.email == user.email %}
         <div class="col-sm-4">
-            <div class="card bg-{% if is_self %}dark text-white{% else %}light{% endif %} mb-3">
+            <div class="card bg-light mb-3">
                 <div class="card-header">
                     {{ user.name }}
                     {% for role in user.roles %}
@@ -15,11 +17,7 @@
                     {% endfor %}
                 </div>
                 <div class="card-body">
-                    {% if is_self %}
-                        {% include 'user_form.html' %}
-                    {% else %}
-                        {% include 'user_display.html' %}
-                    {% endif %}
+                    {% include 'user_display.html' %}
                 </div>
             </div>
         </div>
@@ -27,5 +25,5 @@
             </div>
         {% endif %}
     {% endfor %}
-    <p class="h6">{{users|length}} users have registered</p>
+    <p class="h6">{{users|length + 1}} registered users</p>
 {% endblock %}
