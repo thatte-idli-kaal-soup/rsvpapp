@@ -7,7 +7,7 @@ from flask_login import current_user, LoginManager, login_user
 from flaskext.versioned import Versioned
 
 from .models import db, User, AnonymousUser
-from .utils import format_date, rsvp_by
+from .utils import format_date, rsvp_by, send_approval_email
 
 app = Flask(__name__)
 app.config.from_envvar('SETTINGS')
@@ -49,14 +49,20 @@ def google_logged_in(blueprint, token):
     email = info['email']
     try:
         user = User.objects.get(email=email)
+        created = False
     except User.DoesNotExist:
         user = User(email=email, name=info['name'])
         user.save()
+        created = True
     if not app.config['PRIVATE_APP'] or user.has_role('approved-user'):
         # FIXME: May not be ideal, but we are trying not to annoy people!
         login_user(user, remember=True)
         next_ = redirect(session.get('next_url', url_for('index')))
     else:
+        if created:
+            admins = User.objects(roles__in=['admin'])
+            # FIXME: Should we let the user know if the mail sending failed?
+            send_approval_email(user, admins)
         next_ = redirect(url_for('approval_awaited', name=user.name))
     return next_
 
