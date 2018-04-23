@@ -1,0 +1,8 @@
+Hello,
+
+A new user, {{user.name}}, has registered on "{{TEXT1}}" and is waiting for your
+approval to join the site. Click on the link below to approve the request.
+
+{{url_for('approve_user', email=user.email, _external=True)}}
+
+Thanks!

@@ -1,4 +1,5 @@
 # Standard library
+import os
 import base64
 from functools import wraps
 from random import choice
@@ -9,6 +10,8 @@ from bson.objectid import ObjectId
 from flask_login import current_user
 from flask import current_app, render_template
 from werkzeug.security import pbkdf2_hex
+import sendgrid
+from sendgrid.helpers.mail import Email, Content, Mail, Personalization
 
 
 def format_date(value):
@@ -57,3 +60,27 @@ def role_required(role="ALL"):
 def generate_password(tag, salt, n=32):
     tag_hash = pbkdf2_hex("{}-password".format(tag), salt)
     return base64.b85encode(bytes(tag_hash, 'ascii'))[:n].decode('ascii')
+
+
+def send_approval_email(user, admins):
+    sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
+    from_email = Email("noreply@thatteidlikaalsoup.team")
+    to_emails = [
+        Email("{} <{}>".format(admin.name, admin.email)) for admin in admins
+    ]
+    subject = "{} is awaiting your approval".format(user.name)
+    content = Content(
+        "text/plain", render_template('awaiting_approval.txt', user=user)
+    )
+    mail = Mail(from_email, subject, to_emails[0], content)
+    for to_email in to_emails[1:]:
+        personalization = Personalization()
+        personalization.add_to(to_email)
+        mail.add_personalization(personalization)
+    try:
+        response = sg.client.mail.send.post(request_body=mail.get())
+    except Exception:
+        # FIXME: Silently failing...
+        return False
+
+    return int(response.status_code / 200) == 2
