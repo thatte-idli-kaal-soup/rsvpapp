@@ -16,9 +16,7 @@
                     {{ user.name }}
                     {% for role in user.roles %}
                         {% if not role.startswith('.') %}
-                            <span class="badge badge-info">
-                                <a href="{{url_for('users', role=role)}}">{{role}}</a>
-                            </span>
+                            <a class="badge badge-info" href="{{url_for('users', role=role)}}">{{role}}</a>
                         {% endif %}
                     {% endfor %}
                 </div>
