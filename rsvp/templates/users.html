@@ -2,7 +2,9 @@
 
 {% block content %}
     {% set user = current_user %}
-    {% include 'user_form.html' %}
+    {% if not role %}
+        {% include 'user_form.html' %}
+    {% endif %}
 
     {% for user in users %}
         {% if loop.index % 3 == 1 %}
@@ -14,7 +16,9 @@
                     {{ user.name }}
                     {% for role in user.roles %}
                         {% if not role.startswith('.') %}
-                            <span class="badge badge-info">{{role}}</span>
+                            <span class="badge badge-info">
+                                <a href="{{url_for('users', role=role)}}">{{role}}</a>
+                            </span>
                         {% endif %}
                     {% endfor %}
                 </div>
@@ -27,7 +31,12 @@
             </div>
         {% endif %}
     {% endfor %}
-    <p class="h6">{{users|length + 1}} registered users</p>
+    {% if not role %}
+        <p class="h6">{{users|length + 1}} registered users</p>
+    {% else %}
+        <p class="h6">{{users|length}} {{role}} users</p>
+    {% endif %}
+
     {% include 'tos_modal.html' %}
 {% endblock %}
 

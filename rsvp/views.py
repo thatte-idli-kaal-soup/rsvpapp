@@ -97,11 +97,13 @@ def create_event():
 @app.route('/users', methods=['GET'])
 @fresh_login_required
 def users():
-    users = sorted(
-        User.objects(email__ne=current_user.email),
-        key=lambda u: u.name.lower(),
-    )
-    return render_template('users.html', users=users)
+    role = request.values.get('role')
+    if role:
+        users = User.objects(roles__in=[role])
+    else:
+        users = User.objects(email__ne=current_user.email)
+    users = sorted(users, key=lambda u: u.name.lower())
+    return render_template('users.html', users=users, role=role)
 
 
 @app.route('/user', methods=['POST'])
