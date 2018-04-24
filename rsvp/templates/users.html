@@ -13,7 +13,9 @@
                 <div class="card-header">
                     {{ user.name }}
                     {% for role in user.roles %}
-                        <span class="badge badge-info">{{role}}</span>
+                        {% if not role.startswith('.') %}
+                            <span class="badge badge-info">{{role}}</span>
+                        {% endif %}
                     {% endfor %}
                 </div>
                 <div class="card-body">

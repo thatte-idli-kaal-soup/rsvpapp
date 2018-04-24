@@ -125,8 +125,8 @@ def update_user():
 @role_required('admin')
 def approve_user(email):
     user = User.objects.get_or_404(email=email)
-    if not user.has_role('approved-user'):
-        user.update(push__roles='approved-user')
+    if not user.has_role('.approved-user'):
+        user.update(push__roles='.approved-user')
     return redirect(url_for('users'))
 
 
@@ -134,7 +134,7 @@ def approve_user(email):
 @role_required('admin')
 def approve_users():
     users = sorted(
-        User.objects(roles__nin=['approved-user']),
+        User.objects(roles__nin=['.approved-user']),
         key=lambda u: u.name.lower(),
     )
     return render_template('approve_users.html', users=users)

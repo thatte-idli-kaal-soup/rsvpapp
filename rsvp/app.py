@@ -35,7 +35,7 @@ def inject_branding():
 def inject_notifications():
     if current_user.has_role('admin'):
         approval_awaited_count = User.objects(
-            roles__nin=['approved-user']
+            roles__nin=['.approved-user']
         ).count()
         return dict(approval_awaited_count=approval_awaited_count)
 
@@ -54,7 +54,7 @@ def google_logged_in(blueprint, token):
         user = User(email=email, name=info['name'])
         user.save()
         created = True
-    if not app.config['PRIVATE_APP'] or user.has_role('approved-user'):
+    if not app.config['PRIVATE_APP'] or user.has_role('.approved-user'):
         # FIXME: May not be ideal, but we are trying not to annoy people!
         login_user(user, remember=True)
         next_ = redirect(session.get('next_url', url_for('index')))
