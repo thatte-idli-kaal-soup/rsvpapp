@@ -26,4 +26,11 @@
         {% endif %}
     {% endfor %}
     <p class="h6">{{users|length + 1}} registered users</p>
+    {% include 'tos_modal.html' %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+     $('#ToSModal').modal('show')
+    </script>
 {% endblock %}
