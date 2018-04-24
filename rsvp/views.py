@@ -110,7 +110,6 @@ def users():
             if not role.startswith('.')
         }
     )
-    print(roles)
     users = sorted(users, key=lambda u: u.name.lower())
     return render_template('users.html', users=users, role=role, roles=roles)
 
