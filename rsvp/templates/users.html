@@ -6,6 +6,24 @@
         {% include 'user_form.html' %}
     {% endif %}
 
+    <hr/>
+    {% if not role %}
+        <p class="h6">{{users|length + 1}} registered users</p>
+        {% include 'tos_modal.html' %}
+    {% else %}
+        <p class="h6">{{users|length}} {{role}} users</p>
+    {% endif %}
+
+    <p>
+        Filter users:
+        {% for role in roles %}
+            <a class="badge badge-info" href="{{url_for('users', role=role)}}">{{role}}</a>
+        {% endfor %}
+        <a class="badge badge-info" href="{{url_for('users')}}">All users</a>
+    </p>
+    <hr/>
+
+
     {% for user in users %}
         {% if loop.index % 3 == 1 %}
             <div class="row">
@@ -29,13 +47,6 @@
             </div>
         {% endif %}
     {% endfor %}
-    {% if not role %}
-        <p class="h6">{{users|length + 1}} registered users</p>
-    {% else %}
-        <p class="h6">{{users|length}} {{role}} users</p>
-    {% endif %}
-
-    {% include 'tos_modal.html' %}
 {% endblock %}
 
 {% block scripts %}

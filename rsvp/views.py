@@ -102,8 +102,17 @@ def users():
         users = User.objects(roles__in=[role])
     else:
         users = User.objects(email__ne=current_user.email)
+    roles = sorted(
+        {
+            role
+            for user in User.objects.all()
+            for role in user.roles
+            if not role.startswith('.')
+        }
+    )
+    print(roles)
     users = sorted(users, key=lambda u: u.name.lower())
-    return render_template('users.html', users=users, role=role)
+    return render_template('users.html', users=users, role=role, roles=roles)
 
 
 @app.route('/user', methods=['POST'])
