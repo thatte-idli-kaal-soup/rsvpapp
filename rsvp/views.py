@@ -101,7 +101,7 @@ def users():
     if role:
         users = User.objects(roles__in=[role])
     else:
-        users = User.objects(email__ne=current_user.email)
+        users = User.objects.all()
     roles = sorted(
         {
             role

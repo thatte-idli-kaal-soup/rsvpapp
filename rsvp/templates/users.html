@@ -8,7 +8,7 @@
 
     <hr/>
     {% if not role %}
-        <p class="h6">{{users|length + 1}} registered users</p>
+        <p class="h6">{{users|length}} registered users</p>
         {% include 'tos_modal.html' %}
     {% else %}
         <p class="h6">{{users|length}} {{role}} users</p>
