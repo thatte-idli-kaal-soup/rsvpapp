@@ -34,7 +34,13 @@
                 <div class="collapse navbar-collapse" id="navbarMenu">
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('archived') }}">Archived</a>
+                            <a class="nav-link" href="{{ url_for('archived') }}">Archived Events</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('social') }}">Media</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('users') }}">Users</a>
                         </li>
                         <li class="nav-item">
                             {% if current_user.is_authenticated %}

@@ -17,22 +17,27 @@ DEBUG = 'DEBUG' in os.environ
 SOCIAL = [
     {
         'name': 'Instagram',
-        'url': 'https://www.instagram.com/thatteidlikaalsoup/',
+        'icon': 'instagram',
+        'url': os.environ.get('SOCIAL_INSTAGRAM_URL', ''),
         'type': 'account',
     },
     {
         'name': 'YouTube',
-        'url': 'https://www.youtube.com/channel/UCq1eqfGIwd2Emnqy165FoTw',
+        'icon': 'youtube',
+        'url': os.environ.get('SOCIAL_YOUTUBE_URL', ''),
         'type': 'account',
     },
     {
         'name': 'Facebook',
-        'url': 'https://www.facebook.com/Thatteidlikaalsoup/',
+        'icon': 'facebook',
+        'url': os.environ.get('SOCIAL_FACEBOOK_URL', ''),
         'type': 'page',
     },
     {
-        'name': 'GitHub',
-        'url': 'https://github.com/thatte-idli-kaal-soup/',
+        'name': 'Google Drive',
+        'icon': 'google-drive',
+        'description': 'Use this drive to share media with the Marketing & Media team',
+        'url': os.environ.get('SOCIAL_GDRIVE_URL', ''),
         'type': 'page',
     },
 ]

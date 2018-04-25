@@ -3,10 +3,13 @@
 {% block content %}
     <p class="h1">Find us on the web!</p>
 
-    {% for platform in social %}
-        <a class="h2" href="{{platform.url}}" target="_blank" title="{{platform.name}}">
-            <i class="fab fa-{{platform.name|lower}}"></i>
-        </a>
+    {% for platform in social if platform.url %}
+        <p>
+            <a class="h2" href="{{platform.url}}" target="_blank" title="{{platform.name}}">
+                <i class="fab fa-{{platform.icon}}"></i>
+            </a>
+            {{ platform.description }}
+        </p>
         {% if platform.password %}
             <div class="input-group">
                 <input type="password" class="form-control pwd" value="{{ platform.password }}" readonly>
