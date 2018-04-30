@@ -159,7 +159,9 @@ def social():
             if not platform['type'] == 'account':
                 continue
 
-            platform['password'] = generate_password(platform, app.secret_key)
+            platform['password'] = generate_password(
+                platform['name'], app.secret_key
+            )
     return render_template('social.html', social=social)
 
 
