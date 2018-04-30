@@ -37,7 +37,9 @@ SOCIAL = [
         'name': 'Google Drive',
         'icon': 'google-drive',
         'description': 'Use this drive to share media with the Marketing & Media team',
-        'url': os.environ.get('SOCIAL_GDRIVE_URL', ''),
+        'url': 'https://drive.google.com/drive/folders/{}'.format(
+            os.environ.get('GOOGLE_DRIVE_MEDIA_DRIVE_ID', '')
+        ),
         'type': 'page',
     },
 ]

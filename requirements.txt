@@ -2,6 +2,7 @@ alley==0.0.3
 attrs==17.4.0
 backcall==0.1.0
 blinker==1.4
+cachetools==2.0.1
 certifi==2018.1.18
 chardet==3.0.4
 click==6.7
@@ -14,7 +15,11 @@ Flask-Login==0.4.1
 flask-mongoengine==0.9.5
 https://github.com/pilt/flask-versioned/archive/c6591bc9a5605242d5d82dd4e3bf30c11452748e.zip
 Flask-WTF==0.14.2
+google-api-python-client==1.6.7
+google-auth==1.4.1
+google-auth-httplib2==0.0.3
 gunicorn==19.7.1
+httplib2==0.11.3
 idna==2.6
 ipdb==0.11
 ipython==6.3.1
@@ -29,6 +34,7 @@ mock==2.0.0
 mongoengine==0.15.0
 mongomock==3.9.0
 more-itertools==4.1.0
+oauth2client==4.1.2
 oauthlib==2.0.7
 parso==0.1.1
 pbr==4.0.1
@@ -38,6 +44,8 @@ pluggy==0.6.0
 prompt-toolkit==1.0.15
 ptyprocess==0.5.2
 py==1.5.3
+pyasn1==0.4.2
+pyasn1-modules==0.2.1
 pycodestyle==2.3.1
 pyflakes==1.6.0
 Pygments==2.2.0
@@ -48,11 +56,13 @@ python-dateutil==2.7.2
 python-http-client==3.0.0
 requests==2.18.4
 requests-oauthlib==0.8.0
+rsa==3.4.2
 sendgrid==5.3.0
 sentinels==1.0.0
 simplegeneric==0.8.1
 six==1.11.0
 traitlets==4.3.2
+uritemplate==3.0.0
 urllib3==1.22
 URLObject==2.4.3
 wcwidth==0.1.7
