@@ -91,7 +91,7 @@ def update_permissions(service, file_id, emails):
 if __name__ == '__main__':
     download_service_account_file()
     service = create_service()
-    emails = User.objects.values_list('email')
+    emails = User.objects(roles__in=['.approved-user']).values_list('email')
     update_permissions(
         service, os.environ['GOOGLE_DRIVE_MEDIA_DRIVE_ID'], emails
     )
