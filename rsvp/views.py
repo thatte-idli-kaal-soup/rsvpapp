@@ -169,7 +169,14 @@ def social():
 @app.route('/api/events/', methods=['GET'])
 @login_required
 def api_events():
-    return Event.objects.all().to_json()
+    start = request.values.get('start')
+    end = request.values.get('end')
+    events = Event.objects
+    if start:
+        events = events.filter(date__gte=start)
+    if end:
+        events = events.filter(date__lte=end)
+    return events.to_json()
 
 
 @app.route('/api/event/<event_id>', methods=['PATCH'])
