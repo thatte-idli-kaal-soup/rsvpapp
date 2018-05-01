@@ -51,7 +51,7 @@ def google_logged_in(blueprint, token):
         user = User.objects.get(email=email)
         created = False
     except User.DoesNotExist:
-        user = User(email=email, name=info['name'])
+        user = User(email=email, name=info['name'], gender=info['gender'])
         user.save()
         created = True
     if not app.config['PRIVATE_APP'] or user.has_role('.approved-user'):

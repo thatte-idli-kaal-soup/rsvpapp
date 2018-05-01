@@ -2,22 +2,29 @@
 
 {% block content %}
     {% set user = current_user %}
-    {% if not role %}
+    {% if not role and not gender %}
         {% include 'user_form.html' %}
     {% endif %}
 
     <hr/>
-    {% if not role %}
+    {% if not role and not gender%}
         <p class="h6">{{users|length}} registered users</p>
         {% include 'tos_modal.html' %}
     {% else %}
-        <p class="h6">{{users|length}} {{role}} users</p>
+        <p class="h6">{{users|length}} {% if role %}{{role}}{% endif %} {% if gender %}{{gender}}{% endif %} users</p>
     {% endif %}
 
     <p>
-        Filter users:
+        Filter users (by role):
         {% for role in roles %}
             <a class="badge badge-info" href="{{url_for('users', role=role)}}">{{role}}</a>
+        {% endfor %}
+        <a class="badge badge-info" href="{{url_for('users')}}">All users</a>
+    </p>
+    <p>
+        Filter users (by gender):
+        {% for gender in genders %}
+            <a class="badge badge-info" href="{{url_for('users', gender=gender)}}">{{gender}}</a>
         {% endfor %}
         <a class="badge badge-info" href="{{url_for('users')}}">All users</a>
     </p>

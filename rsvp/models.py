@@ -28,6 +28,7 @@ class Event(db.Document):
 class User(db.Document, UserMixin):
     email = db.EmailField(primary_key=True)
     name = db.StringField()
+    gender = db.StringField()
     active = db.BooleanField(default=True)
     upi_id = db.StringField()
     blood_group = db.StringField()

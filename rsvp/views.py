@@ -98,10 +98,12 @@ def create_event():
 @fresh_login_required
 def users():
     role = request.values.get('role')
+    gender = request.values.get('gender')
+    users = User.objects
     if role:
-        users = User.objects(roles__in=[role])
-    else:
-        users = User.objects.all()
+        users = users.filter(roles__in=[role])
+    if gender:
+        users = users.filter(gender=None if gender == 'unknown' else gender)
     roles = sorted(
         {
             role
@@ -110,8 +112,18 @@ def users():
             if not role.startswith('.')
         }
     )
+    genders = set(filter(None, User.objects.values_list('gender'))).union(
+        {'unknown'}
+    )
     users = sorted(users, key=lambda u: u.name.lower())
-    return render_template('users.html', users=users, role=role, roles=roles)
+    return render_template(
+        'users.html',
+        users=users,
+        gender=gender,
+        genders=genders,
+        roles=roles,
+        role=role,
+    )
 
 
 @app.route('/user', methods=['POST'])
