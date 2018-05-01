@@ -14,7 +14,12 @@
             <div class="input-group">
                 <input type="password" class="form-control pwd" value="{{ platform.password }}" readonly>
                 <span class="input-group-btn">
-                    <button class="btn btn-default reveal" type="button"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-default reveal btn-sm" type="button"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-outline-primary btn-sm my-2 copy-button"
+                            data-clipboard-action="copy"
+                            data-clipboard-text="{{platform.password}}">
+                        <i class="fas fa-copy"></i>
+                    </button>
                 </span>
             </div>
         {% endif %}
@@ -23,6 +28,16 @@
 {% endblock %}
 
 {% block scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"
+            integrity="sha256-meF2HJJ2Tcruwz3z4XcxYDRMxKprjdruBHc3InmixCQ="
+            crossorigin="anonymous"></script>
+
+    <script>
+     $(function(){
+         new ClipboardJS('.copy-button');
+     });
+    </script>
+
     <script>
      $(".reveal").on('click',function() {
          var $pwd = $(this).parent().parent().find(".pwd");
