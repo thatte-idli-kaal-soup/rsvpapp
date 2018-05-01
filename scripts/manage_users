@@ -75,10 +75,34 @@ def remove_role(role, users, all):
         users.update(pull__roles=role)
 
 
+@click.command()
+def list_genders():
+    genders = set(User.objects.values_list('gender'))
+    for gender in sorted(genders, key=lambda x: str(x)):
+        users = User.objects(gender=gender).only('email')
+        users_count = users.count()
+        if users_count <= 3:
+            display_users = ', '.join(users.values_list('email'))
+        else:
+            display_users = '{} users'.format(users_count)
+        click.echo('{}\t{}'.format(gender, display_users))
+
+
+@click.command()
+@click.argument('gender', type=str)
+@click.argument('users', type=str, nargs=-1)
+def set_gender(gender, users):
+    click.echo('Setting gender {} for {} users'.format(gender, len(users)))
+    users = User.objects(Q(email__in=users))
+    users.update(gender=gender)
+
+
 cli.add_command(list_users)
 cli.add_command(list_roles)
 cli.add_command(list_role_users)
 cli.add_command(add_role)
 cli.add_command(remove_role)
+cli.add_command(list_genders)
+cli.add_command(set_gender)
 if __name__ == '__main__':
     cli()
