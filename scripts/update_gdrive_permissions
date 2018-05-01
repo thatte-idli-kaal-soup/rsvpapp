@@ -62,12 +62,12 @@ def update_permissions(service, file_id, emails):
         if 'emailAddress' in permission
     ]
     permission_emails = {
-        permission['emailAddress'] for permission in permissions
+        permission['emailAddress'].lower() for permission in permissions
     }
     delete_permissions = [
         permission
         for permission in permissions
-        if permission['emailAddress'] not in emails
+        if permission['emailAddress'].lower() not in emails
         and permission['role'] != 'owner'
         and 'gserviceaccount.com' not in permission['emailAddress']
     ]
@@ -98,6 +98,7 @@ if __name__ == '__main__':
     download_service_account_file()
     service = create_service()
     emails = User.objects(roles__in=['.approved-user']).values_list('email')
+    emails = [email.lower() for email in emails]
     update_permissions(
         service, os.environ['GOOGLE_DRIVE_MEDIA_DRIVE_ID'], emails
     )
