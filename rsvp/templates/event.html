@@ -6,13 +6,13 @@
          $(".alert").text('Un-RSVPing...').show();
          fetch(`/api/rsvps/${event_id}/${rsvp_id}`,
                {credentials: 'same-origin', method: "DELETE"}).then(function(response){
-             if (response.status == 200){
-                 window.location.href = "";
-             }
-             return response.json();
-         }).then(function(data){
-             $(".alert").text(data.error).show();
-         });
+                   if (response.status == 200){
+                       window.location.href = "";
+                   }
+                   return response.json();
+               }).then(function(data){
+                   $(".alert").text(data.error).show();
+               });
      }
 
      update_message = function(){
@@ -22,7 +22,11 @@
      }
 
      $(document).ready(function(){
-         new ClipboardJS('#copy-button');
+         var clipboard = new ClipboardJS('#copy-button');
+
+         clipboard.on('success', function(e){
+             $(e.action).tooltip('show');
+         });
      });
 
      // Enable tooltips
@@ -83,6 +87,9 @@
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <button class="btn btn-outline-info btn-sm my-2"
                         id="copy-button"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="Copied!"
                         data-clipboard-action="copy"
                         data-clipboard-text="{% include 'event.md' %}">
                     Copy
