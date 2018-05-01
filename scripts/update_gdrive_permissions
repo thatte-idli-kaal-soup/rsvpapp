@@ -73,6 +73,7 @@ def update_permissions(service, file_id, emails):
     ]
     new_emails = [email for email in emails if email not in permission_emails]
     print('Adding {} permissions'.format(len(new_emails)))
+    print('\n'.join(new_emails))
     for email in new_emails:
         body = {
             'type': 'user',
@@ -82,6 +83,11 @@ def update_permissions(service, file_id, emails):
         }
         service.permissions().create(fileId=file_id, body=body).execute()
     print('Deleting {} permissions'.format(len(delete_permissions)))
+    print(
+        '\n'.join(
+            permission['emailAddress'] for permission in delete_permissions
+        )
+    )
     for permission in delete_permissions:
         service.permissions().delete(
             fileId=file_id, permissionId=permission['id']
