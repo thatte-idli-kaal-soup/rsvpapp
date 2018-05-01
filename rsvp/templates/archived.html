@@ -1,26 +1,42 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <section>
-        <h2>Archived Events <span class="badge badge-secondary badge-pill">{{archived_events|length}}</span></h2>
-        <ul class="list-group">
-            {% for item in archived_events %}
-                {% if item.cancelled %}
-                    <del>
-                {% endif %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>
-                        <span><a href="/event/{{item.id}}">{{ item.name }}</a></span>
-                        {% if item.rsvps %}
-                            <span class="badge badge-secondary badge-pill">{{item.rsvps|length}}</span>
-                        {% endif %}
-                    </span>
-                    <span>{{ item.date | format_date }}</span>
-                </li>
-                {% if item.cancelled %}
-                    </del>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </section>
+    <div id="calendar"></div>
+{% endblock %}
+
+
+{% block scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js" integrity="sha256-L3S3EDEk31HcLA5C6T2ovHvOcD80+fgqaCDt2BAi92o=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js" integrity="sha256-QvhPq+evNjd8JyxSOU5KL3jPYTD7+gWVev1OH763SL0=" crossorigin="anonymous"></script>
+    <script>
+     var getEventColor = function(data){
+         if (data.cancelled) {
+             return "red";
+         } else if (data.archived) {
+             return "grey";
+         }
+     }
+     $(function() {
+         // page is now ready, initialize the calendar...
+         $('#calendar').fullCalendar({
+             events: '/api/events',
+             editable: false,
+             eventDataTransform: function(data){
+                 var event = {
+                     id: data._id.$oid,
+                     title: `${data.name}  (${(data.rsvps && data.rsvps.length)||0})`,
+                     start: data.date.$date,
+                     url: `/event/${data._id.$oid}`,
+                     className: ["badge"],
+                     color: getEventColor(data)
+                 }
+                 return event;
+             }
+         })
+     });
+    </script>
+{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css" integrity="sha256-Tu3DN+5kwrhzlzhNUMuGht2h7cR6ARgKcYemB9u5SzA=" crossorigin="anonymous" />
 {% endblock %}
