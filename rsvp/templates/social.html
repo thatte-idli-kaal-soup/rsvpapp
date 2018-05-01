@@ -16,9 +16,7 @@
                 <span class="input-group-btn">
                     <button class="btn btn-default reveal btn-sm" type="button"><i class="fas fa-eye"></i></button>
                     <button class="btn btn-outline-primary btn-sm my-2 copy-button"
-                            data-toggle="tooltip"
                             data-placement="bottom"
-                            title="Copied!"
                             data-clipboard-action="copy"
                             data-clipboard-text="{{platform.password}}">
                         <i class="fas fa-copy"></i>
@@ -34,21 +32,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"
             integrity="sha256-meF2HJJ2Tcruwz3z4XcxYDRMxKprjdruBHc3InmixCQ="
             crossorigin="anonymous"></script>
-
-    <script>
-     // Enable tooltips
-     $(function () {
-         $('[data-toggle="tooltip"]').tooltip()
-     })
-
-     $(function(){
-         var clipboard = new ClipboardJS('.copy-button');
-         clipboard.on('success', function(e){
-             $(e.action).tooltip('show');
-         });
-     });
-    </script>
-
     <script>
      $(".reveal").on('click',function() {
          var $pwd = $(this).parent().parent().find(".pwd");

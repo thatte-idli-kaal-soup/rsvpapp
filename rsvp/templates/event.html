@@ -20,20 +20,6 @@
              $(".alert").text('RSVPing...').show();
          }
      }
-
-     $(document).ready(function(){
-         var clipboard = new ClipboardJS('#copy-button');
-
-         clipboard.on('success', function(e){
-             $(e.action).tooltip('show');
-         });
-     });
-
-     // Enable tooltips
-     $(function () {
-         $('[data-toggle="tooltip"]').tooltip()
-     })
-
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"
             integrity="sha256-meF2HJJ2Tcruwz3z4XcxYDRMxKprjdruBHc3InmixCQ="
@@ -85,11 +71,8 @@
         {% endfor %}
         {% if count %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                <button class="btn btn-outline-info btn-sm my-2"
-                        id="copy-button"
-                        data-toggle="tooltip"
+                <button class="btn btn-outline-info btn-sm my-2 copy-button"
                         data-placement="bottom"
-                        title="Copied!"
                         data-clipboard-action="copy"
                         data-clipboard-text="{% include 'event.md' %}">
                     Copy
