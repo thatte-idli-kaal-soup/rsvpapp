@@ -50,6 +50,8 @@
         </div>
     {% endif %}
     <hr/>
+    {{ event.html_description | safe }}
+    <hr/>
     <ul class="list-group">
         {% for item in items %}
             <li class="list-group-item">

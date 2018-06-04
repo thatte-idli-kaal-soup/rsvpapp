@@ -1,5 +1,9 @@
 *{{TEXT2}}*
 
+{% if event.description -%}
+    {{event.description}}
+{% endif %}
+
 {% for item in items -%}
     {{loop.index}}. {{ item.name }}{% if item.note %} ({{ item.note }}){% endif %}
 {% endfor %}

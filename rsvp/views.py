@@ -88,6 +88,7 @@ def create_event():
         'name': request.form['event-name'],
         'date': '{} {}'.format(date, time),
         'created_by': current_user.email if current_user.is_authenticated else None,
+        'description': request.form.get('event-description', ''),
     }
     event = Event(**item_doc)
     event.save()

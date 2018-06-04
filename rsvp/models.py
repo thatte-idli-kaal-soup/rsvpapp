@@ -2,8 +2,9 @@ import datetime
 
 from flask_login import UserMixin, AnonymousUserMixin
 from flask_mongoengine import MongoEngine
+from mongoengine import signals
 
-from .utils import random_id
+from .utils import random_id, markdown_to_html
 
 db = MongoEngine()
 
@@ -19,10 +20,19 @@ class RSVP(db.EmbeddedDocument):
 class Event(db.Document):
     rsvps = db.EmbeddedDocumentListField(RSVP)
     name = db.StringField(required=True)
+    description = db.StringField()
+    html_description = db.StringField()
     date = db.DateTimeField(required=True)
     archived = db.BooleanField(required=True, default=False)
     created_by = db.LazyReferenceField('User')
     cancelled = db.BooleanField(required=True, default=False)
+
+    @classmethod
+    def pre_save(cls, sender, document, **kwargs):
+        document.html_description = markdown_to_html(document.description)
+
+
+signals.pre_save.connect(Event.pre_save, sender=Event)
 
 
 class User(db.Document, UserMixin):

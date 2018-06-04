@@ -9,9 +9,10 @@ import string
 from bson.objectid import ObjectId
 from flask_login import current_user
 from flask import current_app, render_template
-from werkzeug.security import pbkdf2_hex
+import mistune
 import sendgrid
 from sendgrid.helpers.mail import Email, Content, Mail, Personalization
+from werkzeug.security import pbkdf2_hex
 
 
 def format_date(value):
@@ -21,6 +22,13 @@ def format_date(value):
 
     except ValueError:
         return value
+
+
+def markdown_to_html(md):
+    """Convert markdown to html."""
+    if not md:
+        md = ''
+    return mistune.markdown(md, escape=False, hard_wrap=True, use_xhtml=True)
 
 
 def random_id():
