@@ -9,9 +9,10 @@
             href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
             integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
             crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" integrity="sha256-j+P6EZJVrbXgwSR5Mx+eCS6FvP9Wq27MBRC/ogVriY0=" crossorigin="anonymous" />
         <link rel="icon" href="{{ LOGO }}" type="image/png" sizes="16x16">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')|versioned }}">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
         <script
             src="https://code.jquery.com/jquery-1.12.4.min.js"
             integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
@@ -23,7 +24,6 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
                 integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
                 crossorigin="anonymous"></script>
-        <script defer src="https://use.fontawesome.com/releases/v5.0.10/js/all.js" integrity="sha384-slN8GvtUJGnv6ca26v8EzVaR9DC58QEwsIk9q1QXdCU8Yu8ck/tL/5szYlBbqmS+" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"
                 integrity="sha256-meF2HJJ2Tcruwz3z4XcxYDRMxKprjdruBHc3InmixCQ="
                 crossorigin="anonymous"></script>
@@ -63,11 +63,11 @@
                         {% if approval_awaited_count %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{url_for('approve_users')}}" title="{{approval_awaited_count}} users awaiting approval">
-                                    <span class="fa-layers fa-fw wobble animated infinite">
+                                    <span class="fa-layers fa-fw">
                                         <i class="fas fa-bell text-danger"></i>
                                         <span class="fa-layers-text fa-inverse text-white"
                                               data-fa-transform="shrink-8"
-                                              style="font-weight:900">{{approval_awaited_count}}
+                                              style="font-weight:900">{{approval_awaited_count}} user(s) awaiting approval
                                         </span>
                                     </span>
                                 </a>
