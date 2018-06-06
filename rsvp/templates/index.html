@@ -1,6 +1,20 @@
 {% extends "base.html" %}
 
 {% block scripts %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
+    <script>
+     var simplemde = new SimpleMDE({
+         element: document.getElementById("event-description"),
+         spellChecker: false,
+         autosave: {
+             enabled: true,
+             unique_id: "event-description",
+             forceSync: true,
+         },
+     });
+    </script>
     <script>
      update_message = function(){
          if ($('#event-name').val() === "" || $('#date').val() === '') {

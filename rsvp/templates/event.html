@@ -50,7 +50,7 @@
         </div>
     {% endif %}
     <hr/>
-    {{ event.html_description | safe }}
+    {{ event.html_description or '' | safe }}
     <hr/>
     <ul class="list-group">
         {% for item in items %}
