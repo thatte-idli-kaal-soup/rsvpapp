@@ -7,7 +7,7 @@ from flask_login import current_user, LoginManager, login_user
 from flaskext.versioned import Versioned
 
 from .models import db, User, AnonymousUser
-from .utils import format_date, rsvp_by, send_approval_email
+from .utils import format_date, rsvp_by, rsvp_name, send_approval_email
 
 app = Flask(__name__)
 app.config.from_envvar('SETTINGS')
@@ -87,3 +87,4 @@ def load_user(user_id):
 # Add template filters
 app.jinja_env.filters['format_date'] = format_date
 app.jinja_env.filters['rsvp_by'] = rsvp_by
+app.jinja_env.filters['rsvp_name'] = rsvp_name

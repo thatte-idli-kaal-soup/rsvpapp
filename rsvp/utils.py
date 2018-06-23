@@ -43,6 +43,15 @@ def rsvp_by(rsvp):
     return rsvp.rsvp_by.fetch().name if rsvp.rsvp_by else 'Anonymous'
 
 
+def rsvp_name(rsvp):
+    if rsvp.user:
+        user = rsvp.user.fetch()
+        return user.nick or user.name
+
+    else:
+        return rsvp.name
+
+
 def role_required(role="ALL"):
 
     def wrapper(func):

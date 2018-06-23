@@ -11,6 +11,8 @@ class BaseTest:
         with app.test_request_context():
             connection = models.db.connection
             connection.drop_database('rsvpdata')
+            self.user = models.User(email='foo@example.com', name='Test User')
+            self.user.save()
 
 
 class TestRSVPApp(BaseTest):
@@ -35,12 +37,12 @@ class TestRSVPApp(BaseTest):
         response = self.client.get('/api/events', follow_redirects=True)
         events = json.loads(response.data)
         event_id = events[0]['_id']['$oid']
-        user_data = {'name': 'test_name', 'note': 'my awesome note'}
+        user_data = {'email': self.user.email, 'note': 'my awesome note'}
         response = self.client.post(
             '/new/{}'.format(event_id), data=user_data, follow_redirects=True
         )
         assert response.status_code == 200
-        assert user_data['name'] in str(response.data)
+        assert self.user.name in str(response.data)
         assert user_data['note'] in str(response.data)
 
     def test_rsvp_archived_doesnot_work(self):
@@ -54,12 +56,12 @@ class TestRSVPApp(BaseTest):
         events = json.loads(response.data)
         event_id = events[0]['_id']['$oid']
         models.Event.objects.filter(id=event_id).update(archived=True)
-        user_data = {'name': 'test_name', 'note': 'my awesome note'}
+        user_data = {'email': self.user.email, 'note': 'my awesome note'}
         response = self.client.post(
             '/new/{}'.format(event_id), data=user_data, follow_redirects=True
         )
         assert response.status_code == 200
-        assert user_data['name'] not in str(response.data)
+        assert self.user.name not in str(response.data)
 
 
 class TestApi(BaseTest):
@@ -81,9 +83,12 @@ class TestApi(BaseTest):
         assert self.jsonget("/api/rsvps/{}".format(event_id))['rsvps'] == []
         doc = self.jsonpost(
             "/api/rsvps/{}".format(event_id),
-            '{"name": "test name", "rsvp_by": "test@example.com"}',
+            '{{"user": "{}", "rsvp_by": "test@example.com"}}'.format(
+                self.user.email
+            ),
         )
-        assert doc['name'] == 'test name'
+        print(doc)
+        assert doc['user'] == self.user.email
         assert doc['rsvp_by'] == 'test@example.com'
         assert doc['_id'] is not None
         assert len(
@@ -98,7 +103,8 @@ class TestApi(BaseTest):
             event_id = event.id
         assert self.jsonget("/api/rsvps/{}".format(event_id))['rsvps'] == []
         doc = self.jsonpost(
-            "/api/rsvps/{}".format(event_id), '{"name": "test name"}'
+            "/api/rsvps/{}".format(event_id),
+            '{{"user": "{}"}}'.format(self.user.email),
         )
         assert len(
             self.jsonget("/api/rsvps/{}".format(event_id))['rsvps']

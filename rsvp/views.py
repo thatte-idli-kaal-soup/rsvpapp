@@ -52,11 +52,13 @@ def event(id):
     count = len(rsvps)
     event_text = '{} - {}'.format(event['name'], format_date(event['date']))
     description = 'RSVP for {}'.format(event_text)
+    approved_users = User.approved_users()
     return render_template(
         'event.html',
         count=count,
         event=event,
         items=rsvps,
+        approved_users=approved_users,
         TEXT2=event_text,
         description=description,
     )
@@ -66,15 +68,23 @@ def event(id):
 @login_required
 def new(event_id):
     event = Event.objects(id=event_id).first()
-    name = request.form['name']
+    email = request.form['email']
+    note = request.form['note'].strip()
+    try:
+        user = User.objects.get(email=email)
+    except DoesNotExist:
+        flash(
+            'Could not find user with email, using anonymous user!', 'warning'
+        )
+        user = User.objects.get(email='anonymous@example.com')
+        note = '{}: {}'.format(email, note) if note else email
     if event.archived:
         flash('Cannot modify an archived event!', 'warning')
-    elif len(event.rsvps.filter(name=name)) > 0:
-        flash('{} has already RSVP-ed!'.format(name), 'warning')
-    elif name:
+    elif len(event.rsvps.filter(user=user)) > 0:
+        flash('{} has already RSVP-ed!'.format(email), 'warning')
+    elif email:
         rsvp_by = current_user.email if current_user.is_authenticated else None
-        note = request.form['note']
-        rsvp = RSVP(name=name, rsvp_by=rsvp_by, note=note)
+        rsvp = RSVP(user=user, rsvp_by=rsvp_by, note=note)
         event.rsvps.append(rsvp)
         event.save()
     return redirect(url_for('event', id=event_id))
@@ -225,8 +235,8 @@ def api_rsvps(event_id):
     except ValueError:
         return '{"error": "expecting JSON payload"}', 400
 
-    if 'name' not in doc:
-        return '{"error": "name field is missing"}', 400
+    if 'user' not in doc:
+        return '{"error": "user field is missing"}', 400
 
     rsvp = RSVP(**doc)
     event.rsvps.append(rsvp)
