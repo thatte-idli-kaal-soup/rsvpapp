@@ -92,3 +92,26 @@ def send_approval_email(user, admins):
         return False
 
     return int(response.status_code / 200) == 2
+
+
+def send_approved_email(user):
+    sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
+    from_email = Email("noreply@thatteidlikaalsoup.team")
+    to_emails = [Email("{} <{}>".format(user.name, user.email))]
+    subject = "Request approved".format(user.name)
+    content = Content(
+        "text/plain", render_template('request_approved.txt', user=user)
+    )
+    mail = Mail(from_email, subject, to_emails[0], content)
+    for to_email in to_emails[1:]:
+        personalization = Personalization()
+        personalization.add_to(to_email)
+        mail.add_personalization(personalization)
+    try:
+        response = sg.client.mail.send.post(request_body=mail.get())
+    except Exception as e:
+        # FIXME: Silently failing...
+        print(e)
+        return False
+
+    return int(response.status_code / 200) == 2

@@ -10,7 +10,7 @@ from flask_login import (
 from mongoengine.errors import DoesNotExist
 
 from .models import Event, RSVP, User
-from .utils import format_date, generate_password, role_required
+from .utils import format_date, generate_password, role_required, send_approved_email
 from . import app
 
 
@@ -150,6 +150,7 @@ def approve_user(email):
     user = User.objects.get_or_404(email=email)
     if not user.has_role('.approved-user'):
         user.update(push__roles='.approved-user')
+        send_approved_email(user)
     return redirect(url_for('users'))
 
 
