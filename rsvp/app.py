@@ -33,7 +33,7 @@ def inject_branding():
 
 @app.context_processor
 def inject_notifications():
-    if current_user.has_role('admin'):
+    if current_user.is_admin:
         approval_awaited_count = User.objects(
             roles__nin=['.approved-user']
         ).count()

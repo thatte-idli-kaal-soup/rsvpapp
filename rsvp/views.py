@@ -77,7 +77,7 @@ def new(event_id):
         )
         user = User.objects.get(email='anonymous@example.com')
         note = '{}: {}'.format(email, note) if note else email
-    if event.archived:
+    if not current_user.is_admin and event.archived:
         flash('Cannot modify an archived event!', 'warning')
     elif len(event.active_rsvps.filter(user=user)) > 0:
         flash('{} has already RSVP-ed!'.format(email), 'warning')
@@ -231,7 +231,7 @@ def api_rsvps(event_id):
     if request.method == 'GET':
         return event.to_json()
 
-    if event.archived:
+    if not current_user.is_admin and event.archived:
         return json.dumps({"error": "cannot modify archived event"}), 404
 
     try:
@@ -260,7 +260,7 @@ def api_rsvp(event_id, rsvp_id):
     if request.method == 'GET':
         return rsvp.to_json(indent=True)
 
-    if event.archived:
+    if not current_user.is_admin and event.archived:
         return json.dumps({"error": "cannot modify archived event"}), 404
 
     if request.method == 'DELETE':

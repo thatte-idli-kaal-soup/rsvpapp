@@ -49,7 +49,7 @@
             {% endif %}
         {% endif %}
     </p>
-    {% if not event.archived and not event.cancelled %}
+    {% if current_user.is_admin or (not event.archived and not event.cancelled) %}
         <div class="card">
             <div class="card-body">
                 <p class="alert alert-info" style="display: none;"></p>
@@ -76,14 +76,13 @@
             <li class="list-group-item">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="rsvp {% if item.cancelled %}rsvp-cancelled{% endif %}"
-                                 "data-toggle="tooltip" title="RSVP by {{item | rsvp_by}}">
+                          "data-toggle="tooltip" title="RSVP by {{item | rsvp_by}}">
                         {{item | rsvp_name}}
                     </span>
-                    {% if not event.cancelled and not event.archived and (
+                    {% if current_user.is_admin or (not event.cancelled and not event.archived and (
                         current_user == item.rsvp_by
                         or current_user == item.user
-                        or current_user.is_admin
-                        or item.rsvp_by is none
+                        or item.rsvp_by is none)
                     )  %}
                         <button onclick='delete_rsvp("{{event.id}}","{{item.id}}")' class="close">x</button>
                     {% endif %}
