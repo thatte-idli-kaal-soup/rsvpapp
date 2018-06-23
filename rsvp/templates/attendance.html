@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block content %}
+    <form class="form" action="/attendance" method='POST'>
+        <div class="form-group row">
+            <label for="date" class="col-sm-2 col-form-label">Start Date</label>
+            <div class="col-sm-4">
+                <input type="date" class="form-control" name="start-date" id="start-date" required>
+            </div>
+            <label for="date" class="col-sm-2 col-form-label">End Date</label>
+            <div class="col-sm-4">
+                <input type="date" class="form-control" name="end-date" id="end-date" required>
+            </div>
+        </div>
+        <button type="Submit" align="center" name="submit" class="btn btn-primary">
+            Download CSV
+        </button>
+    </form>
+{% endblock %}

@@ -1,7 +1,9 @@
 # Standard library
-import os
 import base64
+import csv
 from functools import wraps
+import io
+import os
 from random import choice
 import string
 
@@ -13,6 +15,26 @@ import mistune
 import sendgrid
 from sendgrid.helpers.mail import Email, Content, Mail, Personalization
 from werkzeug.security import pbkdf2_hex
+
+
+def get_attendance(events):
+    users = {rsvp.user for e in events for rsvp in e.rsvps}
+    dates = [e.date.strftime('%Y-%m-%d') for e in events]
+    header = ['Names'] + dates
+    attendance = {
+        user: [e.active_rsvps.filter(user=user).count() for e in events]
+        for user in users
+    }
+    rows = [
+        [user.fetch().nick or user.fetch().name] + marked_attendance
+        for user, marked_attendance in attendance.items()
+    ]
+    rows = sorted(rows, key=lambda x: x[0].lower())
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(header)
+    writer.writerows(rows)
+    return output.getvalue()
 
 
 def format_date(value):

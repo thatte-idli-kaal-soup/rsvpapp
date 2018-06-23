@@ -3,14 +3,14 @@ import json
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
-from flask import flash, render_template, redirect, url_for, request, send_file, session
+from flask import flash, render_template, redirect, url_for, request, send_file, session, make_response
 from flask_login import (
     current_user, fresh_login_required, login_required, logout_user
 )
 from mongoengine.errors import DoesNotExist
 
 from .models import Event, RSVP, User
-from .utils import format_date, generate_password, role_required, send_approved_email
+from .utils import format_date, generate_password, get_attendance, role_required, send_approved_email
 from . import app
 
 
@@ -297,3 +297,22 @@ def logout():
 @app.route('/approval_awaited/<name>')
 def approval_awaited(name):
     return render_template('approval_awaited.html', name=name)
+
+
+@app.route('/attendance', methods=['GET', 'POST'])
+@role_required('admin')
+def attendance():
+    if request.method == 'GET':
+        return render_template('attendance.html')
+
+    start = request.form.get('start-date')
+    end = request.form.get('end-date')
+    events = Event.objects.filter(date__gte=start, date__lte=end)
+    response = make_response(get_attendance(events))
+    response.headers[
+        "Content-Disposition"
+    ] = "attachment; filename=attendance-{}--{}.csv".format(
+        start, end
+    )
+    response.headers["Content-type"] = "text/csv"
+    return response
