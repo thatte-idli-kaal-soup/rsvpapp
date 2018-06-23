@@ -111,6 +111,8 @@ class TestApi(BaseTest):
         ) == 1
         path = "/api/rsvps/{}/".format(event_id) + doc['_id']['$oid']
         self.client.delete(path)
-        assert self.jsonget("/api/rsvps/{}".format(event_id))['rsvps'] == []
+        rsvps = self.jsonget("/api/rsvps/{}".format(event_id))['rsvps']
+        assert len(rsvps) == 1
+        assert rsvps[0]['cancelled']
         response = self.client.get(path)
-        assert response.status_code == 404
+        assert response.status_code == 200

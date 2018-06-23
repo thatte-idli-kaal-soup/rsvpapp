@@ -84,3 +84,7 @@ class AnonymousUser(AnonymousUserMixin):
 
     def has_any_role(self, *args):
         return False
+
+    @property
+    def is_admin(self):
+        return False
