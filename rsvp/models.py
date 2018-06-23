@@ -72,6 +72,10 @@ class User(db.Document, UserMixin):
     def approved_users():
         return User.objects.filter(roles__in=['.approved-user']).all()
 
+    @property
+    def is_admin(self):
+        return 'admin' in self.roles
+
 
 class AnonymousUser(AnonymousUserMixin):
 
