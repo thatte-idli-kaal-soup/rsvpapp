@@ -49,13 +49,12 @@ def archived():
 def event(id):
     event = Event.objects(id=id).first()
     rsvps = event.rsvps
-    count = len(rsvps)
     event_text = '{} - {}'.format(event['name'], format_date(event['date']))
     description = 'RSVP for {}'.format(event_text)
     approved_users = User.approved_users()
     return render_template(
         'event.html',
-        count=count,
+        count=event.rsvp_count,
         event=event,
         items=rsvps,
         approved_users=approved_users,
@@ -80,8 +79,13 @@ def new(event_id):
         note = '{}: {}'.format(email, note) if note else email
     if event.archived:
         flash('Cannot modify an archived event!', 'warning')
-    elif len(event.rsvps.filter(user=user)) > 0:
+    elif len(event.active_rsvps.filter(user=user)) > 0:
         flash('{} has already RSVP-ed!'.format(email), 'warning')
+    elif len(event.rsvps.filter(user=user)) > 0:
+        rsvp = event.rsvps.get(user=user)
+        rsvp.cancelled = False
+        rsvp.note = note
+        rsvp.save()
     elif email:
         rsvp_by = current_user.email if current_user.is_authenticated else None
         rsvp = RSVP(user=user, rsvp_by=rsvp_by, note=note)
@@ -260,8 +264,8 @@ def api_rsvp(event_id, rsvp_id):
         return json.dumps({"error": "cannot modify archived event"}), 404
 
     if request.method == 'DELETE':
-        event.rsvps.remove(rsvp)
-        event.save()
+        rsvp.cancelled = True
+        rsvp.save()
         return json.dumps({"deleted": "true"})
 
 

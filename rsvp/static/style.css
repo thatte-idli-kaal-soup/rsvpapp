@@ -24,3 +24,8 @@ body > .container {
 .list-group {
     max-width: 400px;
 }
+
+.rsvp-cancelled {
+    text-decoration: line-through;
+    color: grey;
+}

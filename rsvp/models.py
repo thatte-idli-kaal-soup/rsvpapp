@@ -15,6 +15,7 @@ class RSVP(db.EmbeddedDocument):
     note = db.StringField()
     date = db.DateTimeField(required=True, default=datetime.datetime.now)
     rsvp_by = db.LazyReferenceField('User')
+    cancelled = db.BooleanField(default=False)
 
 
 class Event(db.Document):
@@ -30,6 +31,14 @@ class Event(db.Document):
     @classmethod
     def pre_save(cls, sender, document, **kwargs):
         document.html_description = markdown_to_html(document.description)
+
+    @property
+    def active_rsvps(self):
+        return self.rsvps.filter(cancelled=False)
+
+    @property
+    def rsvp_count(self):
+        return len(self.active_rsvps)
 
 
 signals.pre_save.connect(Event.pre_save, sender=Event)

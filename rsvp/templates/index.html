@@ -53,7 +53,7 @@
                     <span>
                         <span><a href="/event/{{item.id}}">{{ item.name }}</a></span>
                         {% if item.rsvps %}
-                            <span class="badge badge-primary badge-pill">{{item.rsvps|length}}</span>
+                            <span class="badge badge-primary badge-pill">{{item.rsvp_count}}</span>
                         {% endif %}
                         {% if item.created_by.id == current_user.email and not item.cancelled %}
                             <button class="btn btn-danger btn-sm" onclick='cancel_event("{{item.id}}")'>

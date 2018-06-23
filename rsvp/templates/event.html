@@ -75,7 +75,10 @@
         {% for item in items %}
             <li class="list-group-item">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span data-toggle="tooltip" title="RSVP by {{item | rsvp_by}}">{{item | rsvp_name}}</span>
+                    <span class="rsvp {% if item.cancelled %}rsvp-cancelled{% endif %}"
+                                 "data-toggle="tooltip" title="RSVP by {{item | rsvp_by}}">
+                        {{item | rsvp_name}}
+                    </span>
                     {% if not event.cancelled and not event.archived and (current_user == item.rsvp_by or item.rsvp_by is none)  %}
                         <button onclick='delete_rsvp("{{event.id}}","{{item.id}}")' class="close">x</button>
                     {% endif %}
