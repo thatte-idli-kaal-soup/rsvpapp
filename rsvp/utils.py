@@ -19,7 +19,7 @@ from werkzeug.security import pbkdf2_hex
 
 def get_attendance(events):
     users = {rsvp.user for e in events for rsvp in e.rsvps}
-    dates = [e.date.strftime('%Y-%m-%d') for e in events]
+    dates = ['{:%Y-%m-%d}\n{}'.format(e.date, e.name) for e in events]
     header = ['Names'] + dates
     attendance = {
         user: [e.active_rsvps.filter(user=user).count() for e in events]
