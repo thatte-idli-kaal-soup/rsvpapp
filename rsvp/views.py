@@ -135,9 +135,9 @@ def update_user():
         flash('You can only modify your information', 'danger')
     else:
         user = User.objects.get_or_404(email=email)
-        user.upi_id = request.form['upi-id']
-        user.blood_group = request.form['blood-group']
-        user.nick = request.form['nick']
+        user.upi_id = request.form['upi-id'].strip()
+        user.blood_group = request.form['blood-group'].strip()
+        user.nick = request.form['nick'].strip()
         user.dob = request.form['dob'] or None
         user.save()
         flash('Successfully updated your information', 'info')
