@@ -73,7 +73,7 @@
     <hr/>
     <ul class="list-group">
         {% for item in items %}
-            <li class="list-group-item">
+            <li class="list-group-item {% if item.user.fetch().gender == 'female' -%}text-white bg-dark{% endif -%}">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="rsvp {% if item.cancelled %}rsvp-cancelled{% endif %}"
                           "data-toggle="tooltip" title="RSVP by {{item | rsvp_by}}">
@@ -84,7 +84,7 @@
                         or current_user == item.user
                         or item.rsvp_by is none)
                     )  %}
-                        <button onclick='delete_rsvp("{{event.id}}","{{item.id}}")' class="close">x</button>
+                        <button onclick='delete_rsvp("{{event.id}}","{{item.id}}")' class="close {% if item.user.fetch().gender == 'female' -%}text-white{% endif -%}">x</button>
                     {% endif %}
                 </div>
                 {% if item.note %}
