@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block content %}
+    {% for post in posts %}
+        <div class="blog-post">
+            <h2 class="blog-post-title">{{post.title}}</h2>
+            <p class="blog-post-meta">{{post.created_at.strftime('%B %d, %Y')}} {% if post.author %}by {{post.author.fetch().name}}{% endif %}</p>
+            {{post.html_content | safe}}
+        </div>
+    {% endfor %}
+{% endblock %}

@@ -9,7 +9,7 @@ from flask_login import (
 )
 from mongoengine.errors import DoesNotExist
 
-from .models import Event, RSVP, User
+from .models import Event, Post, RSVP, User
 from .utils import format_date, generate_password, get_attendance, role_required, send_approved_email
 from . import app
 
@@ -316,3 +316,10 @@ def attendance():
     )
     response.headers["Content-type"] = "text/csv"
     return response
+
+
+@app.route('/posts')
+@login_required
+def show_posts():
+    posts = Post.objects.order_by('-created_at')
+    return render_template('posts.html', posts=posts)

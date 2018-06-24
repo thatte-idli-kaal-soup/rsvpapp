@@ -88,3 +88,19 @@ class AnonymousUser(AnonymousUserMixin):
     @property
     def is_admin(self):
         return False
+
+
+class Post(db.Document):
+    title = db.StringField(required=True)
+    content = db.StringField()
+    html_content = db.StringField()
+    created_at = db.DateTimeField(required=True, default=datetime.datetime.now)
+    archived = db.BooleanField(default=False)
+    author = db.LazyReferenceField('User')
+
+    @classmethod
+    def pre_save(cls, sender, document, **kwargs):
+        document.html_content = markdown_to_html(document.content)
+
+
+signals.pre_save.connect(Post.pre_save, sender=Post)
