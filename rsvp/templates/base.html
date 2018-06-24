@@ -35,31 +35,21 @@
         <header>
             <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
                 <a class="navbar-brand" href="{{url_for('index')}}"><img width="24px" src="{{ LOGO }}"/> {{TEXT1}}</a>
-                {% if approval_awaited_count %}
-                    <span class="navbar-toggler">
-                        <a href="{{url_for('approve_users')}}" title="{{approval_awaited_count}} users awaiting approval">
-                            <span class="text-white">
-                                <i class="fas fa-sm fa-bell text-danger"></i>
-                                {{approval_awaited_count}}
-                            </span>
-                        </a>
-                    </span>
-                {% endif %}
-                {% if recent_post_count %}
-                    <span class="navbar-toggler">
-
-                        <a href="{{url_for('show_posts')}}" title="{{recent_post_count}} recent post(s)">
-                            <span class="text-white">
-                                <i class="fas fa-sm fa-bell text-primary"></i>
-                                {{recent_post_count}}
-                            </span>
-                        </a>
-                    </span>
-                {% endif %}
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMenu"
                         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon">
-                    </span>
+                    {% if approval_awaited_count %}
+                        <span class="fas fa-xs text-white">
+                            <i class="fas fa-xs fa-bell text-danger"></i>
+                        </span>
+                    {% endif %}
+                    {% if recent_post_count %}
+                        <span class="fas fa-xs text-white">
+                            <i class="fas fa-xs fa-bell text-primary"></i>
+                        </span>
+                    {% endif %}
+                    {% if not approval_awaited_count and not recent_post_count %}
+                        <span class="navbar-toggler-icon"></span>
+                    {% endif %}
                 </button>
                 <div class="collapse navbar-collapse" id="navbarMenu">
                     <ul class="navbar-nav mr-auto">
