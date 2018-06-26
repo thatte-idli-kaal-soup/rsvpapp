@@ -4,10 +4,10 @@
     {{event.description}}
 {% endif %}
 
-{% for item in items -%}
-    {% set user = item.user.fetch() -%}
-    {% if not item.cancelled -%}
-        {{loop.index}}. {{ user.nick or user.name }}{% if item.note %} ({{ item.note }}){% endif %}
+{% for rsvp in active_rsvps -%}
+    {% set user = rsvp.user.fetch() -%}
+    {% if not rsvp.cancelled -%}
+        {{loop.index}}. {{ user.nick or user.name }}{% if rsvp.note %} ({{ rsvp.note }}){% endif %}
     {%- endif %}
 {% endfor %}
 
