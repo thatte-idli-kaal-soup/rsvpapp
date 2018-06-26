@@ -6,7 +6,9 @@
 
 {% for item in items -%}
     {% set user = item.user.fetch() -%}
-    {{loop.index}}. {{ user.nick or user.name }}{% if item.note %} ({{ item.note }}){% endif %}
+    {% if not item.cancelled -%}
+        {{loop.index}}. {{ user.nick or user.name }}{% if item.note %} ({{ item.note }}){% endif %}
+    {%- endif %}
 {% endfor %}
 
 {% if not event.archived -%}
