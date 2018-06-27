@@ -7,6 +7,7 @@ from mongoengine import signals
 from .utils import random_id, markdown_to_html
 
 db = MongoEngine()
+ANONYMOUS_EMAIL = 'anonymous@example.com'
 
 
 class RSVP(db.EmbeddedDocument):

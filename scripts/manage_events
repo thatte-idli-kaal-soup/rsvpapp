@@ -8,7 +8,7 @@ import mongoengine.errors
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rsvp import app
-from rsvp.models import Event, User
+from rsvp.models import Event, User, ANONYMOUS_EMAIL
 from rsvp.utils import format_date
 
 
@@ -67,7 +67,7 @@ def delete_anonymous_rsvps(event_id):
         return
 
     click.echo('Deleting anonymous RSVPs for event {}'.format(event.id))
-    user = User.objects.get(email='anonymous@example.com')
+    user = User.objects.get(email=ANONYMOUS_EMAIL)
     rsvps = event.rsvps.filter(user=user)
     confirmation = click.confirm(
         'Are you sure you want to remove {} rsvps'.format(rsvps.count())

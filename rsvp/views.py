@@ -3,14 +3,29 @@ import json
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
-from flask import flash, render_template, redirect, url_for, request, send_file, session, make_response
+from flask import (
+    flash,
+    render_template,
+    redirect,
+    url_for,
+    request,
+    send_file,
+    session,
+    make_response,
+)
 from flask_login import (
     current_user, fresh_login_required, login_required, logout_user
 )
 from mongoengine.errors import DoesNotExist
 
-from .models import Event, Post, RSVP, User
-from .utils import format_date, generate_password, get_attendance, role_required, send_approved_email
+from .models import Event, Post, RSVP, User, ANONYMOUS_EMAIL
+from .utils import (
+    format_date,
+    generate_password,
+    get_attendance,
+    role_required,
+    send_approved_email,
+)
 from . import app
 
 
@@ -75,7 +90,7 @@ def new(event_id):
         flash(
             'Could not find user with email, using anonymous user!', 'warning'
         )
-        user = User.objects.get(email='anonymous@example.com')
+        user = User.objects.get(email=ANONYMOUS_EMAIL)
         note = '{}: {}'.format(email, note) if note else email
     if not current_user.is_admin and event.archived:
         flash('Cannot modify an archived event!', 'warning')
@@ -264,8 +279,12 @@ def api_rsvp(event_id, rsvp_id):
         return json.dumps({"error": "cannot modify archived event"}), 404
 
     if request.method == 'DELETE':
-        rsvp.cancelled = True
-        rsvp.save()
+        if rsvp.user.fetch().email == ANONYMOUS_EMAIL:
+            event.rsvps.remove(rsvp)
+            event.save()
+        else:
+            rsvp.cancelled = True
+            rsvp.save()
         return json.dumps({"deleted": "true"})
 
 
