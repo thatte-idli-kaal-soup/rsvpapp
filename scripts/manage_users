@@ -7,6 +7,7 @@ from mongoengine.queryset.visitor import Q
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rsvp.models import User
+from rsvp.utils import markdown_to_html
 
 
 @click.group()
@@ -97,6 +98,21 @@ def set_gender(gender, users):
     users.update(gender=gender)
 
 
+@click.command()
+@click.argument('user', type=str)
+@click.argument('attribute', type=str)
+@click.argument('value', type=str)
+def set_user_attribute(user, attribute, value):
+    user = User.objects.get(email=user)
+    if attribute not in user._fields:
+        click.echo('{} is not a valid attribute for users'.format(attribute))
+        return
+
+    click.echo('Setting {} to {} for {} users'.format(attribute, value, user))
+    setattr(user, attribute, markdown_to_html(value))
+    user.save()
+
+
 cli.add_command(list_users)
 cli.add_command(list_roles)
 cli.add_command(list_role_users)
@@ -104,5 +120,6 @@ cli.add_command(add_role)
 cli.add_command(remove_role)
 cli.add_command(list_genders)
 cli.add_command(set_gender)
+cli.add_command(set_user_attribute)
 if __name__ == '__main__':
     cli()
