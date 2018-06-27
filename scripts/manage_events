@@ -8,8 +8,18 @@ import mongoengine.errors
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rsvp import app
-from rsvp.models import Event
+from rsvp.models import Event, User
 from rsvp.utils import format_date
+
+
+def find_event(event_id):
+    try:
+        return Event.objects.get(id=event_id)
+
+    except (
+        mongoengine.errors.ValidationError, mongoengine.errors.DoesNotExist
+    ):
+        click.echo('Could not find the specified event')
 
 
 @click.group()
@@ -33,25 +43,43 @@ def archive_events():
 @click.argument('event_id', type=str)
 def cancel_event(event_id):
     """Cancel the specified event."""
-    try:
-        event = Event.objects.get(id=event_id)
-    except (
-        mongoengine.errors.ValidationError, mongoengine.errors.DoesNotExist
-    ):
-        click.echo('Could not find the specified event')
-    else:
-        click.echo('Cancelling event {}'.format(event.id))
-        confirmation = click.confirm(
-            'Are you sure you want to cancel the event - {} - {}'.format(
-                event.name, format_date(event.date)
-            )
+    event = find_event(event_id)
+    if not event:
+        return
+
+    click.echo('Cancelling event {}'.format(event.id))
+    confirmation = click.confirm(
+        'Are you sure you want to cancel the event - {} - {}'.format(
+            event.name, format_date(event.date)
         )
-        if confirmation:
-            event.cancelled = True
-            event.save()
+    )
+    if confirmation:
+        event.cancelled = True
+        event.save()
+
+
+@click.command()
+@click.argument('event_id', type=str)
+def delete_anonymous_rsvps(event_id):
+    """Delete anonymous rsvps for an event."""
+    event = find_event(event_id)
+    if not event:
+        return
+
+    click.echo('Deleting anonymous RSVPs for event {}'.format(event.id))
+    user = User.objects.get(email='anonymous@example.com')
+    rsvps = event.rsvps.filter(user=user)
+    confirmation = click.confirm(
+        'Are you sure you want to remove {} rsvps'.format(rsvps.count())
+    )
+    if confirmation:
+        for rsvp in rsvps:
+            event.rsvps.remove(rsvp)
+        event.save()
 
 
 cli.add_command(archive_events)
 cli.add_command(cancel_event)
+cli.add_command(delete_anonymous_rsvps)
 if __name__ == '__main__':
     cli()
