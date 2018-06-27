@@ -78,8 +78,23 @@ def delete_anonymous_rsvps(event_id):
         event.save()
 
 
+@click.command()
+@click.argument('event_id', type=str)
+@click.argument('description', type=str)
+def edit_description(event_id, description):
+    """Edit the description of an event."""
+    event = find_event(event_id)
+    if not event:
+        return
+
+    click.echo('Updating the description for {}'.format(event.id))
+    event.description = description
+    event.save()
+
+
 cli.add_command(archive_events)
 cli.add_command(cancel_event)
 cli.add_command(delete_anonymous_rsvps)
+cli.add_command(edit_description)
 if __name__ == '__main__':
     cli()
