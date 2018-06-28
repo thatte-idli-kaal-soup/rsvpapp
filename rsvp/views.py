@@ -82,7 +82,7 @@ def event(id):
 @login_required
 def new(event_id):
     event = Event.objects(id=event_id).first()
-    email = request.form['email']
+    email = request.form['email'].strip()
     note = request.form['note'].strip()
     try:
         user = User.objects.get(email=email)
