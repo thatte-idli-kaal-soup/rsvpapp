@@ -85,6 +85,7 @@ def new(event_id):
     email = request.form['email'].strip()
     note = request.form['note'].strip()
     try:
+        print('Trying to fetch user with email {}'.format(repr(email)))
         user = User.objects.get(email=email)
     except DoesNotExist:
         flash(
