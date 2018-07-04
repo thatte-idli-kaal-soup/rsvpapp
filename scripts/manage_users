@@ -4,9 +4,10 @@ import sys
 
 import click
 from mongoengine.queryset.visitor import Q
+from mongoengine.errors import DoesNotExist
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from rsvp.models import User
+from rsvp.models import Event, User
 from rsvp.utils import markdown_to_html
 
 
@@ -113,10 +114,34 @@ def set_user_attribute(user, attribute, value):
     user.save()
 
 
+@click.command()
+@click.argument('emails', type=str, nargs=-1)
+def canonicalize_users(emails):
+    if len(emails) < 2:
+        click.echo('Need at least 2 emails to canonicalize users')
+        return
+
+    canonical_email = emails[0]
+    canonical_user = User.objects.get(email=canonical_email)
+    for email in emails[1:]:
+        user = User.objects.get(email=email)
+        for event in Event.objects():
+            try:
+                rsvp = event.rsvps.get(user=user)
+            except DoesNotExist:
+                pass
+            else:
+                click.echo('Changing rsvp {}'.format(rsvp.id))
+                rsvp.user = canonical_user
+                rsvp.save()
+        user.delete()
+
+
 cli.add_command(list_users)
 cli.add_command(list_roles)
 cli.add_command(list_role_users)
 cli.add_command(add_role)
+cli.add_command(canonicalize_users)
 cli.add_command(remove_role)
 cli.add_command(list_genders)
 cli.add_command(set_gender)
