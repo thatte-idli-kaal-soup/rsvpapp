@@ -60,6 +60,24 @@ def cancel_event(event_id):
 
 @click.command()
 @click.argument('event_id', type=str)
+def delete_event(event_id):
+    """Delete the specified event."""
+    event = find_event(event_id)
+    if not event:
+        return
+
+    click.echo('Deleting event {}'.format(event.id))
+    confirmation = click.confirm(
+        'Are you sure you want to delete the event - {} - {}'.format(
+            event.name, format_date(event.date)
+        )
+    )
+    if confirmation:
+        event.delete()
+
+
+@click.command()
+@click.argument('event_id', type=str)
 @click.argument('email', type=str)
 def delete_rsvp(event_id, email):
     """Delete users' rsvp for an event."""
@@ -89,6 +107,7 @@ def edit_description(event_id, description):
 
 cli.add_command(archive_events)
 cli.add_command(cancel_event)
+cli.add_command(delete_event)
 cli.add_command(delete_rsvp)
 cli.add_command(edit_description)
 if __name__ == '__main__':
