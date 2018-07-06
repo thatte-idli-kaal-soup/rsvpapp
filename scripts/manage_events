@@ -77,6 +77,15 @@ def delete_event(event_id):
 
 
 @click.command()
+def delete_unrsvped_events():
+    """Delete events which have been cancelled and don't have any RSVPs."""
+    for event in Event.objects.filter(cancelled=True):
+        if event.rsvps.count() == 0:
+            click.echo('Deleting event {}: {}'.format(event.id, event.name))
+            event.delete()
+
+
+@click.command()
 @click.argument('event_id', type=str)
 @click.argument('email', type=str)
 def delete_rsvp(event_id, email):
@@ -110,5 +119,6 @@ cli.add_command(cancel_event)
 cli.add_command(delete_event)
 cli.add_command(delete_rsvp)
 cli.add_command(edit_description)
+cli.add_command(delete_unrsvped_events)
 if __name__ == '__main__':
     cli()
