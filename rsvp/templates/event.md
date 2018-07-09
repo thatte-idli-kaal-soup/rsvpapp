@@ -1,9 +1,5 @@
 *{{TEXT2}}*
 
-{% if event.description -%}
-    {{event.description}}
-{% endif %}
-
 {% for rsvp in active_rsvps -%}
     {% set user = rsvp.user.fetch() -%}
     {% if not rsvp.cancelled -%}
