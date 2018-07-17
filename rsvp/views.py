@@ -319,6 +319,14 @@ def approval_awaited(name):
     return render_template('approval_awaited.html', name=name)
 
 
+@app.route('/onesta/<letters>')
+@login_required
+def onesta(letters):
+    letters = letters.lower()
+    users = [user for user in User.objects if letters in user.name.lower()]
+    return render_template('names.html', users=users)
+
+
 @app.route('/attendance', methods=['GET', 'POST'])
 @role_required('admin')
 def attendance():

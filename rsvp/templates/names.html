@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for user in users %}
+        {% if loop.index % 3 == 1 %}
+            <div class="row">
+        {% endif %}
+        <div class="col-sm-4">
+            <div class="card bg-light mb-3">
+                <div class="card-header">
+                    {{ user.name }}
+                </div>
+            </div>
+        </div>
+        {% if loop.index % 3 == 0 or loop.last %}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
