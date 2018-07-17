@@ -43,18 +43,30 @@ def archive_events():
 @click.argument('event_id', type=str)
 def cancel_event(event_id):
     """Cancel the specified event."""
+    _toggle_cancel(event_id, cancel=True)
+
+
+@click.command()
+@click.argument('event_id', type=str)
+def uncancel_event(event_id):
+    """Un-cancel the specified event."""
+    _toggle_cancel(event_id, cancel=False)
+
+
+def _toggle_cancel(event_id, cancel=False):
     event = find_event(event_id)
     if not event:
         return
 
-    click.echo('Cancelling event {}'.format(event.id))
+    action = 'cancel' if cancel else 'uncancel'
+    click.echo('{}ing event {}'.format(action.capitalize(), event.id))
     confirmation = click.confirm(
-        'Are you sure you want to cancel the event - {} - {}'.format(
-            event.name, format_date(event.date)
+        'Are you sure you want to {} the event - {} - {}'.format(
+            action, event.name, format_date(event.date)
         )
     )
     if confirmation:
-        event.cancelled = True
+        event.cancelled = cancel
         event.save()
 
 
@@ -116,6 +128,7 @@ def edit_description(event_id, description):
 
 cli.add_command(archive_events)
 cli.add_command(cancel_event)
+cli.add_command(uncancel_event)
 cli.add_command(delete_event)
 cli.add_command(delete_rsvp)
 cli.add_command(edit_description)
