@@ -231,7 +231,7 @@ def api_event(event_id):
     except ValueError:
         return '{"error": "expecting JSON payload"}', 400
 
-    allowed_fields = {'cancelled', 'archived'}
+    allowed_fields = {'cancelled', 'archived', 'description'}
     event = Event.objects.get_or_404(id=event_id)
     for field in allowed_fields:
         if field in doc:

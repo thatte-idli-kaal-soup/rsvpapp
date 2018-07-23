@@ -22,6 +22,22 @@
              $(".alert").text('RSVPing...').show();
          }
      }
+
+     update_description = function(event_id){
+         var data = {
+             description: editor.codemirror.getValue()
+         }
+         fetch(`/api/event/${event_id}`,
+               {credentials: 'same-origin', method: "PATCH", body: JSON.stringify(data)}).then(function(response){
+                   if (response.status == 200){
+                       window.location.href = "";
+                   }
+                   return response.json();
+               }).then(function(data){
+                   $(".alert").text(data.error).show();
+               });
+     }
+
     </script>
     <!-- Awesomeplete -->
     <script>
@@ -33,6 +49,17 @@
              {% endfor %}
          ],
          minChars: 0
+     });
+    </script>
+    <!-- Markdown editor -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/editor/0.1.0/editor.css">
+    <script src="//cdn.jsdelivr.net/editor/0.1.0/editor.js"></script>
+    <script src="//cdn.jsdelivr.net/editor/0.1.0/marked.js"></script>
+
+    <script>
+     var editor = new Editor({
+         element: document.getElementById("event-description"),
+         placeholder: "Please add a plan for the session!",
      });
     </script>
 {% endblock %}
@@ -69,6 +96,18 @@
         </div>
     {% endif %}
     <hr/>
+    {% if current_user.is_admin or event.created_by.fetch().email == current_user.email %}
+        <div class="form-group row">
+            <div class="col-sm-10">
+                <textarea class="form-control" id="event-description" name="event-description" rows="2">{{ event.description or '' }}</textarea>
+            </div>
+        </div>
+        <button type="submit" onclick='update_description("{{ event.id }}")'
+                class="btn btn-primary">
+            Update
+        </button>
+        <hr/>
+    {% endif %}
     {{ (event.html_description or '') | safe }}
     <hr/>
     <ul class="list-group">
