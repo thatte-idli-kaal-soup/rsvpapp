@@ -18,7 +18,10 @@ db.init_app(app)
 blueprint = make_google_blueprint(
     client_id=os.environ['GOOGLE_CLIENT_ID'],
     client_secret=os.environ['GOOGLE_CLIENT_SECRET'],
-    scope=["profile", "email"],
+    scope=[
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+    ],
 )
 app.register_blueprint(blueprint, url_prefix="/login")
 TEXT1 = app.config['TEXT1']
