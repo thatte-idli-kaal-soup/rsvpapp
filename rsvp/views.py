@@ -1,5 +1,7 @@
 import copy
+from datetime import datetime
 import json
+import os
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
@@ -351,3 +353,53 @@ def attendance():
 def show_posts():
     posts = Post.objects.order_by('-created_at')
     return render_template('posts.html', posts=posts)
+
+
+@app.route('/zulip', methods=['POST'])
+def zulip_rsvp():
+    data = json.loads(request.data)
+    if data.get('token', '') != os.environ['ZULIP_RSVP_TOKEN']:
+        return json.dumps(
+            {"response_string": "Incorrect Token in request"}
+        ), 400
+
+    stream = os.environ['ZULIP_ANNOUNCE_STREAM']
+    message = data['message']
+    topic = message['subject']
+    content = message['content'].strip()
+    email = (' ' in content and content.split()[-1]) or message['sender_email']
+    if stream != message['display_recipient']:
+        return json.dumps(
+            {
+                "response_string": "Messages only accepted in {} stream".format(
+                    stream
+                )
+            }
+        ), 400
+
+    name, date = map(lambda x: x.strip(), topic.split('-', 1))
+    parsed_date = datetime.strptime(date, '%Y-%m-%d %H:%M')
+    event = Event.objects.filter(name=name, date=date).first()
+    if not event:
+        return json.dumps(
+            {"response_string": "Could not find event to RSVP"}
+        ), 400
+
+    try:
+        user = User.objects.get(email=email)
+    except Exception:
+        return json.dumps(
+            {"response_string": "Could not map user to RSVP user"}
+        ), 400
+
+    if len(event.rsvps.filter(user=user)) > 0:
+        rsvp = event.rsvps.get(user=user)
+        rsvp.cancelled = False
+    else:
+        rsvp = RSVP(user=user, rsvp_by=user)
+        event.rsvps.append(rsvp)
+    event.save()
+    event_url = '{}/event/{}'.format(os.environ['RSVP_HOST'], event.id)
+    return json.dumps(
+        {"response_string": "Successfully RSVPed to {}".format(event_url)}
+    )
