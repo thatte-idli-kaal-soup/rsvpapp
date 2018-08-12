@@ -80,7 +80,7 @@ def event(id):
 
 @app.route('/new/<event_id>', methods=['POST'])
 @login_required
-def new(event_id):
+def new_rsvp(event_id):
     event = Event.objects(id=event_id).first()
     email = request.form['email'].strip()
     note = request.form['note'].strip()
