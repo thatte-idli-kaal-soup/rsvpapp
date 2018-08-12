@@ -12,6 +12,7 @@ from bson.objectid import ObjectId
 from flask_login import current_user
 from flask import current_app, render_template
 import mistune
+import requests
 import sendgrid
 from sendgrid.helpers.mail import Email, Content, Mail, Personalization
 from werkzeug.security import pbkdf2_hex
@@ -146,3 +147,41 @@ def send_approved_email(user):
         return False
 
     return int(response.status_code / 200) == 2
+
+
+def send_message_zulip(to, subject, content, type_='private'):
+    """Send a message to Zulip."""
+    data = {"type": type_, "to": to, "subject": subject, "content": content}
+    try:
+        print(u'Sending message "%s" to %s (%s)' % (content, to, type_))
+        zulip_api_url = os.environ['ZULIP_API_URL']
+        zulip_email = os.environ['ZULIP_EMAIL']
+        zulip_key = os.environ['ZULIP_KEY']
+        response = requests.post(
+            zulip_api_url, data=data, auth=(zulip_email, zulip_key)
+        )
+        print(
+            u'Post returned with %s: %s' %
+            (response.status_code, response.content)
+        )
+        return response.status_code == 200
+
+    except Exception as e:
+        print(e)
+        return False
+
+
+def zulip_announce(sender, document, **kwargs):
+    if not kwargs.get('created', False):
+        return
+
+    if 'RSVP_HOST' not in os.environ or 'ZULIP_ANNOUNCE_STREAM' not in os.environ:
+        print("Please set RSVP_HOST and ZULIP_ANNOUNCE_STREAM")
+        return
+
+    url = '{}/event/{}'.format(os.environ['RSVP_HOST'], str(document.id))
+    content = '%s\n[Click here to RSVP](%s)' % (document.description, url)
+    title = '{} - {}'.format(document.name, document.date)
+    send_message_zulip(
+        os.environ['ZULIP_ANNOUNCE_STREAM'], title, content, 'stream'
+    )
