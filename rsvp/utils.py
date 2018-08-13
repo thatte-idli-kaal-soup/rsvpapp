@@ -172,16 +172,21 @@ def send_message_zulip(to, subject, content, type_='private'):
 
 
 def zulip_announce(sender, document, **kwargs):
-    if not kwargs.get('created', False):
+    created = kwargs.get('created', False)
+    announce = created or 'description' in document._changed_fields
+    if not announce:
         return
 
     if 'RSVP_HOST' not in os.environ or 'ZULIP_ANNOUNCE_STREAM' not in os.environ:
         print("Please set RSVP_HOST and ZULIP_ANNOUNCE_STREAM")
         return
 
+    if created:
+        # Fetch object from DB to be able to use validated/cleaned values
+        document = sender.objects.get(id=document.id)
     url = '{}/event/{}'.format(os.environ['RSVP_HOST'], str(document.id))
-    content = '%s\n[Click here to RSVP](%s)' % (document.description, url)
-    title = '{} - {}'.format(document.name, document.date)
+    content = '%s\n\n[Click here to RSVP](%s)' % (document.description, url)
+    title = '{} - {:%Y-%m-%d %H:%M}'.format(document.name, document.date)
     send_message_zulip(
         os.environ['ZULIP_ANNOUNCE_STREAM'], title, content, 'stream'
     )
