@@ -379,7 +379,7 @@ def zulip_rsvp():
         ), 400
 
     match = re.match(
-        '(?P<name>.*) (?P<date>\d{4}-\d{2}-\d{2} \d{2}:\d{2})', topic
+        '(?P<name>.*) - (?P<date>\d{4}-\d{2}-\d{2} \d{2}:\d{2})', topic
     )
     if not match:
         event = None
