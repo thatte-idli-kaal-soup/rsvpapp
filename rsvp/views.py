@@ -2,6 +2,7 @@ import copy
 from datetime import datetime
 import json
 import os
+import re
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
@@ -377,9 +378,15 @@ def zulip_rsvp():
             }
         ), 400
 
-    name, date = map(lambda x: x.strip(), topic.split('-', 1))
-    parsed_date = datetime.strptime(date, '%Y-%m-%d %H:%M')
-    event = Event.objects.filter(name=name, date=date).first()
+    match = re.match(
+        '(?P<name>.*) (?P<date>\d{4}-\d{2}-\d{2} \d{2}:\d{2})', topic
+    )
+    if not match:
+        event = None
+    else:
+        name, date = match.groups()
+        parsed_date = datetime.strptime(date, '%Y-%m-%d %H:%M')
+        event = Event.objects.filter(name=name, date=date).first()
     if not event:
         return json.dumps(
             {"response_string": "Could not find event to RSVP"}
