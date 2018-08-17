@@ -117,6 +117,11 @@ def set_user_attribute(user, attribute, value):
 @click.command()
 @click.argument('emails', type=str, nargs=-1)
 def canonicalize_users(emails):
+    """The first email ID will be used as the canonical email.
+
+    All the IDs following the first one, will be replaced by the first one.
+
+    """
     if len(emails) < 2:
         click.echo('Need at least 2 emails to canonicalize users')
         return
