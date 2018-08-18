@@ -261,8 +261,21 @@ def api_rsvps(event_id):
     if 'user' not in doc:
         return '{"error": "user field is missing"}', 400
 
-    rsvp = RSVP(**doc)
-    event.rsvps.append(rsvp)
+    else:
+        try:
+            user = User.objects.get(email=doc['user'])
+        except User.DoesNotExist:
+            return '{"error": "user does not exist"}', 400
+
+    try:
+        rsvp = event.rsvps.get(user=user)
+        if 'note' in doc:
+            rsvp.note = doc['note']
+        rsvp.cancelled = False
+        rsvp.save()
+    except DoesNotExist:
+        rsvp = RSVP(**doc, ** {'rsvp_by': current_user.email})
+        event.rsvps.append(rsvp)
     event.save()
     return rsvp.to_json()
 
@@ -399,12 +412,6 @@ def zulip_rsvp():
             {"response_string": "Could not map user to RSVP user"}
         ), 400
 
-    if len(event.rsvps.filter(user=user)) > 0:
-        rsvp = event.rsvps.get(user=user)
-        rsvp.cancelled = False
-    else:
-        rsvp = RSVP(user=user, rsvp_by=user)
-        event.rsvps.append(rsvp)
     event.save()
     event_url = '{}/event/{}'.format(os.environ['RSVP_HOST'], event.id)
     return json.dumps(
