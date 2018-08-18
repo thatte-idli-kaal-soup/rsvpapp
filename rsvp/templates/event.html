@@ -133,7 +133,7 @@
             </li>
             {% endif %}
     </ul>
-    {% if current_user.is_admin or event.created_by.fetch().email == current_user.email %}
+    {% if current_user.is_admin or event.created_by and event.created_by.fetch().email == current_user.email %}
     <div class="form-group row">
         <div class="col-sm-10">
             <textarea class="form-control" id="event-description" name="event-description" rows="2">{{ event.description or '' }}</textarea>

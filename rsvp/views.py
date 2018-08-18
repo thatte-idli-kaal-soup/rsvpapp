@@ -274,7 +274,11 @@ def api_rsvps(event_id):
         rsvp.cancelled = False
         rsvp.save()
     except DoesNotExist:
-        rsvp = RSVP(**doc, ** {'rsvp_by': current_user.email})
+        data = {
+            'rsvp_by': current_user.email if current_user.is_authenticated else ANONYMOUS_EMAIL
+        }
+        data.update(doc)
+        rsvp = RSVP(**data)
         event.rsvps.append(rsvp)
     event.save()
     return rsvp.to_json()
