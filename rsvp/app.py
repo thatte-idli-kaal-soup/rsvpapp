@@ -7,7 +7,7 @@ from flask_dance.consumer import oauth_authorized
 from flask_login import current_user, LoginManager, login_user
 from flaskext.versioned import Versioned
 
-from .models import db, Post, User, AnonymousUser
+from .models import db, Post, User, AnonymousUser, ANONYMOUS_EMAIL
 from .utils import format_date, rsvp_by, rsvp_name, send_approval_email
 
 app = Flask(__name__)
@@ -89,6 +89,24 @@ def load_user(user_id):
 
     except User.DoesNotExist:
         return
+
+
+@login_manager.request_loader
+def load_user(request):
+    token_header = request.headers.get('Authorization', '').strip()
+    if not token_header:
+        return
+
+    token = token_header.split()[-1]
+    if not (token and token == os.environ['ZULIP_RSVP_TOKEN']):
+        return
+
+    try:
+        user = User.objects.get(email=ANONYMOUS_EMAIL)
+    except User.DoesNotExist:
+        user = User.objects(email=ANONYMOUS_EMAIL, name='Bot User')
+        user.save()
+    return user
 
 
 # Add template filters
