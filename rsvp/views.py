@@ -248,7 +248,12 @@ def api_event(event_id):
 def api_rsvps(event_id):
     event = Event.objects.get(id=event_id)
     if request.method == 'GET':
-        return event.to_json()
+        event_json = json.loads(event.to_json(use_db_field=False))
+        for i, rsvp in enumerate(event.rsvps):
+            event_json['rsvps'][i]['user'] = json.loads(
+                rsvp.user.fetch().to_json()
+            )
+        return json.dumps(event_json)
 
     if not current_user.is_admin and event.archived:
         return json.dumps({"error": "cannot modify archived event"}), 404
