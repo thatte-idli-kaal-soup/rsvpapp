@@ -18,13 +18,19 @@ def cli():
 
 @click.command()
 @click.option('--format', default='tsv')
-@click.option('--include-roles', default=False, is_flag=True)
-def list_users(format='tsv', include_roles=False):
+@click.option('--display-roles', default=False, is_flag=True)
+@click.option('--include-roles', multiple=True)
+def list_users(format='tsv', display_roles=False, include_roles=None):
     seperator = ', ' if format == 'csv' else '\t'
+    users = User.objects(
+        roles__in=include_roles
+    ) if include_roles else User.objects.all()
+    if include_roles:
+        display_roles = True
     output_format = (
-        '{name}{sep}{email}{sep}{roles}' if include_roles else '{name}{sep}{email}'
+        '{name}{sep}{email}{sep}"{roles}"' if display_roles else '{name}{sep}{email}'
     )
-    for user in User.objects.all().order_by('email'):
+    for user in users.order_by('email'):
         click.echo(
             output_format.format(
                 name=user.name,
@@ -33,14 +39,6 @@ def list_users(format='tsv', include_roles=False):
                 sep=seperator,
             )
         )
-
-
-@click.command()
-@click.argument('role', type=str)
-def list_role_users(role):
-    click.echo('Listing users with the role - {}'.format(role))
-    for user in User.objects(roles__in=[role]).order_by('email'):
-        click.echo('{}\t{}'.format(user.email, ', '.join(user.roles)))
 
 
 @click.command()
@@ -157,7 +155,6 @@ def canonicalize_users(emails):
 
 cli.add_command(list_users)
 cli.add_command(list_roles)
-cli.add_command(list_role_users)
 cli.add_command(add_role)
 cli.add_command(canonicalize_users)
 cli.add_command(remove_role)
