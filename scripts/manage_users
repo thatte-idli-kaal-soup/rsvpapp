@@ -61,12 +61,56 @@ def list_roles():
 @click.command()
 @click.argument('role', type=str)
 @click.option('--all', default=False, is_flag=True)
+@click.option('--interactive', default=False, is_flag=True)
 @click.argument('users', type=str, nargs=-1)
-def add_role(role, users, all):
+def add_role(role, users, all, interactive=False):
     """Add a role to the specified users."""
     if all:
         click.echo('Adding role {} to all users'.format(role))
         User.objects(roles__nin=[role]).update(push__roles=role)
+    elif interactive or not users:
+        role_count = User.objects(roles__in=[role]).count()
+        if role_count > 0:
+            click.echo(
+                '{} users already have the role: {}'.format(role_count, role)
+            )
+        users = User.objects(roles__nin=[role]).order_by('email')
+        message = 'Select users to add the role to'
+        page_size = 10
+        num_pages = int(users.count() / page_size) + 1
+
+        def split_values(value):
+            return [] if value == '-' else map(
+                int, value.replace(',', '').strip().split()
+            )
+
+        for page in range(1, num_pages + 1):
+            user_list = '\n'.join(
+                '{}. {}'.format(i, user.name)
+                for i, user in enumerate(
+                    users[(page - 1) * page_size:page * page_size]
+                )
+            )
+            click.echo('Displaying page {} of {}'.format(page, num_pages))
+            click.echo(
+                '{message}:\n\n{user_list}\n\n'.format(
+                    message=message, user_list=user_list
+                )
+            )
+            values = click.prompt(
+                '{} [- to skip page]'.format(message), value_proc=split_values
+            )
+            page_users = [
+                users[(page - 1) * page_size + value] for value in values
+            ]
+            emails = [user.email for user in page_users]
+            page_users = User.objects(email__in=emails)
+            page_users.update(push__roles=role)
+            print(
+                'Added role to \n{}\n\n'.format(
+                    '\n'.join(page_users.values_list('email'))
+                )
+            )
     else:
         users = User.objects(Q(email__in=users) & Q(roles__nin=[role]))
         click.echo('Adding role {} to {} users'.format(role, users.count()))
