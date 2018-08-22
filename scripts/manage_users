@@ -19,8 +19,11 @@ def cli():
 @click.command()
 @click.option('--format', default='tsv')
 @click.option('--display-roles', default=False, is_flag=True)
+@click.option('--display-gender', default=False, is_flag=True)
 @click.option('--include-roles', multiple=True)
-def list_users(format='tsv', display_roles=False, include_roles=None):
+def list_users(
+    format='tsv', display_roles=False, include_roles=None, display_gender=False
+):
     seperator = ', ' if format == 'csv' else '\t'
     users = User.objects(
         roles__in=include_roles
@@ -28,11 +31,14 @@ def list_users(format='tsv', display_roles=False, include_roles=None):
     output_format = (
         '{name}{sep}{email}{sep}"{roles}"' if display_roles else '{name}{sep}{email}'
     )
+    if display_gender:
+        output_format = '{{gender}}{{sep}}{}'.format(output_format)
     for user in users.order_by('email'):
         click.echo(
             output_format.format(
                 name=user.name,
                 email=user.email,
+                gender=user.gender,
                 roles=', '.join(user.roles),
                 sep=seperator,
             )
