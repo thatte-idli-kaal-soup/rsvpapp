@@ -1,5 +1,6 @@
 import datetime
 import json
+from unittest.mock import patch
 
 from rsvp import app, models, views  # noqa
 
@@ -19,11 +20,15 @@ class TestRSVPApp(BaseTest):
 
     def test_create_event(self):
         event_data = {
-            'event-name': 'test_event', 'date': '2018-01-01', 'time': '06:00'
+            'event-name': 'test_event',
+            'date': '2018-01-01',
+            'time': '06:00',
+            'event-description': 'Awesome event',
         }
-        response = self.client.post(
-            '/event', data=event_data, follow_redirects=True
-        )
+        with patch('rsvp.views.current_user', new=self.user):
+            response = self.client.post(
+                '/event', data=event_data, follow_redirects=True
+            )
         assert response.status_code == 200
 
     def test_rsvp(self):
@@ -87,7 +92,6 @@ class TestApi(BaseTest):
                 self.user.email
             ),
         )
-        print(doc)
         assert doc['user'] == self.user.email
         assert doc['rsvp_by'] == 'test@example.com'
         assert doc['_id'] is not None
