@@ -25,8 +25,6 @@ def list_users(format='tsv', display_roles=False, include_roles=None):
     users = User.objects(
         roles__in=include_roles
     ) if include_roles else User.objects.all()
-    if include_roles:
-        display_roles = True
     output_format = (
         '{name}{sep}{email}{sep}"{roles}"' if display_roles else '{name}{sep}{email}'
     )
