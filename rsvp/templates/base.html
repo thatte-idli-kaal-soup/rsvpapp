@@ -63,43 +63,43 @@
                             <a class="nav-link" href="{{ url_for('social') }}">Media</a>
                         </li>
                         {% if current_user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Welcome, {{current_user.nick or current_user.name}}
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <span class="dropdown-item">Logged in as <br/>{{current_user.email}}</span>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{{ url_for('users') }}">Update profile</a>
-                                <a class="dropdown-item" href="/logout">Logout</a>
-                            </div>
-                        </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Welcome, {{current_user.nick or current_user.name}}
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ url_for('users') }}"><span class="dropdown-item">Logged in as <br/>{{current_user.email}}</span></a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="{{ url_for('users') }}">Users</a>
+                                    <a class="dropdown-item" href="/logout">Logout</a>
+                                </div>
+                            </li>
                         {% endif %}
                         {% if approval_awaited_count %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{url_for('approve_users')}}" title="{{approval_awaited_count}} users awaiting approval">
-                                <span class="fa-layers fa-fw">
-                                    <i class="fas fa-bell text-danger"></i>
-                                    <span class="fa-layers-text fa-inverse text-white"
-                                          data-fa-transform="shrink-8"
-                                          style="font-weight:900">{{approval_awaited_count}} user(s) awaiting approval
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{url_for('approve_users')}}" title="{{approval_awaited_count}} users awaiting approval">
+                                    <span class="fa-layers fa-fw">
+                                        <i class="fas fa-bell text-danger"></i>
+                                        <span class="fa-layers-text fa-inverse text-white"
+                                              data-fa-transform="shrink-8"
+                                              style="font-weight:900">{{approval_awaited_count}} user(s) awaiting approval
+                                        </span>
                                     </span>
-                                </span>
-                            </a>
-                        </li>
+                                </a>
+                            </li>
                         {% endif %}
                         {% if recent_post_count %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{url_for('show_posts')}}" title="{{recent_post_count}} recent post(s)">
-                                <span class="fa-layers fa-fw">
-                                    <i class="fas fa-bell text-primary"></i>
-                                    <span class="fa-layers-text fa-inverse text-white"
-                                          data-fa-transform="shrink-8"
-                                          style="font-weight:900">{{recent_post_count}} recent post(s)
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{url_for('show_posts')}}" title="{{recent_post_count}} recent post(s)">
+                                    <span class="fa-layers fa-fw">
+                                        <i class="fas fa-bell text-primary"></i>
+                                        <span class="fa-layers-text fa-inverse text-white"
+                                              data-fa-transform="shrink-8"
+                                              style="font-weight:900">{{recent_post_count}} recent post(s)
+                                        </span>
                                     </span>
-                                </span>
-                            </a>
-                        </li>
+                                </a>
+                            </li>
                         {% endif %}
                     </ul>
                 </div>
