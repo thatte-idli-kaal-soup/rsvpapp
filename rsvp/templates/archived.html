@@ -1,11 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="fixed-bottom">
-        <a class="float-right" href="{{ url_for('index') }}">
-            <span class="btn btn-danger"><span class="h1">+</span><br/><small>New Event</small></span>
-        </a>
-    </div>
     <div id="calendar"></div>
 {% endblock %}
 
@@ -24,6 +19,7 @@
      $(function() {
          // page is now ready, initialize the calendar...
          $('#calendar').fullCalendar({
+             themeSystem: 'bootstrap4',
              events: '/api/events/',
              editable: false,
              eventDataTransform: function(data){
@@ -36,6 +32,17 @@
                      color: getEventColor(data)
                  }
                  return event;
+             },
+             footer: {
+                 right: 'addNew'
+             },
+             customButtons: {
+                 addNew: {
+                     text: 'Add Event',
+                     click: function() {
+                         document.location.href = '/';
+                     },
+                 }
              }
          })
      });
