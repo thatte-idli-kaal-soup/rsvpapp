@@ -185,7 +185,7 @@ def zulip_announce(sender, document, **kwargs):
         # Fetch object from DB to be able to use validated/cleaned values
         document = sender.objects.get(id=document.id)
     url = '{}/event/{}'.format(os.environ['RSVP_HOST'], str(document.id))
-    title = '{} - {:%Y-%m-%d %H:%M}'.format(document.name, document.date)
+    title = '{:%Y-%m-%d %H:%M} - {}'.format(document.date, document.name)
     content = render_template('zulip_announce.md', event=document, url=url)
     send_message_zulip(
         os.environ['ZULIP_ANNOUNCE_STREAM'], title, content, 'stream'
