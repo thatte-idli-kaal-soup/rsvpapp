@@ -314,6 +314,12 @@ def api_rsvp(event_id, rsvp_id):
         return json.dumps({"deleted": "true"})
 
 
+@app.route('/api/users/', methods=['GET'])
+@login_required
+def api_users():
+    return User.approved_users().to_json()
+
+
 # Login/Logout ####
 @app.route('/login')
 def login():
