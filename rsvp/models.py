@@ -106,3 +106,8 @@ class Post(db.Document):
 
 
 signals.pre_save.connect(Post.pre_save, sender=Post)
+
+
+class GDrivePhoto(db.Document):
+    gdrive_id = db.StringField(required=True)
+    gdrive_parent = db.StringField(required=True)
