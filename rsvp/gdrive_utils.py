@@ -68,3 +68,31 @@ def update_permissions(service, file_id, emails):
         service.permissions().delete(
             fileId=file_id, permissionId=permission['id']
         ).execute()
+
+
+def photos(service, root):
+    q = "'{}' in parents and mimeType contains 'image/'"
+    for sub_dir in walk_dir(service, root):
+        photos = service.files().list(
+            q=q.format(sub_dir['id']), fields='files(id)', pageSize=1000
+        ).execute()[
+            'files'
+        ]
+        yield from [
+            {'gdrive_parent': sub_dir['id'], 'gdrive_id': photo['id']}
+            for photo in photos
+        ]
+
+
+def walk_dir(service, root):
+    q = "'{}' in parents and mimeType='{}'"
+    mime_type = 'application/vnd.google-apps.folder'
+    sub_dirs = service.files().list(
+        q=q.format(root, mime_type), fields='files(id)'
+    ).execute()[
+        'files'
+    ]
+    yield from sub_dirs
+
+    for sub_dir in sub_dirs:
+        yield from walk_dir(service, sub_dir['id'])
