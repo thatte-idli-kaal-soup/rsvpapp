@@ -133,7 +133,7 @@ def create_event():
 def users():
     role = request.values.get('role')
     gender = request.values.get('gender')
-    users = User.objects
+    users = User.approved_users()
     if role:
         users = users.filter(roles__in=[role])
     if gender:
