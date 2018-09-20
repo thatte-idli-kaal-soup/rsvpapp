@@ -406,3 +406,23 @@ def attendance():
 def show_posts():
     posts = Post.objects.order_by('-created_at')
     return render_template('posts.html', posts=posts)
+
+
+@app.route('/post/<id>')
+@login_required
+def show_post(id):
+    post = Post.objects.get(id=id)
+    return render_template('post.html', post=post)
+
+
+@app.route('/post', methods=['POST'])
+@login_required
+def add_post():
+    data = {
+        'title': request.form['title'],
+        'content': request.form['content'],
+        'author': current_user.email if current_user.is_authenticated else None,
+    }
+    post = Post(**data)
+    post.save()
+    return redirect(url_for('show_post', id=post.id))
