@@ -84,15 +84,19 @@ def photos(service, root):
         ]
 
 
-def walk_dir(service, root):
+def list_sub_dirs(service, root):
     q = "'{}' in parents and mimeType='{}'"
     mime_type = 'application/vnd.google-apps.folder'
     sub_dirs = service.files().list(
-        q=q.format(root, mime_type), fields='files(id)'
+        q=q.format(root, mime_type), fields='files(id, name)'
     ).execute()[
         'files'
     ]
     yield from sub_dirs
+
+
+def walk_dir(service, root):
+    yield from list_sub_dirs(service, root)
 
     for sub_dir in sub_dirs:
         yield from walk_dir(service, sub_dir['id'])

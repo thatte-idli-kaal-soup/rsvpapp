@@ -26,6 +26,15 @@
         {% endif %}
     {% endfor %}
 
+    <p class="h3">GDrive Directories</p>
+    <ul>
+    {% for dir in gdrive_dirs %}
+        <li>
+            <a href="https://drive.google.com/drive/folders/{{ dir.id }}" target="_blank">{{ dir.name }}</a>
+        </li>
+    {% endfor %}
+    </ul>
+
 {% endblock %}
 
 {% block scripts %}

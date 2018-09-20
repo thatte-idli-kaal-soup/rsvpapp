@@ -1,5 +1,6 @@
 import copy
 import json
+import os
 import random
 from urllib.parse import urlparse, urlunparse
 
@@ -19,6 +20,7 @@ from flask_login import (
 )
 from mongoengine.errors import DoesNotExist
 
+from .gdrive_utils import create_service, list_sub_dirs
 from .models import Event, GDrivePhoto, Post, RSVP, User, ANONYMOUS_EMAIL
 from .utils import (
     format_date,
@@ -215,7 +217,12 @@ def social():
             platform['password'] = generate_password(
                 platform['name'], app.secret_key
             )
-    return render_template('social.html', social=social)
+    service = create_service()
+    gdrive_root = os.environ['GOOGLE_DRIVE_MEDIA_DRIVE_ID']
+    gdrive_dirs = list_sub_dirs(service, gdrive_root)
+    return render_template(
+        'social.html', social=social, gdrive_dirs=list(gdrive_dirs)
+    )
 
 
 @app.route('/photos/random', methods=['GET'])
