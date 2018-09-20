@@ -5,4 +5,9 @@ approval to join the site. Click on the link below to approve the request.
 
 {{url_for('approve_user', email=user.email, _external=True)}}
 
+To disapprove the user, click on the link below
+
+{{url_for('disapprove_user', email=user.email, _external=True)}}
+
+
 Thanks!

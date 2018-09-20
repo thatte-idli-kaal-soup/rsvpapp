@@ -8,7 +8,8 @@
                 <span>{{user.name}}</span>
                 <span>{{user.email}}</span>
                 <span><a href="/approve_user/{{user.email}}">Approve</a></span>
+                <span><a href="/disapprove_user/{{user.email}}">Disapprove</a></span>
             </li>
-    {% endfor %}
+        {% endfor %}
     </ul>
 {% endblock %}

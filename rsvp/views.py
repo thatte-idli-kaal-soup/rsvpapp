@@ -184,6 +184,14 @@ def approve_user(email):
     return redirect(url_for('users'))
 
 
+@app.route('/disapprove_user/<email>', methods=['GET'])
+@role_required('admin')
+def disapprove_user(email):
+    user = User.objects.get_or_404(email=email)
+    user.delete()
+    return redirect(url_for('users'))
+
+
 @app.route('/approve_users/', methods=['GET'])
 @role_required('admin')
 def approve_users():
