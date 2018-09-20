@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <p class="fixed-bottom container">
+        You can find more photos from this album  <a href="https://drive.google.com/drive/folders/{{photo.gdrive_parent}}/" target="_blank">here</a>
+    </p>
+    <div class="embed-responsive embed-responsive-4by3">
+        <iframe src="https://drive.google.com/file/d/{{photo.gdrive_id}}/preview"
+                class="embed-responsive-item"
+        />
+    </div>
+{% endblock %}

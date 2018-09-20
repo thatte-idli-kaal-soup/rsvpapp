@@ -1,5 +1,6 @@
 import copy
 import json
+import random
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
@@ -18,7 +19,7 @@ from flask_login import (
 )
 from mongoengine.errors import DoesNotExist
 
-from .models import Event, Post, RSVP, User, ANONYMOUS_EMAIL
+from .models import Event, GDrivePhoto, Post, RSVP, User, ANONYMOUS_EMAIL
 from .utils import (
     format_date,
     generate_password,
@@ -215,6 +216,17 @@ def social():
                 platform['name'], app.secret_key
             )
     return render_template('social.html', social=social)
+
+
+@app.route('/photos/random', methods=['GET'])
+@login_required
+def random_photo():
+    photos = list(GDrivePhoto.objects.aggregate({'$sample': {'size': 1000}}))
+    if not photos:
+        return 'No Photos Found. Please upload photos to the GDrive first.'
+
+    photo = random.choice(photos)
+    return render_template('photo.html', photo=photo)
 
 
 # API ####
