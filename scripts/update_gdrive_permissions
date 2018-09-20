@@ -23,79 +23,14 @@ service account is being used from.
 
 from __future__ import print_function
 
-import json
 import os
 import sys
 
-from apiclient.discovery import build
-from google.oauth2 import service_account
-import requests
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rsvp.models import User
-
-SERVICE_ACCOUNT_FILE = 'service_account_file.json'
-
-
-def download_service_account_file():
-    url = os.environ['GOOGLE_SERVICE_ACCOUNT_FILE_URL']
-    with open(SERVICE_ACCOUNT_FILE, 'w') as f:
-        json.dump(requests.get(url).json(), f)
-
-
-def create_service():
-    SCOPES = ['https://www.googleapis.com/auth/drive']
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES
-    )
-    service = build('drive', 'v3', credentials=credentials)
-    return service
-
-
-def update_permissions(service, file_id, emails):
-    permissions = service.permissions().list(
-        fileId=file_id, fields='permissions(id, emailAddress, role)'
-    ).execute()
-    permissions = [
-        permission
-        for permission in permissions.get('permissions', [])
-        if 'emailAddress' in permission
-    ]
-    permission_emails = {
-        permission['emailAddress'].lower() for permission in permissions
-    }
-    delete_permissions = [
-        permission
-        for permission in permissions
-        if permission['emailAddress'].lower() not in emails
-        and permission['role'] != 'owner'
-        and 'gserviceaccount.com' not in permission['emailAddress']
-    ]
-    new_emails = [email for email in emails if email not in permission_emails]
-    print('Adding {} permissions'.format(len(new_emails)))
-    print('\n'.join(new_emails))
-    for email in new_emails:
-        body = {
-            'type': 'user',
-            'role': 'writer',
-            'emailAddress': email,
-            'sendNotificationEmail': False,
-        }
-        service.permissions().create(fileId=file_id, body=body).execute()
-    print('Deleting {} permissions'.format(len(delete_permissions)))
-    print(
-        '\n'.join(
-            permission['emailAddress'] for permission in delete_permissions
-        )
-    )
-    for permission in delete_permissions:
-        service.permissions().delete(
-            fileId=file_id, permissionId=permission['id']
-        ).execute()
-
+from rsvp.gdrive_utils import create_service, update_permissions
 
 if __name__ == '__main__':
-    download_service_account_file()
     service = create_service()
     emails = User.objects(roles__in=['.approved-user']).values_list('email')
     emails = [email.lower() for email in emails]
