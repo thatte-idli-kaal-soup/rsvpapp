@@ -211,3 +211,35 @@ def zulip_announce(sender, document, **kwargs):
     send_message_zulip(
         os.environ["ZULIP_ANNOUNCE_STREAM"], title, content, "stream"
     )
+
+
+def zulip_announce_new_photos(new_paths, new_photos):
+    title = "GDrive: New Photos uploaded"
+    content = ""
+    if new_paths:
+        content += "{} new album(s) created\n\n".format(len(new_paths))
+        urls = [
+            "- [{}](https://drive.google.com/drive/folders/{}/)".format(p, id_)
+            for (id_, p) in new_paths
+        ]
+        content += "\n".join(urls) + "\n\n"
+
+    if new_photos:
+        paths = {id_ for (id_, _) in new_paths}
+        old_path_photos = [
+            photo for photo in new_photos if photo.gdrive_parent not in paths
+        ]
+        if old_path_photos:
+            n = len(old_path_photos)
+            content += "{} new photos added to old albums".format(n)
+            urls = [
+                "- [{path}-{gid}](https://drive.google.com/file/d/{gid}/preview)".format(
+                    path=photo.gdrive_path, gid=photo.gdrive_id
+                )
+                for photo in old_path_photos
+            ]
+            content += "\n".join(urls)
+
+    send_message_zulip(
+        os.environ["ZULIP_ANNOUNCE_STREAM"], title, content, "stream"
+    )

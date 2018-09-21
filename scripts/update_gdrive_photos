@@ -26,6 +26,7 @@ import click
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rsvp.models import GDrivePhoto
 from rsvp.gdrive_utils import create_service, photos
+from rsvp.utils import zulip_announce_new_photos
 
 
 @click.group()
@@ -48,8 +49,21 @@ def sync_photos(ctx):
     gd_photos = [
         GDrivePhoto(**photo) for photo in photos(service, gdrive_root)
     ]
+    previous_photos = set(GDrivePhoto.objects.values_list("gdrive_id"))
+    previous_paths = set(
+        GDrivePhoto.objects.values_list("gdrive_parent", "gdrive_path")
+    )
     GDrivePhoto.objects.delete()
     GDrivePhoto.objects.insert(gd_photos, load_bulk=False)
+    current_photos = set(GDrivePhoto.objects.values_list("gdrive_id"))
+    current_paths = set(
+        GDrivePhoto.objects.values_list("gdrive_parent", "gdrive_path")
+    )
+    new_photos = GDrivePhoto.objects.filter(
+        gdrive_id__in=(current_photos - previous_photos)
+    )
+    new_paths = current_paths - previous_paths
+    zulip_announce_new_photos(new_paths, new_photos)
 
 
 cli.add_command(sync_photos)
