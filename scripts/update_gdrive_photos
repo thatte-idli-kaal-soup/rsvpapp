@@ -30,4 +30,4 @@ if __name__ == '__main__':
     gdrive_root = os.environ['GOOGLE_DRIVE_MEDIA_DRIVE_ID']
     photos = [GDrivePhoto(**photo) for photo in photos(service, gdrive_root)]
     GDrivePhoto.objects.delete()
-    GDrivePhoto.objects.insert(photos)
+    GDrivePhoto.objects.insert(photos, load_bulk=False)
