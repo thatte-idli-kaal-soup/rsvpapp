@@ -1,4 +1,5 @@
 import copy
+from datetime import datetime
 import json
 import os
 import random
@@ -235,6 +236,10 @@ def random_photo():
 
     photo = random.choice(photos)
     metadata = photo['gdrive_metadata']
+    if 'time' in metadata:
+        metadata['time'] = datetime.strptime(
+            metadata['time'], '%Y:%m:%d %H:%M:%S'
+        )
     aspect_ratio = get_aspect_ratio(
         metadata['width'], metadata['height'], metadata['rotation']
     )

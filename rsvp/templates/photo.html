@@ -2,7 +2,18 @@
 
 {% block content %}
     <p>
-        You can find more photos from the <strong>{{ photo.gdrive_parent_name }}</strong> album <a href="https://drive.google.com/drive/folders/{{photo.gdrive_parent}}/" target="_blank">here</a>
+        This photo is from the <a href="https://drive.google.com/drive/folders/{{photo.gdrive_parent}}/" target="_blank">{{ photo.gdrive_parent_name }}</a> album
+
+        {% set location = photo.gdrive_metadata.location %}
+        {% set time = photo.gdrive_metadata.time %}
+        {% if location %}
+            <a href="http://maps.google.com/?q={{ location.latitude }},{{ location.longitude }}" target="_blank">
+                <i class="fa fa-map-marker-alt"></i>
+            </a>
+        {% endif %}
+        {% if time %}
+            ({{ time.strftime("%d %b %Y, %H:%M") }})
+        {% endif %}
     </p>
     <div class="embed-responsive embed-responsive-{{ aspect_ratio }}">
         <iframe src="https://drive.google.com/file/d/{{photo.gdrive_id}}/preview"
