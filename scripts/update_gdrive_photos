@@ -24,8 +24,8 @@ import sys
 import click
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from rsvp.models import GDrivePhoto
-from rsvp.gdrive_utils import create_service, photos
+from rsvp.models import GDrivePhoto, User
+from rsvp.gdrive_utils import create_service, photos, update_permissions
 from rsvp.utils import zulip_announce_new_photos
 
 
@@ -66,7 +66,18 @@ def sync_photos(ctx):
     zulip_announce_new_photos(new_paths, new_photos)
 
 
+@click.command()
+@click.pass_context
+def sync_permissions(ctx):
+    service = ctx.obj["service"]
+    gdrive_root = ctx.obj["gdrive_root"]
+    emails = User.approved_users().values_list("email")
+    emails = [email.lower() for email in emails]
+    update_permissions(service, gdrive_root, emails)
+
+
 cli.add_command(sync_photos)
+cli.add_command(sync_permissions)
 
 if __name__ == "__main__":
     cli(obj={})
