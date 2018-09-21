@@ -7,15 +7,15 @@ from mongoengine import signals
 from .utils import random_id, markdown_to_html, zulip_announce
 
 db = MongoEngine()
-ANONYMOUS_EMAIL = 'anonymous@example.com'
+ANONYMOUS_EMAIL = "anonymous@example.com"
 
 
 class RSVP(db.EmbeddedDocument):
     id = db.ObjectIdField(default=random_id, primary_key=True)
-    user = db.LazyReferenceField('User', unique=True)
+    user = db.LazyReferenceField("User", unique=True)
     note = db.StringField()
     date = db.DateTimeField(required=True, default=datetime.datetime.now)
-    rsvp_by = db.LazyReferenceField('User')
+    rsvp_by = db.LazyReferenceField("User")
     cancelled = db.BooleanField(default=False)
 
 
@@ -26,7 +26,7 @@ class Event(db.Document):
     html_description = db.StringField()
     date = db.DateTimeField(required=True)
     archived = db.BooleanField(required=True, default=False)
-    created_by = db.LazyReferenceField('User')
+    created_by = db.LazyReferenceField("User")
     cancelled = db.BooleanField(required=True, default=False)
 
     @classmethod
@@ -72,15 +72,14 @@ class User(db.Document, UserMixin):
 
     @staticmethod
     def approved_users():
-        return User.objects.filter(roles__in=['.approved-user']).all()
+        return User.objects.filter(roles__in=[".approved-user"]).all()
 
     @property
     def is_admin(self):
-        return 'admin' in self.roles
+        return "admin" in self.roles
 
 
 class AnonymousUser(AnonymousUserMixin):
-
     def has_role(self, role):
         return False
 
@@ -98,7 +97,7 @@ class Post(db.Document):
     html_content = db.StringField()
     created_at = db.DateTimeField(required=True, default=datetime.datetime.now)
     archived = db.BooleanField(default=False)
-    author = db.LazyReferenceField('User')
+    author = db.LazyReferenceField("User")
 
     @classmethod
     def pre_save(cls, sender, document, **kwargs):
