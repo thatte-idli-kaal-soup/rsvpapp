@@ -31,13 +31,13 @@ def get_aspect_ratio(width, height, rotation):
     aspect_ratio = int(width / n), int(height / n)
     if aspect_ratio not in ALLOWED_RATIOS:
         aspect_ratio = ALLOWED_RATIOS[0]
-    return '{}by{}'.format(*aspect_ratio)
+    return "{}by{}".format(*aspect_ratio)
 
 
 def get_attendance(events):
     users = {rsvp.user for e in events for rsvp in e.rsvps}
-    dates = ['{:%Y-%m-%d}\n{}'.format(e.date, e.name) for e in events]
-    header = ['Names'] + dates
+    dates = ["{:%Y-%m-%d}\n{}".format(e.date, e.name) for e in events]
+    header = ["Names"] + dates
     attendance = {
         user: [e.active_rsvps.filter(user=user).count() for e in events]
         for user in users
@@ -56,7 +56,11 @@ def get_attendance(events):
 
 def format_date(value):
     try:
-        format = "%a, %d %b '%y, %H:%M" if value.hour != 0 or value.minute != 0 else "%a, %d %b '%y"
+        format = (
+            "%a, %d %b '%y, %H:%M"
+            if value.hour != 0 or value.minute != 0
+            else "%a, %d %b '%y"
+        )
         return value.strftime(format)
 
     except ValueError:
@@ -66,20 +70,20 @@ def format_date(value):
 def markdown_to_html(md):
     """Convert markdown to html."""
     if not md:
-        md = ''
+        md = ""
     return mistune.markdown(md, escape=False, hard_wrap=True, use_xhtml=True)
 
 
 def random_id():
     return ObjectId(
         bytes(
-            ''.join(choice(string.ascii_letters) for _ in range(12)), 'ascii'
+            "".join(choice(string.ascii_letters) for _ in range(12)), "ascii"
         )
     )
 
 
 def rsvp_by(rsvp):
-    return rsvp.rsvp_by.fetch().name if rsvp.rsvp_by else 'Anonymous'
+    return rsvp.rsvp_by.fetch().name if rsvp.rsvp_by else "Anonymous"
 
 
 def rsvp_name(rsvp):
@@ -92,9 +96,7 @@ def rsvp_name(rsvp):
 
 
 def role_required(role="ALL"):
-
     def wrapper(func):
-
         @wraps(func)
         def decorated_view(*args, **kwargs):
             if current_app.login_manager._login_disabled:
@@ -115,18 +117,18 @@ def role_required(role="ALL"):
 
 def generate_password(tag, salt, n=32):
     tag_hash = pbkdf2_hex("{}-password".format(tag), salt)
-    return base64.b85encode(bytes(tag_hash, 'ascii'))[:n].decode('ascii')
+    return base64.b85encode(bytes(tag_hash, "ascii"))[:n].decode("ascii")
 
 
 def send_approval_email(user, admins):
-    sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
+    sg = sendgrid.SendGridAPIClient(apikey=os.environ.get("SENDGRID_API_KEY"))
     from_email = Email("noreply@thatteidlikaalsoup.team")
     to_emails = [
         Email("{} <{}>".format(admin.name, admin.email)) for admin in admins
     ]
     subject = "{} is awaiting your approval".format(user.name)
     content = Content(
-        "text/plain", render_template('awaiting_approval.txt', user=user)
+        "text/plain", render_template("awaiting_approval.txt", user=user)
     )
     mail = Mail(from_email, subject, to_emails[0], content)
     for to_email in to_emails[1:]:
@@ -143,12 +145,12 @@ def send_approval_email(user, admins):
 
 
 def send_approved_email(user):
-    sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
+    sg = sendgrid.SendGridAPIClient(apikey=os.environ.get("SENDGRID_API_KEY"))
     from_email = Email("noreply@thatteidlikaalsoup.team")
     to_emails = [Email("{} <{}>".format(user.name, user.email))]
     subject = "Request approved".format(user.name)
     content = Content(
-        "text/plain", render_template('request_approved.txt', user=user)
+        "text/plain", render_template("request_approved.txt", user=user)
     )
     mail = Mail(from_email, subject, to_emails[0], content)
     for to_email in to_emails[1:]:
@@ -165,20 +167,20 @@ def send_approved_email(user):
     return int(response.status_code / 200) == 2
 
 
-def send_message_zulip(to, subject, content, type_='private'):
+def send_message_zulip(to, subject, content, type_="private"):
     """Send a message to Zulip."""
     data = {"type": type_, "to": to, "subject": subject, "content": content}
     try:
         print(u'Sending message "%s" to %s (%s)' % (content, to, type_))
-        zulip_api_url = os.environ['ZULIP_API_URL']
-        zulip_email = os.environ['ZULIP_EMAIL']
-        zulip_key = os.environ['ZULIP_KEY']
+        zulip_api_url = os.environ["ZULIP_API_URL"]
+        zulip_email = os.environ["ZULIP_EMAIL"]
+        zulip_key = os.environ["ZULIP_KEY"]
         response = requests.post(
             zulip_api_url, data=data, auth=(zulip_email, zulip_key)
         )
         print(
-            u'Post returned with %s: %s' %
-            (response.status_code, response.content)
+            u"Post returned with %s: %s"
+            % (response.status_code, response.content)
         )
         return response.status_code == 200
 
@@ -188,21 +190,24 @@ def send_message_zulip(to, subject, content, type_='private'):
 
 
 def zulip_announce(sender, document, **kwargs):
-    created = kwargs.get('created', False)
-    announce = created or 'description' in document._changed_fields
+    created = kwargs.get("created", False)
+    announce = created or "description" in document._changed_fields
     if not announce:
         return
 
-    if 'RSVP_HOST' not in os.environ or 'ZULIP_ANNOUNCE_STREAM' not in os.environ:
+    if (
+        "RSVP_HOST" not in os.environ
+        or "ZULIP_ANNOUNCE_STREAM" not in os.environ
+    ):
         print("Please set RSVP_HOST and ZULIP_ANNOUNCE_STREAM")
         return
 
     if created:
         # Fetch object from DB to be able to use validated/cleaned values
         document = sender.objects.get(id=document.id)
-    url = '{}/event/{}'.format(os.environ['RSVP_HOST'], str(document.id))
-    title = '{:%Y-%m-%d %H:%M} - {}'.format(document.date, document.name)
-    content = render_template('zulip_announce.md', event=document, url=url)
+    url = "{}/event/{}".format(os.environ["RSVP_HOST"], str(document.id))
+    title = "{:%Y-%m-%d %H:%M} - {}".format(document.date, document.name)
+    content = render_template("zulip_announce.md", event=document, url=url)
     send_message_zulip(
-        os.environ['ZULIP_ANNOUNCE_STREAM'], title, content, 'stream'
+        os.environ["ZULIP_ANNOUNCE_STREAM"], title, content, "stream"
     )
