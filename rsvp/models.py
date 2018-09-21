@@ -111,4 +111,5 @@ class GDrivePhoto(db.Document):
     gdrive_id = db.StringField(required=True)
     gdrive_parent = db.StringField(required=True)
     gdrive_path = db.StringField(required=True)
-    gdrive_metadata = db.StringField()
+    gdrive_metadata = db.DictField()
+    created_at = db.DateTimeField(required=True, default=datetime.datetime.now)
