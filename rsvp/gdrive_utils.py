@@ -96,7 +96,8 @@ def list_sub_dirs(service, root):
 
 
 def walk_dir(service, root):
-    yield from list_sub_dirs(service, root)
+    sub_dirs = list_sub_dirs(service, root)
+    yield from sub_dirs
 
     for sub_dir in sub_dirs:
         yield from walk_dir(service, sub_dir['id'])
