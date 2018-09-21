@@ -130,3 +130,16 @@ def walk_dir(service, root):
         yield from map(
             flat_zip, cycle([sub_dir]), walk_dir(service, sub_dir["id"])
         )
+
+
+def update_photo(model, gdrive_id, photo_data):
+    fields = [field for field in model._fields if field.startswith("gdrive_")]
+    photo_db = model.objects.get(gdrive_id=gdrive_id)
+    photo_gd = model(**photo_data)
+
+    for field in fields:
+        db_value = getattr(photo_db, field)
+        gd_value = getattr(photo_gd, field)
+        if db_value != gd_value:
+            photo_db.update(**photo_data)
+            break

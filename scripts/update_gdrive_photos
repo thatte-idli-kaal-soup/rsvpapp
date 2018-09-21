@@ -21,13 +21,69 @@ service account is being used from.
 import os
 import sys
 
+import click
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rsvp.models import GDrivePhoto
-from rsvp.gdrive_utils import create_service, photos
+from rsvp.gdrive_utils import create_service, photos, update_photo
 
-if __name__ == '__main__':
-    service = create_service()
-    gdrive_root = os.environ['GOOGLE_DRIVE_MEDIA_DRIVE_ID']
-    photos = [GDrivePhoto(**photo) for photo in photos(service, gdrive_root)]
-    GDrivePhoto.objects.delete()
-    GDrivePhoto.objects.insert(photos, load_bulk=False)
+
+@click.group()
+@click.pass_context
+def cli(ctx):
+    """A CLI to manage Google Drive photos related actions"""
+    ctx.obj.update(
+        {
+            "service": create_service(),
+            "gdrive_root": os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"],
+        }
+    )
+
+
+@click.command()
+@click.option("--force-all", default=False, is_flag=True)
+@click.pass_context
+def sync_photos(ctx, force_all=False):
+    service = ctx.obj["service"]
+    gdrive_root = ctx.obj["gdrive_root"]
+    if force_all:
+        confirmed = click.confirm(
+            "Are you sure you want to delete all existing Photo metadata and sync again?"
+        )
+        if not confirmed:
+            return
+        gd_photos = [
+            GDrivePhoto(**photo) for photo in photos(service, gdrive_root)
+        ]
+        GDrivePhoto.objects.delete()
+        GDrivePhoto.objects.insert(gd_photos, load_bulk=False)
+
+    else:
+        all_photos = list(photos(service, gdrive_root))
+        gd_ids = {p["gdrive_id"] for p in all_photos}
+        db_ids = set(GDrivePhoto.objects.values_list("gdrive_id"))
+
+        new_ids = gd_ids - db_ids
+        new_photos = [
+            GDrivePhoto(**photo)
+            for photo in all_photos
+            if photo["gdrive_id"] in new_ids
+        ]
+        if new_photos:
+            GDrivePhoto.objects.insert(new_photos, load_bulk=False)
+
+        deleted_ids = db_ids - gd_ids
+        GDrivePhoto.objects.filter(gdrive_id__in=deleted_ids).delete()
+
+        existing_ids = gd_ids & db_ids
+        for photo in all_photos:
+            gdrive_id = photo["gdrive_id"]
+            if gdrive_id not in existing_ids:
+                continue
+            update_photo(GDrivePhoto, gdrive_id, photo)
+
+
+cli.add_command(sync_photos)
+
+if __name__ == "__main__":
+    cli(obj={})
