@@ -1,4 +1,5 @@
 # Standard library
+from itertools import cycle
 import json
 import os
 
@@ -75,10 +76,18 @@ def update_permissions(service, file_id, emails):
 def photos(service, root):
     q = "'{}' in parents and mimeType contains 'image/'"
     for sub_dir in walk_dir(service, root):
+        parent_id = (
+            sub_dir[-1]["id"] if isinstance(sub_dir, tuple) else sub_dir["id"]
+        )
+        path = (
+            " > ".join(s["name"] for s in sub_dir)
+            if isinstance(sub_dir, tuple)
+            else sub_dir["name"]
+        )
         photos = (
             service.files()
             .list(
-                q=q.format(sub_dir["id"]),
+                q=q.format(parent_id),
                 fields="files(id, imageMediaMetadata)",
                 pageSize=1000,
             )
@@ -86,8 +95,8 @@ def photos(service, root):
         )
         yield from [
             {
-                "gdrive_parent": sub_dir["id"],
-                "gdrive_parent_name": sub_dir["name"],
+                "gdrive_parent": parent_id,
+                "gdrive_path": path,
                 "gdrive_id": photo["id"],
                 "gdrive_metadata": photo["imageMediaMetadata"],
             }
@@ -103,7 +112,14 @@ def list_sub_dirs(service, root):
         .list(q=q.format(root, mime_type), fields="files(id, name)")
         .execute()["files"]
     )
-    yield from sub_dirs
+    return sub_dirs
+
+
+def flat_zip(x, y):
+    if isinstance(y, tuple):
+        return (x, *y)
+
+    return (x, y)
 
 
 def walk_dir(service, root):
@@ -111,4 +127,6 @@ def walk_dir(service, root):
     yield from sub_dirs
 
     for sub_dir in sub_dirs:
-        yield from walk_dir(service, sub_dir["id"])
+        yield from map(
+            flat_zip, cycle([sub_dir]), walk_dir(service, sub_dir["id"])
+        )

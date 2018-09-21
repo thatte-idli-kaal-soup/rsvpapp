@@ -2,7 +2,7 @@
 
 {% block content %}
     <p>
-        This photo is from the <a href="https://drive.google.com/drive/folders/{{photo.gdrive_parent}}/" target="_blank">{{ photo.gdrive_parent_name }}</a> album
+        This photo is from <a href="https://drive.google.com/drive/folders/{{photo.gdrive_parent}}/" target="_blank">{{ photo.gdrive_path }}</a>
 
         {% set location = photo.gdrive_metadata.location %}
         {% set time = photo.gdrive_metadata.time %}
