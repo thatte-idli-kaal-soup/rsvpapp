@@ -1,0 +1,16 @@
+{% macro notification(count, url, text, type) -%}
+    {% if count %}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url }}" title="{{ count }} {{ text }}">
+                <span class="fa-layers fa-fw">
+                    <i class="fas fa-bell text-{{ type }}"></i>
+                    <span class="fa-layers-text fa-inverse text-white"
+                          data-fa-transform="shrink-8"
+                          style="font-weight:900">
+                        {{ count }} {{ text }}
+                    </span>
+                </span>
+            </a>
+        </li>
+    {% endif %}
+{%- endmacro %}
