@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <ul>
+        {% for group in photos|groupby('gdrive_path') %}
+            <li>
+                <a href="https://drive.google.com/drive/folders/{{ group.list[0].gdrive_parent }}" target="_blank">
+                    {{ group.grouper }}
+                </a>
+                ({{ group.list|length }} new photos)
+            </li>
+            {% for photo in group.list %}
+                <a href="https://drive.google.com/file/d/{{ photo.gdrive_id }}/preview" target="_blank">{{ loop.index }}
+                </a>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+{% endblock %}

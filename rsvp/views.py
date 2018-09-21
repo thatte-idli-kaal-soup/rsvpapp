@@ -227,7 +227,14 @@ def social():
     )
 
 
-@app.route('/photos/random', methods=['GET'])
+@app.route("/photos")
+@login_required
+def show_photos():
+    photos = GDrivePhoto.new_photos()
+    return render_template("photos.html", photos=photos)
+
+
+@app.route("/photos/random", methods=["GET"])
 @login_required
 def random_photo():
     photos = list(GDrivePhoto.objects.aggregate({'$sample': {'size': 1000}}))

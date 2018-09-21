@@ -113,3 +113,8 @@ class GDrivePhoto(db.Document):
     gdrive_path = db.StringField(required=True)
     gdrive_metadata = db.DictField()
     gdrive_created_at = db.DateTimeField(required=True)
+
+    @classmethod
+    def new_photos(cls, n=2):
+        two_days = datetime.datetime.now() - datetime.timedelta(days=n)
+        return cls.objects.filter(gdrive_created_at__gte=two_days)

@@ -81,6 +81,7 @@
                         {% import 'notification-macro.html' as notifications %}
                         {{ notifications.notification(approval_awaited_count, url_for('approve_users'), 'user(s) awaiting approval', 'danger') }}
                         {{ notifications.notification(recent_post_count, url_for('show_posts'), 'recent post(s)', 'primary') }}
+                        {{ notifications.notification(recent_photo_count, url_for('show_photos'), 'recent photo(s)', 'success') }}
                     </ul>
                 </div>
             </nav>

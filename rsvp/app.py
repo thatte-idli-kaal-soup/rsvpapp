@@ -7,7 +7,7 @@ from flask_dance.consumer import oauth_authorized
 from flask_login import current_user, LoginManager, login_user
 from flaskext.versioned import Versioned
 
-from .models import db, Post, User, AnonymousUser, ANONYMOUS_EMAIL
+from .models import db, GDrivePhoto, Post, User, AnonymousUser, ANONYMOUS_EMAIL
 from .utils import format_date, rsvp_by, rsvp_name, send_approval_email
 
 app = Flask(__name__)
@@ -38,14 +38,23 @@ def inject_branding():
 @app.context_processor
 def inject_notifications():
     extra_context = dict()
+
+    # Unapproved users
     if current_user.is_admin:
         approval_awaited_count = User.objects(
             roles__nin=[".approved-user"]
         ).count()
         extra_context["approval_awaited_count"] = approval_awaited_count
+
+    # New posts
     two_days = datetime.datetime.now() - datetime.timedelta(days=2)
     recent_post_count = Post.objects.filter(created_at__gte=two_days).count()
     extra_context["recent_post_count"] = recent_post_count
+
+    # New photos
+    recent_photo_count = GDrivePhoto.new_photos().count()
+    extra_context["recent_photo_count"] = recent_photo_count
+
     return extra_context
 
 
