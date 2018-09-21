@@ -25,6 +25,7 @@ from .models import Event, GDrivePhoto, Post, RSVP, User, ANONYMOUS_EMAIL
 from .utils import (
     format_date,
     generate_password,
+    get_aspect_ratio,
     get_attendance,
     role_required,
     send_approved_email,
@@ -233,7 +234,13 @@ def random_photo():
         return 'No Photos Found. Please upload photos to the GDrive first.'
 
     photo = random.choice(photos)
-    return render_template('photo.html', photo=photo)
+    metadata = photo['gdrive_metadata']
+    aspect_ratio = get_aspect_ratio(
+        metadata['width'], metadata['height'], metadata['rotation']
+    )
+    return render_template(
+        'photo.html', photo=photo, aspect_ratio=aspect_ratio
+    )
 
 
 # API ####
