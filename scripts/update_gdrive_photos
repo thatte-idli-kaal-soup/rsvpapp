@@ -25,7 +25,7 @@ import click
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rsvp.models import GDrivePhoto
-from rsvp.gdrive_utils import create_service, photos, update_photo
+from rsvp.gdrive_utils import create_service, photos
 
 
 @click.group()
@@ -41,46 +41,15 @@ def cli(ctx):
 
 
 @click.command()
-@click.option("--force-all", default=False, is_flag=True)
 @click.pass_context
-def sync_photos(ctx, force_all=False):
+def sync_photos(ctx):
     service = ctx.obj["service"]
     gdrive_root = ctx.obj["gdrive_root"]
-    if force_all:
-        confirmed = click.confirm(
-            "Are you sure you want to delete all existing Photo metadata and sync again?"
-        )
-        if not confirmed:
-            return
-        gd_photos = [
-            GDrivePhoto(**photo) for photo in photos(service, gdrive_root)
-        ]
-        GDrivePhoto.objects.delete()
-        GDrivePhoto.objects.insert(gd_photos, load_bulk=False)
-
-    else:
-        all_photos = list(photos(service, gdrive_root))
-        gd_ids = {p["gdrive_id"] for p in all_photos}
-        db_ids = set(GDrivePhoto.objects.values_list("gdrive_id"))
-
-        new_ids = gd_ids - db_ids
-        new_photos = [
-            GDrivePhoto(**photo)
-            for photo in all_photos
-            if photo["gdrive_id"] in new_ids
-        ]
-        if new_photos:
-            GDrivePhoto.objects.insert(new_photos, load_bulk=False)
-
-        deleted_ids = db_ids - gd_ids
-        GDrivePhoto.objects.filter(gdrive_id__in=deleted_ids).delete()
-
-        existing_ids = gd_ids & db_ids
-        for photo in all_photos:
-            gdrive_id = photo["gdrive_id"]
-            if gdrive_id not in existing_ids:
-                continue
-            update_photo(GDrivePhoto, gdrive_id, photo)
+    gd_photos = [
+        GDrivePhoto(**photo) for photo in photos(service, gdrive_root)
+    ]
+    GDrivePhoto.objects.delete()
+    GDrivePhoto.objects.insert(gd_photos, load_bulk=False)
 
 
 cli.add_command(sync_photos)
