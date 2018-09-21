@@ -74,12 +74,19 @@ def photos(service, root):
     q = "'{}' in parents and mimeType contains 'image/'"
     for sub_dir in walk_dir(service, root):
         photos = service.files().list(
-            q=q.format(sub_dir['id']), fields='files(id)', pageSize=1000
+            q=q.format(sub_dir['id']),
+            fields='files(id, imageMediaMetadata)',
+            pageSize=1000,
         ).execute()[
             'files'
         ]
         yield from [
-            {'gdrive_parent': sub_dir['id'], 'gdrive_id': photo['id']}
+            {
+                'gdrive_parent': sub_dir['id'],
+                'gdrive_parent_name': sub_dir['name'],
+                'gdrive_id': photo['id'],
+                'gdrive_metadata': photo['imageMediaMetadata'],
+            }
             for photo in photos
         ]
 
