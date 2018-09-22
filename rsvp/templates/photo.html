@@ -17,7 +17,8 @@
     </p>
     <div class="embed-responsive embed-responsive-{{ aspect_ratio }}">
         <iframe src="https://drive.google.com/file/d/{{photo.gdrive_id}}/preview"
-                class="embed-responsive-item">
+                class="embed-responsive-item"
+                style="height: calc(100vh - 70px) !important;">
         </iframe>
     </div>
 {% endblock %}
