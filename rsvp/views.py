@@ -1,8 +1,6 @@
 import copy
-from datetime import datetime
 import json
 import os
-import random
 from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
@@ -29,7 +27,6 @@ from .models import Event, GDrivePhoto, Post, RSVP, User, ANONYMOUS_EMAIL
 from .utils import (
     format_date,
     generate_password,
-    get_aspect_ratio,
     get_attendance,
     role_required,
     send_approved_email,
@@ -237,27 +234,6 @@ def social():
 def show_photos():
     photos = GDrivePhoto.new_photos()
     return render_template("photos.html", photos=photos)
-
-
-@app.route("/photos/random", methods=["GET"])
-@login_required
-def random_photo():
-    photos = list(GDrivePhoto.objects.aggregate({"$sample": {"size": 1000}}))
-    if not photos:
-        return "No Photos Found. Please upload photos to the GDrive first."
-
-    photo = random.choice(photos)
-    metadata = photo["gdrive_metadata"]
-    if "time" in metadata:
-        metadata["time"] = datetime.strptime(
-            metadata["time"], "%Y:%m:%d %H:%M:%S"
-        )
-    aspect_ratio = get_aspect_ratio(
-        metadata["width"], metadata["height"], metadata["rotation"]
-    )
-    return render_template(
-        "photo.html", photo=photo, aspect_ratio=aspect_ratio
-    )
 
 
 # API ####

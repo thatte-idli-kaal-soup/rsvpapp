@@ -17,22 +17,6 @@ import sendgrid
 from sendgrid.helpers.mail import Email, Content, Mail, Personalization
 from werkzeug.security import pbkdf2_hex
 
-ALLOWED_RATIOS = ((4, 3), (21, 9), (16, 9), (1, 1))
-
-
-def gcd(a, b):
-    while b:
-        a, b = b, a % b
-    return a
-
-
-def get_aspect_ratio(width, height, rotation):
-    n = gcd(width, height)
-    aspect_ratio = int(width / n), int(height / n)
-    if aspect_ratio not in ALLOWED_RATIOS:
-        aspect_ratio = ALLOWED_RATIOS[0]
-    return "{}by{}".format(*aspect_ratio)
-
 
 def get_attendance(events):
     users = {rsvp.user for e in events for rsvp in e.rsvps}
