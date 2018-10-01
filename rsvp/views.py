@@ -209,9 +209,9 @@ def approve_users():
     return render_template("approve_users.html", users=users)
 
 
-@app.route("/social", methods=["GET"])
+@app.route("/media", methods=["GET"])
 @fresh_login_required
-def social():
+def media():
     social = copy.deepcopy(app.config["SOCIAL"])
     if current_user.has_any_role("admin", "social-admin"):
         for platform in social:
@@ -224,16 +224,13 @@ def social():
     service = create_service()
     gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
     gdrive_dirs = list_sub_dirs(service, gdrive_root)
-    return render_template(
-        "social.html", social=social, gdrive_dirs=list(gdrive_dirs)
-    )
-
-
-@app.route("/photos")
-@login_required
-def show_photos():
     photos = GDrivePhoto.new_photos()
-    return render_template("photos.html", photos=photos)
+    return render_template(
+        "social.html",
+        social=social,
+        gdrive_dirs=list(gdrive_dirs),
+        photos=photos,
+    )
 
 
 # API ####

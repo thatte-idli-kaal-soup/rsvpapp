@@ -1,8 +1,33 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <p class="h1">Find us on the web!</p>
+    {% if photos %}
+        <p class="h3">New GDrive Photos</p>
+        <ul>
+            {% for group in photos|groupby('gdrive_path') %}
+                <li>
+                    <a href="https://drive.google.com/drive/folders/{{ group.list[0].gdrive_parent }}" target="_blank">
+                        {{ group.grouper }}
+                    </a>
+                    ({{ group.list|length }} new photos)
+                </li>
+                {% for photo in group.list %}
+                    <a href="https://drive.google.com/file/d/{{ photo.gdrive_id }}/preview" target="_blank">{{ loop.index }}
+                    </a>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <p class="h3">GDrive Directories</p>
+    <ul>
+        {% for dir in gdrive_dirs %}
+            <li>
+                <a href="https://drive.google.com/drive/folders/{{ dir.id }}" target="_blank">{{ dir.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
 
+    <p class="h3">Social media profiles</p>
     {% for platform in social if platform.url %}
         <p>
             <a class="h2" href="{{platform.url}}" target="_blank" title="{{platform.name}}">
@@ -25,15 +50,6 @@
             </div>
         {% endif %}
     {% endfor %}
-
-    <p class="h3">GDrive Directories</p>
-    <ul>
-    {% for dir in gdrive_dirs %}
-        <li>
-            <a href="https://drive.google.com/drive/folders/{{ dir.id }}" target="_blank">{{ dir.name }}</a>
-        </li>
-    {% endfor %}
-    </ul>
 
 {% endblock %}
 
