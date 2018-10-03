@@ -4,6 +4,12 @@
 - FIXME: Currently, the creation of a Google OAuth client is the quite painful.
   It would be nice if we can find an automated way of doing this!
 
+- FIXME: A service account needs to be created to be able to manipulate GDrive.
+  This is another pain to setup, too!
+
+- FIXME: Heroku Scheduler doesn't have an API, and all the scheduled jobs need
+  to be manually configured.
+
 """
 import json
 import os
@@ -14,7 +20,13 @@ import click
 
 HERE = dirname(abspath(__file__))
 CONFIG_DIR = join(HERE, "..", ".config")
-REQUIRED_CONFIG_VARS = ("SETTINGS", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET")
+REQUIRED_CONFIG_VARS = (
+    "SETTINGS",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "GOOGLE_SERVICE_ACCOUNT_FILE_URL",
+    "GOOGLE_DRIVE_MEDIA_DRIVE_ID",
+)
 ADMINS = ["Puneeth Chaganti:punchagan@gmail.com"]
 HEROKU_ADDONS = (
     "mongolab:sandbox",
