@@ -5,6 +5,7 @@ from flask import Flask, redirect, session, url_for
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized
 from flask_login import current_user, LoginManager, login_user
+from flask_sslify import SSLify
 from flaskext.versioned import Versioned
 
 from .models import db, GDrivePhoto, Post, User, AnonymousUser, ANONYMOUS_EMAIL
@@ -12,6 +13,9 @@ from .utils import format_date, rsvp_by, rsvp_name, send_approval_email
 
 app = Flask(__name__)
 app.config.from_envvar("SETTINGS")
+if "DYNO" in os.environ:
+    # only trigger SSLify if the app is running on Heroku
+    sslify = SSLify(app)
 versioned = Versioned(app)
 db.init_app(app)
 # Google OAuth stuff
