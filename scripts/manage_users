@@ -17,29 +17,33 @@ def cli():
 
 
 @click.command()
-@click.option('--format', default='tsv')
-@click.option('--display-roles', default=False, is_flag=True)
-@click.option('--display-gender', default=False, is_flag=True)
-@click.option('--include-roles', multiple=True)
+@click.option("--format", default="tsv")
+@click.option("--display-roles", default=False, is_flag=True)
+@click.option("--display-gender", default=False, is_flag=True)
+@click.option("--include-roles", multiple=True)
 def list_users(
-    format='tsv', display_roles=False, include_roles=None, display_gender=False
+    format="tsv", display_roles=False, include_roles=None, display_gender=False
 ):
-    seperator = ', ' if format == 'csv' else '\t'
-    users = User.objects(
-        roles__in=include_roles
-    ) if include_roles else User.objects.all()
+    seperator = ", " if format == "csv" else "\t"
+    users = (
+        User.objects(roles__in=include_roles)
+        if include_roles
+        else User.objects.all()
+    )
     output_format = (
-        '{name}{sep}{email}{sep}"{roles}"' if display_roles else '{name}{sep}{email}'
+        '{name}{sep}{email}{sep}"{roles}"'
+        if display_roles
+        else "{name}{sep}{email}"
     )
     if display_gender:
-        output_format = '{{gender}}{{sep}}{}'.format(output_format)
-    for user in users.order_by('email'):
+        output_format = "{{gender}}{{sep}}{}".format(output_format)
+    for user in users.order_by("email"):
         click.echo(
             output_format.format(
                 name=user.name,
                 email=user.email,
                 gender=user.gender,
-                roles=', '.join(user.roles),
+                roles=", ".join(user.roles),
                 sep=seperator,
             )
         )
@@ -49,60 +53,62 @@ def list_users(
 def list_roles():
     roles = {
         role
-        for user in User.objects.only('roles')
+        for user in User.objects.only("roles")
         for role in (user.roles or [])
     }
     for role in sorted(roles):
-        users = User.objects(roles__in=[role]).only('email')
+        users = User.objects(roles__in=[role]).only("email")
         users_count = users.count()
         if users_count <= 3:
-            display_users = ', '.join(users.values_list('email'))
+            display_users = ", ".join(users.values_list("email"))
         else:
-            display_users = '{} users'.format(users_count)
-        click.echo('{}\t{}'.format(role, display_users))
+            display_users = "{} users".format(users_count)
+        click.echo("{}\t{}".format(role, display_users))
 
 
 @click.command()
-@click.argument('role', type=str)
-@click.option('--all', default=False, is_flag=True)
-@click.option('--interactive', default=False, is_flag=True)
-@click.argument('users', type=str, nargs=-1)
+@click.argument("role", type=str)
+@click.option("--all", default=False, is_flag=True)
+@click.option("--interactive", default=False, is_flag=True)
+@click.argument("users", type=str, nargs=-1)
 def add_role(role, users, all, interactive=False):
     """Add a role to the specified users."""
     if all:
-        click.echo('Adding role {} to all users'.format(role))
+        click.echo("Adding role {} to all users".format(role))
         User.objects(roles__nin=[role]).update(push__roles=role)
     elif interactive or not users:
         role_count = User.objects(roles__in=[role]).count()
         if role_count > 0:
             click.echo(
-                '{} users already have the role: {}'.format(role_count, role)
+                "{} users already have the role: {}".format(role_count, role)
             )
-        users = User.objects(roles__nin=[role]).order_by('email')
-        message = 'Select users to add the role to'
+        users = User.objects(roles__nin=[role]).order_by("email")
+        message = "Select users to add the role to"
         page_size = 10
         num_pages = int(users.count() / page_size) + 1
 
         def split_values(value):
-            return [] if value == '-' else map(
-                int, value.replace(',', '').strip().split()
+            return (
+                []
+                if value == "-"
+                else map(int, value.replace(",", "").strip().split())
             )
 
         for page in range(1, num_pages + 1):
-            user_list = '\n'.join(
-                '{}. {}'.format(i, user.name)
+            user_list = "\n".join(
+                "{}. {}".format(i, user.name)
                 for i, user in enumerate(
-                    users[(page - 1) * page_size:page * page_size]
+                    users[(page - 1) * page_size : page * page_size]
                 )
             )
-            click.echo('Displaying page {} of {}'.format(page, num_pages))
+            click.echo("Displaying page {} of {}".format(page, num_pages))
             click.echo(
-                '{message}:\n\n{user_list}\n\n'.format(
+                "{message}:\n\n{user_list}\n\n".format(
                     message=message, user_list=user_list
                 )
             )
             values = click.prompt(
-                '{} [- to skip page]'.format(message), value_proc=split_values
+                "{} [- to skip page]".format(message), value_proc=split_values
             )
             page_users = [
                 users[(page - 1) * page_size + value] for value in values
@@ -111,70 +117,70 @@ def add_role(role, users, all, interactive=False):
             page_users = User.objects(email__in=emails)
             page_users.update(push__roles=role)
             print(
-                'Added role to \n{}\n\n'.format(
-                    '\n'.join(page_users.values_list('email'))
+                "Added role to \n{}\n\n".format(
+                    "\n".join(page_users.values_list("email"))
                 )
             )
     else:
         users = User.objects(Q(email__in=users) & Q(roles__nin=[role]))
-        click.echo('Adding role {} to {} users'.format(role, users.count()))
+        click.echo("Adding role {} to {} users".format(role, users.count()))
         users.update(push__roles=role)
 
 
 @click.command()
-@click.argument('role', type=str)
-@click.option('--all', default=False, is_flag=True)
-@click.argument('users', type=str, nargs=-1)
+@click.argument("role", type=str)
+@click.option("--all", default=False, is_flag=True)
+@click.argument("users", type=str, nargs=-1)
 def remove_role(role, users, all):
     """Remove a role for the specified users."""
     if all:
-        click.echo('Removing role {} from all users'.format(role))
+        click.echo("Removing role {} from all users".format(role))
         User.objects(roles__in=[role]).update(pull__roles=role)
     else:
-        click.echo('Removing role {} from {} users'.format(role, len(users)))
+        click.echo("Removing role {} from {} users".format(role, len(users)))
         users = User.objects(Q(email__in=users) & Q(roles__in=[role]))
         users.update(pull__roles=role)
 
 
 @click.command()
 def list_genders():
-    genders = set(User.objects.values_list('gender'))
+    genders = set(User.objects.values_list("gender"))
     for gender in sorted(genders, key=lambda x: str(x)):
-        users = User.objects(gender=gender).only('email')
+        users = User.objects(gender=gender).only("email")
         users_count = users.count()
         if users_count <= 3:
-            display_users = ', '.join(users.values_list('email'))
+            display_users = ", ".join(users.values_list("email"))
         else:
-            display_users = '{} users'.format(users_count)
-        click.echo('{}\t{}'.format(gender, display_users))
+            display_users = "{} users".format(users_count)
+        click.echo("{}\t{}".format(gender, display_users))
 
 
 @click.command()
-@click.argument('gender', type=str)
-@click.argument('users', type=str, nargs=-1)
+@click.argument("gender", type=str)
+@click.argument("users", type=str, nargs=-1)
 def set_gender(gender, users):
-    click.echo('Setting gender {} for {} users'.format(gender, len(users)))
+    click.echo("Setting gender {} for {} users".format(gender, len(users)))
     users = User.objects(Q(email__in=users))
     users.update(gender=gender)
 
 
 @click.command()
-@click.argument('user', type=str)
-@click.argument('attribute', type=str)
-@click.argument('value', type=str)
+@click.argument("user", type=str)
+@click.argument("attribute", type=str)
+@click.argument("value", type=str)
 def set_user_attribute(user, attribute, value):
     user = User.objects.get(email=user)
     if attribute not in user._fields:
-        click.echo('{} is not a valid attribute for users'.format(attribute))
+        click.echo("{} is not a valid attribute for users".format(attribute))
         return
 
-    click.echo('Setting {} to {} for {} users'.format(attribute, value, user))
+    click.echo("Setting {} to {} for {} users".format(attribute, value, user))
     setattr(user, attribute, markdown_to_html(value))
     user.save()
 
 
 @click.command()
-@click.argument('emails', type=str, nargs=-1)
+@click.argument("emails", type=str, nargs=-1)
 def canonicalize_users(emails):
     """The first email ID will be used as the canonical email.
 
@@ -182,7 +188,7 @@ def canonicalize_users(emails):
 
     """
     if len(emails) < 2:
-        click.echo('Need at least 2 emails to canonicalize users')
+        click.echo("Need at least 2 emails to canonicalize users")
         return
 
     canonical_email = emails[0]
@@ -195,7 +201,7 @@ def canonicalize_users(emails):
             except DoesNotExist:
                 pass
             else:
-                click.echo('Changing rsvp {}'.format(rsvp.id))
+                click.echo("Changing rsvp {}".format(rsvp.id))
                 rsvp.user = canonical_user
                 rsvp.save()
         user.delete()
@@ -209,5 +215,5 @@ cli.add_command(remove_role)
 cli.add_command(list_genders)
 cli.add_command(set_gender)
 cli.add_command(set_user_attribute)
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()
