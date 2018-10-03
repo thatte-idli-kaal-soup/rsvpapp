@@ -1,0 +1,146 @@
+#!/usr/bin/env python3
+"""Script to create a new deployment of this app.
+
+- FIXME: Currently, the creation of a Google OAuth client is the quite painful.
+  It would be nice if we can find an automated way of doing this!
+
+"""
+import json
+import os
+from os.path import abspath, dirname, exists, join
+import subprocess
+
+import click
+
+HERE = dirname(abspath(__file__))
+CONFIG_DIR = join(HERE, "..", ".config")
+REQUIRED_CONFIG_VARS = ("SETTINGS", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET")
+
+HEROKU_ADDONS = (
+    "mongolab:sandbox",
+    "papertrail:choklad",
+    "scheduler:standard",
+    "sendgrid:starter",
+)
+
+
+@click.group()
+def cli():
+    """A CLI to manage Heroku deployments"""
+
+
+@click.command()
+@click.argument("name", type=str)
+def create_new_deployment(name):
+    _create_app(name)
+    _add_remote(name)
+    _create_config(name)
+    _set_heroku_config(name)
+    _add_addons(name)
+    _deploy_app(name)
+    _add_admin_users(name)
+    _open_app(name)
+
+
+def _add_admin_users(name):
+    email = click.prompt("Admin Email").strip()
+    subprocess.check_call(
+        [
+            "heroku",
+            "run",
+            "-a",
+            name,
+            "./scripts/manage_users",
+            "create_admins",
+            email,
+        ]
+    )
+
+
+def _add_remote(name):
+    subprocess.check_call(
+        ["heroku", "git:remote", "--remote", name, "-a", name]
+    )
+
+
+def _add_addons(name):
+    installed_addons = subprocess.check_output(
+        ["heroku", "addons", "-a", name, "--json"]
+    )
+    installed_addons = [
+        addon["plan"]["name"] for addon in json.loads(installed_addons)
+    ]
+    for addon in set(HEROKU_ADDONS) - set(installed_addons):
+        subprocess.check_call(
+            ["heroku", "addons:create", "-a", name, "--wait", addon]
+        )
+
+
+def _create_app(name):
+    try:
+        subprocess.check_call(["heroku", "apps:create", name])
+    except subprocess.CalledProcessError:
+        try:
+            subprocess.check_call(["heroku", "apps:info", "-a", name])
+            click.echo("App has already been created")
+        except subprocess.CalledProcessError:
+            raise click.ClickException(
+                "'{}' app is already taken, use a different name".format(name)
+            )
+
+
+def _config_path(name):
+    return join(CONFIG_DIR, "{}.json".format(name))
+
+
+def _deploy_app(name):
+    subprocess.check_call(["git", "push", "-f", name, "HEAD"])
+
+
+def _open_app(name):
+    subprocess.check_call(["heroku", "apps:open", "-a", name])
+
+
+def _read_config(config_file):
+    with open(config_file) as f:
+        return json.load(f)
+
+
+def _write_config(config, config_file):
+    with open(config_file, "w") as f:
+        json.dump(config, f)
+
+
+def _create_config(name):
+    os.makedirs(CONFIG_DIR, exist_ok=True)
+    config_file = _config_path(name)
+    if exists(config_file):
+        config = _read_config(config_file)
+    else:
+        config = {}
+    _update_config(config)
+    _write_config(config, config_file)
+
+
+def _set_heroku_config(name):
+    config_file = _config_path(name)
+    config = _read_config(config_file)
+    if not config:
+        return
+    command = ["heroku", "config:set", "-a", name]
+    config = ["{}={}".format(key, value) for key, value in config.items()]
+    command.extend(config)
+    subprocess.check_call(command)
+
+
+def _update_config(config):
+    config["SETTINGS"] = "settings/conf.py"
+    for config_var in REQUIRED_CONFIG_VARS:
+        if config_var in config:
+            continue
+        config[config_var] = click.prompt(config_var).strip()
+
+
+cli.add_command(create_new_deployment)
+if __name__ == "__main__":
+    cli()
