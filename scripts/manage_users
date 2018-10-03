@@ -128,14 +128,15 @@ def add_role(role, users, all, interactive=False):
 
 
 @click.command()
-@click.argument("emails", type=str, nargs=-1)
-def create_admins(emails):
+@click.argument("info", type=str, nargs=-1)
+def create_admins(info):
     """Create admin users with given email ids."""
-    for email in emails:
+    for each in info:
+        name, email = each.split(":")
         try:
             user = User.objects.get(email=email)
         except DoesNotExist:
-            user = User(email=email)
+            user = User(name=name, email=email)
             user.save()
         finally:
             for role in (".approved-user", "admin"):

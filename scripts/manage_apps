@@ -15,7 +15,7 @@ import click
 HERE = dirname(abspath(__file__))
 CONFIG_DIR = join(HERE, "..", ".config")
 REQUIRED_CONFIG_VARS = ("SETTINGS", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET")
-
+ADMINS = ["Puneeth Chaganti:punchagan@gmail.com"]
 HEROKU_ADDONS = (
     "mongolab:sandbox",
     "papertrail:choklad",
@@ -43,18 +43,16 @@ def create_new_deployment(name):
 
 
 def _add_admin_users(name):
-    email = click.prompt("Admin Email").strip()
-    subprocess.check_call(
-        [
-            "heroku",
-            "run",
-            "-a",
-            name,
-            "./scripts/manage_users",
-            "create_admins",
-            email,
-        ]
-    )
+    command = [
+        "heroku",
+        "run",
+        "-a",
+        name,
+        "./scripts/manage_users",
+        "create_admins",
+    ]
+    command.extend(ADMINS)
+    subprocess.check_call(command)
 
 
 def _add_remote(name):
