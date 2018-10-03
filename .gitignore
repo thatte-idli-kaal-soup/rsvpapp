@@ -1,3 +1,5 @@
 __pycache__/
 .pytest_cache/
 /service_account_file.json
+/.envrc
+/.config
