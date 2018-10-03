@@ -128,6 +128,23 @@ def add_role(role, users, all, interactive=False):
 
 
 @click.command()
+@click.argument("emails", type=str, nargs=-1)
+def create_admins(emails):
+    """Create admin users with given email ids."""
+    for email in emails:
+        try:
+            user = User.objects.get(email=email)
+        except DoesNotExist:
+            user = User(email=email)
+            user.save()
+        finally:
+            for role in (".approved-user", "admin"):
+                if not user.has_role(role):
+                    user.roles.append(role)
+            user.save()
+
+
+@click.command()
 @click.argument("role", type=str)
 @click.option("--all", default=False, is_flag=True)
 @click.argument("users", type=str, nargs=-1)
@@ -207,6 +224,7 @@ def canonicalize_users(emails):
         user.delete()
 
 
+cli.add_command(create_admins)
 cli.add_command(list_users)
 cli.add_command(list_roles)
 cli.add_command(add_role)
