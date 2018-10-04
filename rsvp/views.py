@@ -232,6 +232,11 @@ def media():
     )
 
 
+@app.route("/features", methods=["GET"])
+def features():
+    return render_template("features.html")
+
+
 # API ####
 @app.route("/api/events/", methods=["GET"])
 @login_required
