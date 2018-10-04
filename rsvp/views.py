@@ -418,9 +418,11 @@ def show_post(id):
     return render_template("post.html", post=post)
 
 
-@app.route("/post", methods=["POST"])
+@app.route("/post", methods=["GET", "POST"])
 @login_required
 def add_post():
+    if request.method == "GET":
+        return render_template("post-editor.html")
     data = {
         "title": request.form["title"],
         "content": request.form["content"],
