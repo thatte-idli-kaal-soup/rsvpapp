@@ -223,13 +223,12 @@ def media():
             )
     service = create_service()
     gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
-    gdrive_dirs = list_sub_dirs(service, gdrive_root)
+    gdrive_dirs = sorted(
+        list_sub_dirs(service, gdrive_root), key=lambda x: x["name"]
+    )
     photos = GDrivePhoto.new_photos()
     return render_template(
-        "social.html",
-        social=social,
-        gdrive_dirs=list(gdrive_dirs),
-        photos=photos,
+        "social.html", social=social, gdrive_dirs=gdrive_dirs, photos=photos
     )
 
 
