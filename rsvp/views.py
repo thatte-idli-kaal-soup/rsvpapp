@@ -5,6 +5,7 @@ from urllib.parse import urlparse, urlunparse
 
 from bson.objectid import ObjectId
 from flask import (
+    current_app,
     flash,
     render_template,
     redirect,
@@ -410,9 +411,10 @@ def show_posts():
 
 
 @app.route("/post/<id>")
-@login_required
 def show_post(id):
     post = Post.objects.get(id=id)
+    if not post.public and not current_user.is_authenticated:
+        return current_app.login_manager.unauthorized()
     return render_template("post.html", post=post)
 
 

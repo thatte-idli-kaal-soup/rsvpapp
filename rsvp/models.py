@@ -98,6 +98,7 @@ class Post(db.Document):
     created_at = db.DateTimeField(required=True, default=datetime.datetime.now)
     archived = db.BooleanField(default=False)
     author = db.LazyReferenceField("User")
+    public = db.BooleanField(default=False)
 
     @classmethod
     def pre_save(cls, sender, document, **kwargs):
