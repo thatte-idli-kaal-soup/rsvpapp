@@ -35,34 +35,34 @@
         <header>
             <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
                 <a class="navbar-brand" href="{{url_for('index')}}"><img width="24px" src="{{ LOGO }}"/> {{TEXT1}}</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMenu"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    {% if approval_awaited_count %}
-                        <span class="fas fa-xs text-white">
-                            <i class="fas fa-xs fa-bell text-danger"></i>
-                        </span>
-                    {% endif %}
-                    {% if recent_post_count %}
-                        <span class="fas fa-xs text-white">
-                            <i class="fas fa-xs fa-bell text-primary"></i>
-                        </span>
-                    {% endif %}
-                    {% if not approval_awaited_count and not recent_post_count %}
-                        <span class="navbar-toggler-icon"></span>
-                    {% endif %}
-                </button>
-                <div class="collapse navbar-collapse" id="navbarMenu">
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('archived') }}">All Events</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('show_posts') }}">All Posts</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('media') }}">Media</a>
-                        </li>
-                        {% if current_user.is_authenticated %}
+                {% if current_user.is_authenticated %}
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMenu"
+                            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        {% if approval_awaited_count %}
+                            <span class="fas fa-xs text-white">
+                                <i class="fas fa-xs fa-bell text-danger"></i>
+                            </span>
+                        {% endif %}
+                        {% if recent_post_count %}
+                            <span class="fas fa-xs text-white">
+                                <i class="fas fa-xs fa-bell text-primary"></i>
+                            </span>
+                        {% endif %}
+                        {% if not approval_awaited_count and not recent_post_count %}
+                            <span class="navbar-toggler-icon"></span>
+                        {% endif %}
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarMenu">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('archived') }}">All Events</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('show_posts') }}">All Posts</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('media') }}">Media</a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Welcome, {{current_user.nick or current_user.name}}
@@ -74,13 +74,13 @@
                                     <a class="dropdown-item" href="/logout">Logout</a>
                                 </div>
                             </li>
-                        {% endif %}
-                        {% import 'notification-macro.html' as notifications %}
-                        {{ notifications.notification(approval_awaited_count, url_for('approve_users'), 'user(s) awaiting approval', 'danger') }}
-                        {{ notifications.notification(recent_post_count, url_for('show_posts'), 'recent post(s)', 'primary') }}
-                        {{ notifications.notification(recent_photo_count, url_for('media'), 'recent photo(s)', 'success') }}
-                    </ul>
-                </div>
+                            {% import 'notification-macro.html' as notifications %}
+                            {{ notifications.notification(approval_awaited_count, url_for('approve_users'), 'user(s) awaiting approval', 'danger') }}
+                            {{ notifications.notification(recent_post_count, url_for('show_posts'), 'recent post(s)', 'primary') }}
+                            {{ notifications.notification(recent_photo_count, url_for('media'), 'recent photo(s)', 'success') }}
+                        </ul>
+                    </div>
+                {% endif %}
             </nav>
         </header>
         <main class="container" role="main">
