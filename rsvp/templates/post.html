@@ -5,8 +5,15 @@
 
 {% block content %}
     <div class="blog-post">
-        <h2 class="blog-post-title">{{post.title}}</h2>
-        <p class="blog-post-meta">{{post.created_at.strftime('%B %d, %Y')}} {% if post.author %}by {{post.author.fetch().name}}{% endif %}</p>
+        <div class="h2 blog-post-title">
+            {{post.title}}
+        </div>
+        <p class="blog-post-meta">
+            {% if post.public %}
+                <span class="badge badge-primary">Public</span>
+            {% endif %}
+            {{post.created_at.strftime('%B %d, %Y')}} {% if post.author %}by {{post.author.fetch().name}}{% endif %}
+        </p>
         {{post.html_content | safe}}
     </div>
 {% endblock %}

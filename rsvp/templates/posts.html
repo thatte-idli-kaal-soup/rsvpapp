@@ -4,8 +4,15 @@
     <a class="float-right btn btn-primary" href="{{ url_for('add_post') }}">Add post</a>
     {% for post in posts %}
         <div class="blog-post">
-            <a href="{{ url_for('show_post', id=post.id) }}"><p class="h3">{{post.title}}</p></a>
-            <p class="blog-post-meta">{{post.created_at.strftime('%B %d, %Y')}} {% if post.author %}by {{post.author.fetch().name}}{% endif %}</p>
+            <p>
+                <a href="{{ url_for('show_post', id=post.id) }}"><span class="h3">{{post.title}}</span></a>
+            </p>
+            <p class="blog-post-meta">
+                {% if post.public %}
+                    <span class="badge badge-primary">Public</span>
+                {% endif %}
+                {{post.created_at.strftime('%B %d, %Y')}} {% if post.author %}by {{post.author.fetch().name}}{% endif %}
+            </p>
         </div>
         <hr>
     {% endfor %}
