@@ -426,6 +426,7 @@ def add_post():
     data = {
         "title": request.form["title"],
         "content": request.form["content"],
+        "public": request.form["public"],
         "author": current_user.email
         if current_user.is_authenticated
         else None,
