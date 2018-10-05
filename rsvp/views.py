@@ -415,7 +415,8 @@ def show_post(id):
     post = Post.objects.get(id=id)
     if not post.public and not current_user.is_authenticated:
         return current_app.login_manager.unauthorized()
-    return render_template("post.html", post=post)
+    description = post.content[:100] if post.public else "Private post"
+    return render_template("post.html", post=post, description=description)
 
 
 @app.route("/edit-post/<id>", methods=["GET"])
