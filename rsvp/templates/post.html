@@ -9,10 +9,13 @@
             {{post.title}}
         </div>
         <p class="blog-post-meta">
+            {{post.created_at.strftime('%B %d, %Y')}} {% if post.author %}by {{post.author.fetch().name}}{% endif %}
             {% if post.public %}
                 <span class="badge badge-primary">Public</span>
             {% endif %}
-            {{post.created_at.strftime('%B %d, %Y')}} {% if post.author %}by {{post.author.fetch().name}}{% endif %}
+            {% if current_user.email == post.author.fetch().email %}
+                <a class="badge badge-secondary" href="{{ url_for('edit_post', id=post.id) }}">Edit</a>
+            {% endif %}
         </p>
         {{post.html_content | safe}}
     </div>

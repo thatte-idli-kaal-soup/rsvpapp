@@ -418,19 +418,30 @@ def show_post(id):
     return render_template("post.html", post=post)
 
 
+@app.route("/edit-post/<id>", methods=["GET"])
+@login_required
+def edit_post(id):
+    post = Post.objects.get(id=id)
+    return render_template("post-editor.html", post=post)
+
+
 @app.route("/post", methods=["GET", "POST"])
 @login_required
 def add_post():
     if request.method == "GET":
-        return render_template("post-editor.html")
+        return render_template("post-editor.html", post=None)
+    post_id = request.form.get("post-id")
     data = {
         "title": request.form["title"],
         "content": request.form["content"],
-        "public": request.form["public"],
-        "author": current_user.email
-        if current_user.is_authenticated
-        else None,
+        "public": request.form.get("public") is not None,
+        "author": current_user.email,
     }
-    post = Post(**data)
+    if post_id:
+        post = Post.objects.get(id=post_id)
+        for key, value in data.items():
+            setattr(post, key, value)
+    else:
+        post = Post(**data)
     post.save()
     return redirect(url_for("show_post", id=post.id))
