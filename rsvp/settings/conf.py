@@ -5,7 +5,7 @@ MONGODB_SETTINGS = {
 }
 SECRET_KEY = os.environ.get("SECRET_KEY", "Our awesome secret key")
 # Flag to specify if users need to be approved to use the app
-PRIVATE_APP = True
+PRIVATE_APP = os.environ.get("PRIVATE_APP", "1") == "1"
 # Other shit
 TEXT1 = os.environ.get("TEXT1", "RSVPDemo")
 LOGO = os.environ.get(
