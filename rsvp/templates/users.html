@@ -1,12 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {% set user = current_user %}
-    {% if not role and not gender %}
-        {% include 'user_form.html' %}
-    {% endif %}
-
-    <hr/>
     {% if not role and not gender%}
         <p class="h6">{{users|length}} registered users</p>
         {% include 'tos_modal.html' %}

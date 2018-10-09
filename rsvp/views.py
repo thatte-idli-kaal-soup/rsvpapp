@@ -165,9 +165,12 @@ def users():
     )
 
 
-@app.route("/user", methods=["POST"])
+@app.route("/profile", methods=["GET", "POST"])
 @fresh_login_required
-def update_user():
+def user_profile():
+    if request.method == "GET":
+        return render_template("user_form.html")
+
     email = request.form["email"]
     if email != current_user.email:
         flash("You can only modify your information", "danger")
