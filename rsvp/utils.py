@@ -6,6 +6,8 @@ import io
 import os
 from random import choice
 import string
+from urllib.request import quote
+from urllib.parse import urlparse
 
 # 3rd party
 from bson.objectid import ObjectId
@@ -190,7 +192,7 @@ def zulip_announce(sender, document, **kwargs):
         # Fetch object from DB to be able to use validated/cleaned values
         document = sender.objects.get(id=document.id)
     url = "{}/event/{}".format(os.environ["RSVP_HOST"], str(document.id))
-    title = "{:%Y-%m-%d %H:%M} - {}".format(document.date, document.name)
+    title = zulip_title(document)
     content = render_template("zulip_announce.md", event=document, url=url)
     send_message_zulip(
         os.environ["ZULIP_ANNOUNCE_STREAM"], title, content, "stream"
@@ -227,3 +229,33 @@ def zulip_announce_new_photos(new_paths, new_photos):
     send_message_zulip(
         os.environ["ZULIP_ANNOUNCE_STREAM"], title, content, "stream"
     )
+
+
+def zulip_title(event):
+    return "{:%Y-%m-%d %H:%M} - {}".format(event.date, event.name)
+
+
+def zulip_event_url(event):
+    """Return the Zulip url given the title. """
+    zulip_api_url = os.environ.get("ZULIP_API_URL")
+    if not zulip_api_url:
+        return ""
+
+    # We just replicate how Zulip creates/manages urls.
+    # https://github.com/zulip/zulip/blob/33295180a918fcd420428d9aa2fb737b864cacaf/zerver/lib/notifications.py#L34
+    # Some browsers zealously URI-decode the contents of window.location.hash.
+    # So Zulip hides the URI-encoding by replacing '%' with '.'
+    def replace(x):
+        return (
+            quote(x.encode("utf-8"), safe="")
+            .replace(".", "%2E")
+            .replace("%", ".")
+        )
+
+    title = zulip_title(event).strip()
+    if len(title) > 60:
+        title = title[:57] + "..."
+    title = replace(title)
+    stream = replace(os.environ["ZULIP_ANNOUNCE_STREAM"])
+    host = urlparse(zulip_api_url).netloc
+    return "https://{}/#narrow/stream/{}/topic/{}".format(host, stream, title)

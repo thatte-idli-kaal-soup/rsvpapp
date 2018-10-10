@@ -131,8 +131,13 @@
                 </button>
                 <span class="badge badge-success badge-pill">{{count}}</span>
             </li>
-            {% endif %}
+        {% endif %}
     </ul>
+    {% with zurl = event|zulip_event_url %}
+        {% if zurl %}
+            <a class="btn btn-secondary" href="{{ zurl }}" target="_blank">Discuss on Zulip</a>
+        {% endif %}
+    {% endwith %}
     {% if current_user.is_admin or event.created_by and event.created_by.fetch().email == current_user.email %}
     <div class="form-group row">
         <div class="col-sm-10">
