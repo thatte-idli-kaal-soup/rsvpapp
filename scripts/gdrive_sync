@@ -25,7 +25,12 @@ import click
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rsvp.models import GDrivePhoto, User
-from rsvp.gdrive_utils import create_service, photos, update_permissions
+from rsvp.gdrive_utils import (
+    create_service,
+    photos,
+    update_permissions,
+    update_calendar_sharing,
+)
 from rsvp.utils import zulip_announce_new_photos
 
 
@@ -35,7 +40,8 @@ def cli(ctx):
     """A CLI to manage Google Drive photos related actions"""
     ctx.obj.update(
         {
-            "service": create_service(),
+            "drive_service": create_service("drive"),
+            "calendar_service": create_service("calendar"),
             "gdrive_root": os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"],
         }
     )
@@ -44,7 +50,7 @@ def cli(ctx):
 @click.command()
 @click.pass_context
 def sync_photos(ctx):
-    service = ctx.obj["service"]
+    service = ctx.obj["drive_service"]
     gdrive_root = ctx.obj["gdrive_root"]
     gd_photos = [
         GDrivePhoto(**photo) for photo in photos(service, gdrive_root)
@@ -69,15 +75,25 @@ def sync_photos(ctx):
 @click.command()
 @click.pass_context
 def sync_permissions(ctx):
-    service = ctx.obj["service"]
+    service = ctx.obj["drive_service"]
     gdrive_root = ctx.obj["gdrive_root"]
     emails = User.approved_users().values_list("email")
     emails = [email.lower() for email in emails]
     update_permissions(service, gdrive_root, emails)
 
 
+@click.command()
+@click.pass_context
+def sync_calendar_permissions(ctx):
+    service = ctx.obj["calendar_service"]
+    emails = User.approved_users().values_list("email")
+    emails = [email.lower() for email in emails]
+    update_calendar_sharing(service, emails)
+
+
 cli.add_command(sync_photos)
 cli.add_command(sync_permissions)
+cli.add_command(sync_calendar_permissions)
 
 if __name__ == "__main__":
     cli(obj={})

@@ -10,6 +10,10 @@ import requests
 
 # Local library
 SERVICE_ACCOUNT_FILE = "service_account_file.json"
+SCOPES = {
+    "drive": ["https://www.googleapis.com/auth/drive"],
+    "calendar": ["https://www.googleapis.com/auth/calendar"],
+}
 
 
 def download_service_account_file():
@@ -18,14 +22,13 @@ def download_service_account_file():
         json.dump(requests.get(url).json(), f)
 
 
-def create_service():
+def create_service(name="drive"):
     if not os.path.exists(SERVICE_ACCOUNT_FILE):
         download_service_account_file()
-    SCOPES = ["https://www.googleapis.com/auth/drive"]
     credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES[name]
     )
-    service = build("drive", "v3", credentials=credentials)
+    service = build(name, "v3", credentials=credentials)
     return service
 
 
@@ -131,3 +134,69 @@ def walk_dir(service, root):
         yield from map(
             flat_zip, cycle([sub_dir]), walk_dir(service, sub_dir["id"])
         )
+
+
+# Calendar
+
+CALENDAR_TITLE = "RSVP App Events Calendar"
+
+
+def get_calendar_id(service):
+    page_token = None
+    while True:
+        calendar_list = (
+            service.calendarList().list(pageToken=page_token).execute()
+        )
+        for calendar_list_entry in calendar_list["items"]:
+            if calendar_list_entry["summary"] == CALENDAR_TITLE:
+                return calendar_list_entry["id"]
+
+        page_token = calendar_list.get("nextPageToken")
+        if not page_token:
+            break
+
+    calendar = (
+        service.calendars().insert(body={"summary": CALENDAR_TITLE}).execute()
+    )
+    return calendar["id"]
+
+
+def get_calendar_acls(service, calendarId):
+    page_token = None
+    items = []
+    while True:
+        acls = service.acl().list(calendarId=calendarId).execute()
+        items.extend(acls["items"])
+        page_token = acls.get("nextPageToken")
+        if not page_token:
+            break
+
+    return items
+
+
+def update_calendar_sharing(service, emails):
+    calendarId = get_calendar_id(service)
+    acls = get_calendar_acls(service, calendarId)
+    readers = [
+        acl
+        for acl in acls
+        if acl["role"] == "reader" and acl["scope"]["type"] == "user"
+    ]
+    permitted_users = {reader["scope"]["value"] for reader in readers}
+
+    for reader in readers:
+        email = reader["scope"]["value"]
+        if email not in emails:
+            ruleId = reader["id"]
+            service.acl().delete(
+                calendarId=calendarId, ruleId=ruleId
+            ).execute()
+            print("Revoked access for {}".format(email))
+
+    new_users = set(emails) - permitted_users
+    for user in new_users:
+        body = {"scope": {"type": "user", "value": user}, "role": "reader"}
+        service.acl().insert(
+            calendarId=calendarId, body=body, sendNotifications=True
+        ).execute()
+        print("Granted access to {}".format(user))
