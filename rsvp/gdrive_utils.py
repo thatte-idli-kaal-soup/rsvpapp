@@ -5,6 +5,7 @@ import os
 
 # 3rd party
 from apiclient.discovery import build
+from apiclient.http import HttpError
 from google.oauth2 import service_account
 import requests
 
@@ -200,3 +201,23 @@ def update_calendar_sharing(service, emails):
             calendarId=calendarId, body=body, sendNotifications=True
         ).execute()
         print("Granted access to {}".format(user))
+
+
+def add_birthday(service, user):
+    calendarId = get_calendar_id(service)
+    title = "{}'s Birthday".format(user.nick or user.name)
+    date = user.dob.strftime("%Y-%m-%d")
+    iCalUID = "birthday:{}".format(user.email)
+    body = {
+        "start": {"date": date},
+        "end": {"date": date},
+        "recurrence": ["RRULE:FREQ=YEARLY"],
+        "summary": title,
+        "iCalUID": iCalUID,
+    }
+    try:
+        service.events().insert(calendarId=calendarId, body=body).execute()
+        print("Added {}'s birthday".format(user.email))
+    except HttpError as e:
+        print(iCalUID)
+        print(e)
