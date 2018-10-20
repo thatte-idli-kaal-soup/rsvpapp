@@ -26,6 +26,7 @@ import click
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rsvp.models import GDrivePhoto, User
 from rsvp.gdrive_utils import (
+    add_birthday,
     create_service,
     photos,
     update_permissions,
@@ -91,9 +92,19 @@ def sync_calendar_permissions(ctx):
     update_calendar_sharing(service, emails)
 
 
+@click.command()
+@click.pass_context
+def sync_calendar_birthdays(ctx):
+    service = ctx.obj["calendar_service"]
+    users = User.approved_users().filter(dob__ne=None)
+    for user in users:
+        add_birthday(service, user)
+
+
 cli.add_command(sync_photos)
 cli.add_command(sync_permissions)
 cli.add_command(sync_calendar_permissions)
+cli.add_command(sync_calendar_birthdays)
 
 if __name__ == "__main__":
     cli(obj={})
