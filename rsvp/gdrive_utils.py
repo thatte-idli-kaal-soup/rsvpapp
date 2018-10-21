@@ -219,5 +219,12 @@ def add_birthday(service, user):
         service.events().insert(calendarId=calendarId, body=body).execute()
         print("Added {}'s birthday".format(user.email))
     except HttpError as e:
-        print(iCalUID)
-        print(e)
+        event = (
+            service.events()
+            .list(calendarId=calendarId, iCalUID=iCalUID)
+            .execute()["items"][0]
+        )
+        service.events().update(
+            calendarId=calendarId, eventId=event["id"], body=body
+        ).execute()
+        print("Updated {}'s birthday".format(user.email))
