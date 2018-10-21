@@ -215,9 +215,13 @@ def add_birthday(service, user):
         "summary": title,
         "iCalUID": iCalUID,
     }
+    add_or_update_event(service, calendarId, iCalUID, body)
+
+
+def add_or_update_event(service, calendarId, iCalUID, body):
     try:
         service.events().insert(calendarId=calendarId, body=body).execute()
-        print("Added {}'s birthday".format(user.email))
+        print("Added {}".format(iCalUID))
     except HttpError as e:
         event = (
             service.events()
@@ -228,9 +232,9 @@ def add_birthday(service, user):
             service.events().update(
                 calendarId=calendarId, eventId=event["id"], body=body
             ).execute()
-            print("Updated {}'s birthday".format(user.email))
+            print("Updated {}".format(iCalUID))
         else:
-            print("{}'s birthday already added".format(user.email))
+            print("No updates to {}".format(iCalUID))
 
 
 def _event_needs_update(existing, new):
