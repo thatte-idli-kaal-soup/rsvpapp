@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
+import csv
+from datetime import datetime
 import os
 import sys
 
 import click
 from mongoengine.queryset.visitor import Q
 from mongoengine.errors import DoesNotExist
+import requests
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rsvp.models import Event, User
@@ -198,6 +201,24 @@ def set_user_attribute(user, attribute, value):
 
 
 @click.command()
+@click.argument("csv_url", type=str)
+def set_birthdays_from_csv(csv_url):
+    reader = csv.DictReader(requests.get(csv_url).text.splitlines())
+    csv_data = {
+        row["Email address"].lower(): row["Date of Birth"] for row in reader
+    }
+    users = User.objects.filter(dob=None)
+    for user in users:
+        email = user.email
+        if email not in csv_data:
+            continue
+        birthday = datetime.strptime(csv_data[user.email], "%m/%d/%Y")
+        click.echo("Setting {}'s birthday to {}".format(email, birthday))
+        user.dob = birthday
+        user.save()
+
+
+@click.command()
 @click.argument("emails", type=str, nargs=-1)
 def canonicalize_users(emails):
     """The first email ID will be used as the canonical email.
@@ -234,5 +255,6 @@ cli.add_command(remove_role)
 cli.add_command(list_genders)
 cli.add_command(set_gender)
 cli.add_command(set_user_attribute)
+cli.add_command(set_birthdays_from_csv)
 if __name__ == "__main__":
     cli()
