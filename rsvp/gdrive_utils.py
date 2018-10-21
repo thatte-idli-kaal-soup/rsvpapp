@@ -1,4 +1,5 @@
 # Standard library
+from datetime import timedelta
 from itertools import cycle
 import json
 import os
@@ -218,23 +219,82 @@ def add_birthday(service, user):
     add_or_update_event(service, calendarId, iCalUID, body)
 
 
+def add_rsvp_event_post_save_hook(sender, document, **kwargs):
+    created = kwargs.get("created", False)
+    if created:
+        document = sender.objects.get(id=document.id)
+
+    from flask import current_app
+
+    if not current_app or current_app.testing:
+        return
+
+    if document.cancelled:
+        delete_rsvp_event(document)
+
+    else:
+        add_rsvp_event(
+            document,
+            current_app.config["EVENT_DURATION"],
+            current_app.config["TIMEZONE"],
+        )
+
+
+def delete_rsvp_event(event):
+    service = create_service("calendar")
+    calendarId = get_calendar_id(service)
+    iCalUID = "rsvp:{}".format(event.id)
+    events = (
+        service.events()
+        .list(calendarId=calendarId, iCalUID=iCalUID)
+        .execute()["items"]
+    )
+    if len(events) == 1:
+        event = events[0]
+        service.events().delete(
+            calendarId=calendarId, eventId=event["id"]
+        ).execute()
+    else:
+        print("Event not found: {}".format(iCalUID))
+
+
+def add_rsvp_event(event, duration, timezone):
+    service = create_service("calendar")
+    calendarId = get_calendar_id(service)
+    title = event.name
+    start_date = event.date
+    # FIXME: We need all-day Events!
+    end_date = event.date + timedelta(seconds=duration)
+    iCalUID = "rsvp:{}".format(event.id)
+    body = {
+        "start": {"dateTime": start_date.isoformat(), "timeZone": timezone},
+        "end": {"dateTime": end_date.isoformat(), "timeZone": timezone},
+        "summary": title,
+        "iCalUID": iCalUID,
+    }
+    add_or_update_event(service, calendarId, iCalUID, body)
+
+
 def add_or_update_event(service, calendarId, iCalUID, body):
     try:
         service.events().insert(calendarId=calendarId, body=body).execute()
         print("Added {}".format(iCalUID))
     except HttpError as e:
-        event = (
-            service.events()
-            .list(calendarId=calendarId, iCalUID=iCalUID)
-            .execute()["items"][0]
-        )
-        if _event_needs_update(event, body):
-            service.events().update(
-                calendarId=calendarId, eventId=event["id"], body=body
-            ).execute()
-            print("Updated {}".format(iCalUID))
+        if e.resp.status == 409:
+            event = (
+                service.events()
+                .list(calendarId=calendarId, iCalUID=iCalUID)
+                .execute()["items"][0]
+            )
+            if _event_needs_update(event, body):
+                service.events().update(
+                    calendarId=calendarId, eventId=event["id"], body=body
+                ).execute()
+                print("Updated {}".format(iCalUID))
+            else:
+                print("No updates to {}".format(iCalUID))
         else:
-            print("No updates to {}".format(iCalUID))
+            raise
 
 
 def _event_needs_update(existing, new):

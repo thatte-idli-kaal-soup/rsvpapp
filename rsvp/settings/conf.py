@@ -42,3 +42,6 @@ SOCIAL = [
         "type": "page",
     },
 ]
+# Calendar settings
+EVENT_DURATION = 7200  # 2 hours
+TIMEZONE = "Asia/Kolkata"

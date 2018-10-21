@@ -4,7 +4,9 @@ from flask_login import UserMixin, AnonymousUserMixin
 from flask_mongoengine import MongoEngine
 from mongoengine import signals
 
+from .gdrive_utils import add_rsvp_event_post_save_hook
 from .utils import random_id, markdown_to_html, zulip_announce
+
 
 db = MongoEngine()
 ANONYMOUS_EMAIL = "anonymous@example.com"
@@ -44,6 +46,7 @@ class Event(db.Document):
 
 signals.pre_save.connect(Event.pre_save, sender=Event)
 signals.post_save.connect(zulip_announce, sender=Event)
+signals.post_save.connect(add_rsvp_event_post_save_hook, sender=Event)
 
 
 class User(db.Document, UserMixin):
