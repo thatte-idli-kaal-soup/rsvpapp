@@ -224,7 +224,17 @@ def add_birthday(service, user):
             .list(calendarId=calendarId, iCalUID=iCalUID)
             .execute()["items"][0]
         )
-        service.events().update(
-            calendarId=calendarId, eventId=event["id"], body=body
-        ).execute()
-        print("Updated {}'s birthday".format(user.email))
+        if _event_needs_update(event, body):
+            service.events().update(
+                calendarId=calendarId, eventId=event["id"], body=body
+            ).execute()
+            print("Updated {}'s birthday".format(user.email))
+        else:
+            print("{}'s birthday already added".format(user.email))
+
+
+def _event_needs_update(existing, new):
+    for key, value in new.items():
+        if key not in existing or existing[key] != value:
+            return True
+    return False
