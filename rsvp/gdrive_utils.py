@@ -11,6 +11,8 @@ from google.oauth2 import service_account
 import requests
 
 # Local library
+from .utils import event_absolute_url
+
 SERVICE_ACCOUNT_FILE = "service_account_file.json"
 SCOPES = {
     "drive": ["https://www.googleapis.com/auth/drive"],
@@ -271,6 +273,10 @@ def add_rsvp_event(event, duration, timezone):
         "end": {"dateTime": end_date.isoformat(), "timeZone": timezone},
         "summary": title,
         "iCalUID": iCalUID,
+        "source": {
+            "url": event_absolute_url(event),
+            "title": "Go to RSVP app page",
+        },
     }
     add_or_update_event(service, calendarId, iCalUID, body)
 

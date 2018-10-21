@@ -175,6 +175,10 @@ def send_message_zulip(to, subject, content, type_="private"):
         return False
 
 
+def event_absolute_url(event):
+    return "{}/event/{}".format(os.environ["RSVP_HOST"], str(event.id))
+
+
 def zulip_announce(sender, document, **kwargs):
     created = kwargs.get("created", False)
     announce = created or "description" in document._changed_fields
@@ -191,7 +195,7 @@ def zulip_announce(sender, document, **kwargs):
     if created:
         # Fetch object from DB to be able to use validated/cleaned values
         document = sender.objects.get(id=document.id)
-    url = "{}/event/{}".format(os.environ["RSVP_HOST"], str(document.id))
+    url = event_absolute_url(document)
     title = zulip_title(document)
     content = render_template("zulip_announce.md", event=document, url=url)
     send_message_zulip(
