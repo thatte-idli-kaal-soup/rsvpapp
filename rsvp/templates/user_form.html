@@ -14,7 +14,7 @@
                     {% endfor %}
                 </div>
                 <div class="card-body">
-                    <form class="form" action="/user" method="POST">
+                    <form class="form" action="/profile" method="POST">
                         <input type="hidden" name="email" value={{user.email}}>
                         <input type="text" class="form-control my-2" name="nick" id="nick" placeholder="Nick" value="{{user.nick or ''}}">
                         <div class="form-control">

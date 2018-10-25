@@ -180,7 +180,7 @@ def user_profile():
         user.dob = request.form["dob"] or None
         user.save()
         flash("Successfully updated your information", "info")
-    return redirect(url_for("users"))
+    return redirect(url_for("user_profile"))
 
 
 @app.route("/approve_user/<email>", methods=["GET"])
