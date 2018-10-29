@@ -93,7 +93,7 @@ def delete_event(event_id):
 def delete_unrsvped_events():
     """Delete events which have been cancelled and don't have any RSVPs."""
     for event in Event.objects.filter(cancelled=True):
-        if event.rsvps.count() == 0:
+        if event.active_rsvps.count() == 0:
             click.echo("Deleting event {}: {}".format(event.id, event.name))
             event.delete()
 
