@@ -17,9 +17,10 @@ def find_event(event_id):
         return Event.objects.get(id=event_id)
 
     except (
-        mongoengine.errors.ValidationError, mongoengine.errors.DoesNotExist
+        mongoengine.errors.ValidationError,
+        mongoengine.errors.DoesNotExist,
     ):
-        click.echo('Could not find the specified event')
+        click.echo("Could not find the specified event")
 
 
 @click.group()
@@ -31,23 +32,23 @@ def cli():
 @click.command()
 def archive_events():
     """Archive old events."""
-    click.echo('Archiving events...')
+    click.echo("Archiving events...")
     today = datetime.datetime.now()
-    upcoming_events = Event.objects.filter(date__gte=today).order_by('date')
-    archived_events = Event.objects.filter(date__lt=today).order_by('-date')
+    upcoming_events = Event.objects.filter(date__gte=today).order_by("date")
+    archived_events = Event.objects.filter(date__lt=today).order_by("-date")
     upcoming_events.update(archived=False)
     archived_events.update(archived=True)
 
 
 @click.command()
-@click.argument('event_id', type=str)
+@click.argument("event_id", type=str)
 def cancel_event(event_id):
     """Cancel the specified event."""
     _toggle_cancel(event_id, cancel=True)
 
 
 @click.command()
-@click.argument('event_id', type=str)
+@click.argument("event_id", type=str)
 def uncancel_event(event_id):
     """Un-cancel the specified event."""
     _toggle_cancel(event_id, cancel=False)
@@ -58,10 +59,10 @@ def _toggle_cancel(event_id, cancel=False):
     if not event:
         return
 
-    action = 'cancel' if cancel else 'uncancel'
-    click.echo('{}ing event {}'.format(action.capitalize(), event.id))
+    action = "cancel" if cancel else "uncancel"
+    click.echo("{}ing event {}".format(action.capitalize(), event.id))
     confirmation = click.confirm(
-        'Are you sure you want to {} the event - {} - {}'.format(
+        "Are you sure you want to {} the event - {} - {}".format(
             action, event.name, format_date(event.date)
         )
     )
@@ -71,16 +72,16 @@ def _toggle_cancel(event_id, cancel=False):
 
 
 @click.command()
-@click.argument('event_id', type=str)
+@click.argument("event_id", type=str)
 def delete_event(event_id):
     """Delete the specified event."""
     event = find_event(event_id)
     if not event:
         return
 
-    click.echo('Deleting event {}'.format(event.id))
+    click.echo("Deleting event {}".format(event.id))
     confirmation = click.confirm(
-        'Are you sure you want to delete the event - {} - {}'.format(
+        "Are you sure you want to delete the event - {} - {}".format(
             event.name, format_date(event.date)
         )
     )
@@ -93,13 +94,13 @@ def delete_unrsvped_events():
     """Delete events which have been cancelled and don't have any RSVPs."""
     for event in Event.objects.filter(cancelled=True):
         if event.rsvps.count() == 0:
-            click.echo('Deleting event {}: {}'.format(event.id, event.name))
+            click.echo("Deleting event {}: {}".format(event.id, event.name))
             event.delete()
 
 
 @click.command()
-@click.argument('event_id', type=str)
-@click.argument('email', type=str)
+@click.argument("event_id", type=str)
+@click.argument("email", type=str)
 def delete_rsvp(event_id, email):
     """Delete users' rsvp for an event."""
     event = find_event(event_id)
@@ -113,15 +114,15 @@ def delete_rsvp(event_id, email):
 
 
 @click.command()
-@click.argument('event_id', type=str)
-@click.argument('description', type=str)
+@click.argument("event_id", type=str)
+@click.argument("description", type=str)
 def edit_description(event_id, description):
     """Edit the description of an event."""
     event = find_event(event_id)
     if not event:
         return
 
-    click.echo('Updating the description for {}'.format(event.id))
+    click.echo("Updating the description for {}".format(event.id))
     event.description = description
     event.save()
 
@@ -133,5 +134,5 @@ cli.add_command(delete_event)
 cli.add_command(delete_rsvp)
 cli.add_command(edit_description)
 cli.add_command(delete_unrsvped_events)
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()
