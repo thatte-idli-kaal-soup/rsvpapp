@@ -1,3 +1,4 @@
+{% autoescape true %}
 *{{TEXT2}}*
 
 {% for rsvp in active_rsvps -%}
@@ -10,3 +11,4 @@
 {% if not event.archived -%}
     RSVP here: {{request.url}}
 {% endif %}
+{% endautoescape %}
