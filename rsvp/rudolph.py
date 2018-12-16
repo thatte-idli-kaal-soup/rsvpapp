@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 
+from datetime import datetime
 import random
-from rsvp.models import Event
+
+from flask import render_template
+
+from rsvp.models import Event, User
+from rsvp.utils import send_email
 
 
+YEAR = datetime.now().year
 SENDER = "Fun Committee, TIKS"
-SUBJECT = "TIKS Secret Santa 2017"
+SUBJECT = "TIKS Secret Santa {}".format(YEAR)
 HEADERS = """\
 From: {from} <{from_id}>\r
 To: {santa} <{santa_id}>\r
@@ -65,7 +71,15 @@ def persist_pairs(pairs):
 
 def notify_santas(pairs):
     for santa, kiddo in pairs:
-        print(santa, kiddo)
+        santa = User.objects.get(email=santa)
+        kiddo = User.objects.get(email=kiddo)
+        content = render_template(
+            "secret-santa.txt",
+            santa=(santa.nick or santa.name),
+            kiddo=(kiddo.nick or kiddo.name),
+            from_=SENDER,
+        )
+        send_email([santa], SUBJECT, content)
 
 
 def main(people, test=True):
