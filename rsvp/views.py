@@ -269,14 +269,6 @@ def approval_awaited(name):
     return render_template("approval_awaited.html", name=name)
 
 
-@app.route("/onesta/<letters>")
-@login_required
-def onesta(letters):
-    letters = letters.lower()
-    users = [user for user in User.objects if letters in user.name.lower()]
-    return render_template("names.html", users=users)
-
-
 @app.route("/attendance", methods=["GET", "POST"])
 @role_required("admin")
 def attendance():
@@ -337,3 +329,43 @@ def add_post():
         post = Post(**data)
     post.save()
     return redirect(url_for("show_post", id=post.id))
+
+
+# Miscellaneous views
+
+
+@app.route("/onesta/<letters>")
+@login_required
+def onesta(letters):
+    letters = letters.lower()
+    users = [user for user in User.objects if letters in user.name.lower()]
+    return render_template("names.html", users=users)
+
+
+@app.route("/secret-santa/<event_id>", methods=["GET", "POST"])
+@login_required
+def secret_santa(event_id):
+    from rsvp.rudolph import get_people, main
+
+    people = get_people(event_id)
+    if request.method == "GET":
+        return render_template(
+            "secret-santa.html", people=people, event_id=event_id
+        )
+
+    test_run = not request.form.get("live-run") == "on"
+    pairs = main(people=people, test=test_run)
+    pairs = [
+        (User.objects.get(email=santa), User.objects.get(email=kiddo))
+        for (santa, kiddo) in pairs
+    ]
+    if test_run:
+        return render_template(
+            "secret-santa.html",
+            event_id=event_id,
+            pairs=pairs,
+            people=people,
+            test_run=test_run,
+        )
+    else:
+        return "Santas notified"
