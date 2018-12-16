@@ -107,37 +107,26 @@ def generate_password(tag, salt, n=32):
 
 
 def send_approval_email(user, admins):
-    sg = sendgrid.SendGridAPIClient(apikey=os.environ.get("SENDGRID_API_KEY"))
-    from_email = Email("noreply@thatteidlikaalsoup.team")
-    to_emails = [
-        Email("{} <{}>".format(admin.name, admin.email)) for admin in admins
-    ]
+    to_users = admins
     subject = "{} is awaiting your approval".format(user.name)
-    content = Content(
-        "text/plain", render_template("awaiting_approval.txt", user=user)
-    )
-    mail = Mail(from_email, subject, to_emails[0], content)
-    for to_email in to_emails[1:]:
-        personalization = Personalization()
-        personalization.add_to(to_email)
-        mail.add_personalization(personalization)
-    try:
-        response = sg.client.mail.send.post(request_body=mail.get())
-    except Exception:
-        # FIXME: Silently failing...
-        return False
-
-    return int(response.status_code / 200) == 2
+    body = render_template("awaiting_approval.txt", user=user)
+    return send_email(to_users, subject, body)
 
 
 def send_approved_email(user):
+    to_users = [user]
+    subject = "Request approved".format(user.name)
+    body = render_template("request_approved.txt", user=user)
+    return send_email(to_users, subject, body)
+
+
+def send_email(to_users, subject, body):
     sg = sendgrid.SendGridAPIClient(apikey=os.environ.get("SENDGRID_API_KEY"))
     from_email = Email("noreply@thatteidlikaalsoup.team")
-    to_emails = [Email("{} <{}>".format(user.name, user.email))]
-    subject = "Request approved".format(user.name)
-    content = Content(
-        "text/plain", render_template("request_approved.txt", user=user)
-    )
+    content = Content("text/plain", body)
+    to_emails = [
+        Email("{} <{}>".format(user.name, user.email)) for user in to_users
+    ]
     mail = Mail(from_email, subject, to_emails[0], content)
     for to_email in to_emails[1:]:
         personalization = Personalization()
