@@ -246,6 +246,37 @@ def canonicalize_users(emails):
         user.delete()
 
 
+@click.command()
+@click.argument("emails", type=str, nargs=-1)
+def notify_santas(emails):
+    """Manually notify santas missed out when the automated script was run.
+
+    Each argument is a pair of email addresses separated by a comma. For
+    instance, santa@example.com,kiddo@email.com. Each such santa,kiddo pair is
+    one argument to the command.
+
+    """
+
+    def process_pair(email):
+        pair = [e.strip() for e in email.split(",")]
+        assert len(pair) == 2
+        assert "@" in pair[0]
+        assert "@" in pair[1]
+        return pair
+
+    pairs = [process_pair(email) for email in emails]
+    if not pairs:
+        click.echo("Need at least one santa,kiddo pair!")
+        return
+
+    from rsvp.app import app
+    from rsvp.rudolph import notify_santas
+
+    click.echo("Notifying pairs: {}".format(dict(pairs)))
+    with app.app_context():
+        notify_santas(pairs)
+
+
 cli.add_command(create_admins)
 cli.add_command(list_users)
 cli.add_command(list_roles)
@@ -256,5 +287,6 @@ cli.add_command(list_genders)
 cli.add_command(set_gender)
 cli.add_command(set_user_attribute)
 cli.add_command(set_birthdays_from_csv)
+cli.add_command(notify_santas)
 if __name__ == "__main__":
     cli()

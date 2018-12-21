@@ -49,7 +49,7 @@ def inject_notifications():
     extra_context = dict()
 
     # Unapproved users
-    if current_user.is_admin:
+    if current_user and current_user.is_admin:
         approval_awaited_count = User.objects(
             roles__nin=[".approved-user"]
         ).count()
