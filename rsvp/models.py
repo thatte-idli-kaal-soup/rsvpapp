@@ -30,6 +30,7 @@ class Event(db.Document):
     archived = db.BooleanField(required=True, default=False)
     created_by = db.LazyReferenceField("User")
     cancelled = db.BooleanField(required=True, default=False)
+    meta = {"indexes": [{"fields": ["$name", "$description"]}]}  # text index
 
     @classmethod
     def pre_save(cls, sender, document, **kwargs):

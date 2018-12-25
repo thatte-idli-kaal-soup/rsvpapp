@@ -131,6 +131,16 @@ def create_event():
     return redirect(url_for("index"))
 
 
+@app.route("/search", methods=["POST"])
+def search():
+    query = request.form.get("query")
+    events = Event.objects.order_by("-date")
+    if query:
+        events = events.search_text(query).order_by("$text_score")
+
+    return render_template("search.html", events=events, query=query)
+
+
 @app.route("/users", methods=["GET"])
 @fresh_login_required
 def users():
