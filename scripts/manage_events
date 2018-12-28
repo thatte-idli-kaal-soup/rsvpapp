@@ -127,18 +127,6 @@ def edit_description(event_id, description):
     event.save()
 
 
-@click.command()
-@click.argument("event_id", type=str)
-def show_rsvp_names(event_id):
-    """Edit the description of an event."""
-    event = find_event(event_id)
-    if not event:
-        return
-
-    for i, rsvp in enumerate(event.rsvps, start=1):
-        click.echo("{}. {}".format(i, rsvp.user.fetch().name))
-
-
 cli.add_command(archive_events)
 cli.add_command(cancel_event)
 cli.add_command(uncancel_event)
@@ -146,6 +134,5 @@ cli.add_command(delete_event)
 cli.add_command(delete_rsvp)
 cli.add_command(edit_description)
 cli.add_command(delete_unrsvped_events)
-cli.add_command(show_rsvp_names)
 if __name__ == "__main__":
     cli()
