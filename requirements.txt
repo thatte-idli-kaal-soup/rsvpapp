@@ -2,6 +2,7 @@ alley==0.0.3
 asn1crypto==0.24.0
 attrs==17.4.0
 backcall==0.1.0
+beautifulsoup4==4.6.3
 blinker==1.4
 cachetools==2.0.1
 certifi==2018.1.18
@@ -76,6 +77,7 @@ uritemplate==3.0.0
 urllib3==1.24.1
 URLObject==2.4.3
 wcwidth==0.1.7
+webpreview==1.5.0
 Werkzeug==0.14.1
 WTForms==2.1
 zulip==0.5.5
