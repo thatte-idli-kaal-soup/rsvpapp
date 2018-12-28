@@ -4,6 +4,7 @@ import os
 import sys
 
 import click
+import requests
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rsvp.models import Bookmark
@@ -37,7 +38,7 @@ def populate(links_url):
             URLS = f.read().splitlines()
 
     else:
-        raise NotImplementedError
+        URLS = requests.get(links_url).text.splitlines()
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         # Start the load operations and mark each future with its URL
