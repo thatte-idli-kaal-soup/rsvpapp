@@ -22,7 +22,15 @@ from flask_login import (
 from mongoengine.errors import DoesNotExist
 
 from .gdrive_utils import create_service, list_sub_dirs
-from .models import Event, GDrivePhoto, Post, RSVP, User, ANONYMOUS_EMAIL
+from .models import (
+    Bookmark,
+    Event,
+    GDrivePhoto,
+    Post,
+    RSVP,
+    User,
+    ANONYMOUS_EMAIL,
+)
 from .utils import (
     format_date,
     generate_password,
@@ -339,6 +347,16 @@ def add_post():
         post = Post(**data)
     post.save()
     return redirect(url_for("show_post", id=post.id))
+
+
+# Bookmark views
+
+
+@app.route("/bookmarks")
+@login_required
+def show_bookmarks():
+    bookmarks = Bookmark.objects
+    return render_template("bookmarks.html", bookmarks=bookmarks)
 
 
 # Miscellaneous views

@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+import concurrent.futures
+import os
+import sys
+
+import click
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from rsvp.models import Bookmark
+
+
+@click.group()
+def cli():
+    """A CLI to manage events"""
+    pass
+
+
+def _populate_url(url):
+    from webpreview import web_preview
+
+    try:
+        Bookmark.objects.get(url=url)
+    except Bookmark.DoesNotExist:
+        title, description, image = web_preview(url)
+        bookmark = Bookmark(
+            url=url, title=title, description=description, image=image
+        )
+        bookmark.save()
+
+
+@click.command()
+@click.argument("links_url", type=str)
+def populate(links_url):
+    """Populate bookmarks from the links url or file"""
+    if os.path.exists(links_url):
+        with open(links_url) as f:
+            URLS = f.read().splitlines()
+
+    else:
+        raise NotImplementedError
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        # Start the load operations and mark each future with its URL
+        future_to_url = {
+            executor.submit(_populate_url, url): url for url in URLS
+        }
+        for i, future in enumerate(
+            concurrent.futures.as_completed(future_to_url)
+        ):
+            url = future_to_url[future]
+            try:
+                print(i, url)
+                future.result()
+            except Exception as exc:
+                print("%r generated an exception: %s" % (url, exc))
+
+
+cli.add_command(populate)
+if __name__ == "__main__":
+    cli()

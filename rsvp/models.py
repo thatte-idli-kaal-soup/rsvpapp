@@ -123,3 +123,10 @@ class GDrivePhoto(db.Document):
     def new_photos(cls, n=2):
         two_days = datetime.datetime.now() - datetime.timedelta(days=n)
         return cls.objects.filter(gdrive_created_at__gte=two_days)
+
+
+class Bookmark(db.Document):
+    url = db.URLField(required=True)
+    title = db.StringField()
+    description = db.StringField()
+    image = db.URLField()
