@@ -7,7 +7,7 @@
                 {% if bookmark.image %}<img height="64px" width="64px" class="mr-3" src="{{ bookmark.image }}">{% endif %}
                 <div class="media-body">
                     <h5 class="mt-0 mb-1"><a href={{bookmark.url}} target="_blank">{% if bookmark.title %}{{ bookmark.title }}{% else %}{{ bookmark.url }}{% endif %}</a></h5>
-                    {% if bookmark.description %} {{ bookmark.description }} {% endif %}
+                    {% if bookmark.description %} {{ bookmark.description[:280] }} {% endif %}
                 </div>
             </li>
             <hr>
