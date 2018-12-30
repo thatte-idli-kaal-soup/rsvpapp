@@ -359,6 +359,7 @@ def show_bookmarks():
 
 
 @app.route("/bookmarks/<int:page>")
+@login_required
 def show_bookmarks_page(page=1):
     bookmarks = Bookmark.objects.order_by("-id")
     pagination = bookmarks.paginate(page=page, per_page=25)
