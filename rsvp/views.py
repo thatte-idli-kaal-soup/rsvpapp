@@ -107,9 +107,15 @@ def new_rsvp(event_id):
         note = "{}: {}".format(email, note) if note else email
     if not current_user.is_admin and event.archived:
         flash("Cannot modify an archived event!", "warning")
-    elif len(event.active_rsvps.filter(user=user)) > 0:
+    elif (
+        user.email != ANONYMOUS_EMAIL
+        and len(event.active_rsvps.filter(user=user)) > 0
+    ):
         flash("{} has already RSVP-ed!".format(email), "warning")
-    elif len(event.rsvps.filter(user=user)) > 0:
+    elif (
+        user.email != ANONYMOUS_EMAIL
+        and len(event.rsvps.filter(user=user)) > 0
+    ):
         rsvp = event.rsvps.get(user=user)
         rsvp.cancelled = False
         rsvp.note = note
