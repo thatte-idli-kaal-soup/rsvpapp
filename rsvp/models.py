@@ -82,6 +82,10 @@ class User(db.Document, UserMixin):
     def is_admin(self):
         return "admin" in self.roles
 
+    @property
+    def is_anonymous_user(self):
+        return self.email == ANONYMOUS_EMAIL
+
 
 class AnonymousUser(AnonymousUserMixin):
     def has_role(self, role):
