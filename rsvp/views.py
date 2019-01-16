@@ -105,7 +105,7 @@ def new_rsvp(event_id):
         )
         user = User.objects.get(email=ANONYMOUS_EMAIL)
         note = "{}: {}".format(email, note) if note else email
-    if not current_user.is_admin and event.archived:
+    if not current_user.is_admin and (event.archived or event.cancelled):
         flash("Cannot modify an archived event!", "warning")
     elif (
         user.email != ANONYMOUS_EMAIL
