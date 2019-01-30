@@ -141,3 +141,7 @@ def send_email(to_users, subject, body):
 
 def event_absolute_url(event):
     return "{}/event/{}".format(os.environ["RSVP_HOST"], str(event.id))
+
+
+def post_absolute_url(post):
+    return "{}/post/{}".format(os.environ["RSVP_HOST"], str(post.id))

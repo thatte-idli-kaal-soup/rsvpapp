@@ -8,7 +8,7 @@ from flask import render_template
 from werkzeug.contrib.cache import SimpleCache
 import zulip
 
-from .utils import event_absolute_url
+from .utils import event_absolute_url, post_absolute_url
 
 zulip_email = os.environ["ZULIP_EMAIL"]
 zulip_key = os.environ["ZULIP_KEY"]
@@ -44,7 +44,7 @@ def zulip_title(event, truncate=False):
     return title
 
 
-def zulip_announce(sender, document, **kwargs):
+def zulip_announce_event(sender, document, **kwargs):
     created = kwargs.get("created", False)
     announce = created or "description" in document._changed_fields
     if not announce:
@@ -61,6 +61,25 @@ def zulip_announce(sender, document, **kwargs):
     title = zulip_title(document)
     content = render_template("zulip_announce.md", event=document, url=url)
     send_message_zulip(zulip_stream, title, content, "stream")
+
+
+def zulip_announce_post(sender, document, **kwargs):
+    created = kwargs.get("created", False)
+    if not created:
+        return
+
+    if "RSVP_HOST" not in os.environ:
+        print("Please set RSVP_HOST")
+        return
+
+    if created:
+        # Fetch object from DB to be able to use validated/cleaned values
+        document = sender.objects.get(id=document.id)
+
+    url = post_absolute_url(document)
+    send_message_zulip(
+        zulip_stream, document.title, document.content, "stream"
+    )
 
 
 def zulip_announce_new_photos(new_paths, new_photos):
