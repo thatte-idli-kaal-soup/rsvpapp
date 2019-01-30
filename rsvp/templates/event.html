@@ -96,13 +96,6 @@
         </div>
     {% endif %}
     <hr/>
-    {{ (event.html_description or '') | safe }}
-    {% with zurl = event|zulip_event_url %}
-        {% if zurl %}
-            <a class="btn btn-secondary" href="{{ zurl }}" target="_blank">Discuss on Zulip</a>
-        {% endif %}
-    {% endwith %}
-    <hr/>
     <ul class="list-group">
         {% for item in items %}
             <li class="list-group-item {% if item.user.fetch().gender == 'female' and not item.cancelled -%}text-white bg-dark{% endif -%}">
@@ -144,6 +137,16 @@
             </li>
         {% endif %}
     </ul>
+    <hr/>
+    {{ (event.html_description or '') | safe }}
+    <hr/>
+    {% with zurl = event|zulip_event_url %}
+        {% if zurl %}
+            <a class="btn btn-secondary" href="{{ zurl }}" target="_blank">Discuss on Zulip</a>
+        {% endif %}
+    {% endwith %}
+    <hr/>
+    {% include "zulip-comments.html" %}
     {% if current_user.is_admin or event.created_by and event.created_by.fetch().email == current_user.email %}
     <div class="form-group row">
         <div class="col-sm-10">

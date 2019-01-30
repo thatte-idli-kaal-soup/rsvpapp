@@ -38,6 +38,7 @@ from .utils import (
     role_required,
     send_approved_email,
 )
+from .zulip_utils import zulip_event_responses
 from . import app
 
 
@@ -87,6 +88,7 @@ def event(id):
         approved_users=approved_users,
         TEXT2=event_text,
         description=description,
+        reactions=zulip_event_responses(event),
     )
 
 

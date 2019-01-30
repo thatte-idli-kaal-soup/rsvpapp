@@ -2,6 +2,7 @@ import os
 from urllib.request import quote
 from urllib.parse import urlparse
 
+import arrow
 from flask import render_template
 import zulip
 
@@ -10,6 +11,7 @@ from .utils import event_absolute_url
 zulip_email = os.environ["ZULIP_EMAIL"]
 zulip_key = os.environ["ZULIP_KEY"]
 zulip_site = zulip_email.split("@")[-1]
+zulip_stream = os.environ["ZULIP_ANNOUNCE_STREAM"]
 zulip_client = zulip.Client(
     email=zulip_email, api_key=zulip_key, site=zulip_site
 )
@@ -32,8 +34,11 @@ def send_message_zulip(to, subject, content, type_="private"):
         return False
 
 
-def zulip_title(event):
-    return "{:%Y-%m-%d %H:%M} - {}".format(event.date, event.name)
+def zulip_title(event, truncate=False):
+    title = "{:%Y-%m-%d %H:%M} - {}".format(event.date, event.name).strip()
+    if truncate and len(title) > 60:
+        title = title[:57] + "..."
+    return title
 
 
 def zulip_announce(sender, document, **kwargs):
@@ -109,10 +114,29 @@ def zulip_event_url(event):
             .replace("%", ".")
         )
 
-    title = zulip_title(event).strip()
-    if len(title) > 60:
-        title = title[:57] + "..."
+    title = zulip_title(event, truncate=True)
     title = replace(title)
-    stream = replace(os.environ["ZULIP_ANNOUNCE_STREAM"])
+    stream = replace(zulip_stream)
     host = urlparse(zulip_api_url).netloc
     return "https://{}/#narrow/stream/{}/topic/{}".format(host, stream, title)
+
+
+# FIXME: Add caching
+def zulip_event_responses(event):
+    topic = zulip_title(event, truncate=True)
+    data = {
+        "apply_markdown": True,
+        "num_before": 1000,
+        "num_after": 0,
+        "anchor": 1000000000000000,
+        "narrow": [
+            {"negated": False, "operator": "stream", "operand": zulip_stream},
+            {"negated": False, "operator": "topic", "operand": topic},
+        ],
+    }
+    response = zulip_client.get_messages(data)
+    messages = response.get("messages", [])
+    messages = [msg for msg in messages if "-bot@" not in msg["sender_email"]]
+    for message in messages:
+        message["timestamp"] = arrow.get(message["timestamp"]).humanize()
+    return messages
