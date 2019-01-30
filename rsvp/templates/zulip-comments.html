@@ -1,3 +1,10 @@
+{% with zurl = (event or post)|zulip_event_url %}
+    {% if zurl %}
+        <a class="btn btn-secondary" href="{{ zurl }}" target="_blank">Discuss on Zulip</a>
+    {% endif %}
+{% endwith %}
+
+<hr/>
 {% for comment in comments %}
     <div class="media border p-3">
         <img class="mr-3" src="{{ comment.avatar_url }}" alt="">
