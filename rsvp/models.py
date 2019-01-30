@@ -5,7 +5,8 @@ from flask_mongoengine import MongoEngine
 from mongoengine import signals
 
 from .gdrive_utils import add_rsvp_event_post_save_hook
-from .utils import random_id, markdown_to_html, zulip_announce
+from .utils import random_id, markdown_to_html
+from .zulip_utils import zulip_announce
 
 
 db = MongoEngine()

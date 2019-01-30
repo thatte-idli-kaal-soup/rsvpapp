@@ -9,13 +9,9 @@ from flask_sslify import SSLify
 from flaskext.versioned import Versioned
 
 from .models import db, GDrivePhoto, Post, User, AnonymousUser, ANONYMOUS_EMAIL
-from .utils import (
-    format_date,
-    rsvp_by,
-    rsvp_name,
-    send_approval_email,
-    zulip_event_url,
-)
+from .utils import format_date, rsvp_by, rsvp_name, send_approval_email
+from .zulip_utils import zulip_event_url
+
 
 app = Flask(__name__)
 app.config.from_envvar("SETTINGS")

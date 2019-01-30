@@ -32,7 +32,7 @@ from rsvp.gdrive_utils import (
     update_permissions,
     update_calendar_sharing,
 )
-from rsvp.utils import zulip_announce_new_photos
+from rsvp.zulip_utils import zulip_announce_new_photos
 
 
 @click.group()
