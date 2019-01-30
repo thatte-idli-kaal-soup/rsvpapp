@@ -1,18 +1,18 @@
-{% for message in reactions %}
+{% for comment in comments %}
     <div class="media border p-3">
-        <img class="mr-3" src="{{ message.avatar_url }}" alt="">
+        <img class="mr-3" src="{{ comment.avatar_url }}" alt="">
         <div class="media-body">
             <span class="float-right">
-                {{ message.timestamp }}
+                {{ comment.timestamp }}
             </span>
-            <h6><span class="font-weight-bold">{{ message.sender_full_name }}</span></h6>
-            <div class="message_content">{{ message.content | safe }}</div>
+            <h6><span class="font-weight-bold">{{ comment.sender_full_name }}</span></h6>
+            <div class="message_content">{{ comment.content | safe }}</div>
             <div class="message_reactions">
-                {% for reaction in message.reactions %}
+                {% for reaction in comment.reactions %}
                     <div class="float-left border rounded p-1">
                         <div class="float-left emoji emoji-{{ reaction.emoji_code }}">&#x{{reaction.emoji_code}}</div>
                         <div class="px-1 float-right text-sm message_reaction_count">
-                            <small>{{ message.reactions | length }}</small>
+                            <small>{{ comment.reactions | length }}</small>
                         </div>
                     </div>
                 {% endfor %}

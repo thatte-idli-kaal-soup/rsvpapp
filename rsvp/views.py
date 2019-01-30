@@ -88,7 +88,7 @@ def event(id):
         approved_users=approved_users,
         TEXT2=event_text,
         description=description,
-        reactions=zulip_event_responses(event),
+        comments=zulip_event_responses(event),
     )
 
 
