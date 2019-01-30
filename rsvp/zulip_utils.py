@@ -159,5 +159,5 @@ def zulip_event_responses(event):
     for message in messages:
         message["timestamp"] = arrow.get(message["timestamp"]).humanize()
 
-    cache.set(event.id, json.dumps(messages), timeout=60 * 5)
+    cache.set(event.id, json.dumps(messages), timeout=60)
     return messages
