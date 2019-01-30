@@ -1,9 +1,11 @@
+import json
 import os
 from urllib.request import quote
 from urllib.parse import urlparse
 
 import arrow
 from flask import render_template
+from werkzeug.contrib.cache import SimpleCache
 import zulip
 
 from .utils import event_absolute_url
@@ -15,6 +17,7 @@ zulip_stream = os.environ["ZULIP_ANNOUNCE_STREAM"]
 zulip_client = zulip.Client(
     email=zulip_email, api_key=zulip_key, site=zulip_site
 )
+cache = SimpleCache()
 
 
 def send_message_zulip(to, subject, content, type_="private"):
@@ -121,8 +124,10 @@ def zulip_event_url(event):
     return "https://{}/#narrow/stream/{}/topic/{}".format(host, stream, title)
 
 
-# FIXME: Add caching
 def zulip_event_responses(event):
+    messages = cache.get(event.id)
+    if messages is not None:
+        return json.loads(messages)
     topic = zulip_title(event, truncate=True)
     data = {
         "apply_markdown": True,
@@ -139,4 +144,6 @@ def zulip_event_responses(event):
     messages = [msg for msg in messages if "-bot@" not in msg["sender_email"]]
     for message in messages:
         message["timestamp"] = arrow.get(message["timestamp"]).humanize()
+
+    cache.set(event.id, json.dumps(messages), timeout=60 * 5)
     return messages
