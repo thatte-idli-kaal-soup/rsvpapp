@@ -50,11 +50,8 @@ def zulip_announce(sender, document, **kwargs):
     if not announce:
         return
 
-    if (
-        "RSVP_HOST" not in os.environ
-        or "ZULIP_ANNOUNCE_STREAM" not in os.environ
-    ):
-        print("Please set RSVP_HOST and ZULIP_ANNOUNCE_STREAM")
+    if "RSVP_HOST" not in os.environ:
+        print("Please set RSVP_HOST")
         return
 
     if created:
@@ -63,9 +60,7 @@ def zulip_announce(sender, document, **kwargs):
     url = event_absolute_url(document)
     title = zulip_title(document)
     content = render_template("zulip_announce.md", event=document, url=url)
-    send_message_zulip(
-        os.environ["ZULIP_ANNOUNCE_STREAM"], title, content, "stream"
-    )
+    send_message_zulip(zulip_stream, title, content, "stream")
 
 
 def zulip_announce_new_photos(new_paths, new_photos):
@@ -95,9 +90,7 @@ def zulip_announce_new_photos(new_paths, new_photos):
             ]
             content += "\n".join(urls)
 
-    send_message_zulip(
-        os.environ["ZULIP_ANNOUNCE_STREAM"], title, content, "stream"
-    )
+    send_message_zulip(zulip_stream, title, content, "stream")
 
 
 def zulip_event_url(event):
