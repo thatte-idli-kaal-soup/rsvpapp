@@ -325,7 +325,10 @@ def show_post(id):
     if not post.public and not current_user.is_authenticated:
         return current_app.login_manager.unauthorized()
     description = post.content[:100] if post.public else "Private post"
-    return render_template("post.html", post=post, description=description)
+    comments = zulip_event_responses(post)
+    return render_template(
+        "post.html", post=post, description=description, comments=comments
+    )
 
 
 @app.route("/edit-post/<id>", methods=["GET"])

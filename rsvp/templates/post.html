@@ -19,5 +19,7 @@
             {% endif %}
         </p>
         {{post.html_content | safe}}
+        <hr/>
+        {% include "zulip-comments.html" %}
     </div>
 {% endblock %}

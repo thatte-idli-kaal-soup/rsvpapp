@@ -38,7 +38,10 @@ def send_message_zulip(to, subject, content, type_="private"):
 
 
 def zulip_title(event, truncate=False):
-    title = "{:%Y-%m-%d %H:%M} - {}".format(event.date, event.name).strip()
+    if hasattr(event, "date"):
+        title = "{:%Y-%m-%d %H:%M} - {}".format(event.date, event.name).strip()
+    else:
+        title = event.title
     if truncate and len(title) > 60:
         title = title[:57] + "..."
     return title
@@ -77,9 +80,8 @@ def zulip_announce_post(sender, document, **kwargs):
         document = sender.objects.get(id=document.id)
 
     url = post_absolute_url(document)
-    send_message_zulip(
-        zulip_stream, document.title, document.content, "stream"
-    )
+    title = zulip_title(document.title)
+    send_message_zulip(zulip_stream, title, document.content, "stream")
 
 
 def zulip_announce_new_photos(new_paths, new_photos):
