@@ -120,6 +120,9 @@ class Post(db.Document):
     def pre_save(cls, sender, document, **kwargs):
         document.html_content = markdown_to_html(document.content)
 
+    def can_edit(self, user):
+        return user.is_admin or self.author.fetch().email == user.email
+
 
 signals.pre_save.connect(Post.pre_save, sender=Post)
 signals.post_save.connect(zulip_announce_post, sender=Post)

@@ -14,7 +14,7 @@
             {% if post.public %}
                 <span class="badge badge-primary">Public</span>
             {% endif %}
-            {% if current_user.email == post.author.fetch().email or current_user.is_admin %}
+            {% if post.can_edit(current_user) %}
                 <a class="badge badge-secondary" href="{{ url_for('edit_post', id=post.id) }}">Edit</a>
             {% endif %}
         </p>
