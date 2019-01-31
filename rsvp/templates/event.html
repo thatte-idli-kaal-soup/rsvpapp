@@ -96,6 +96,8 @@
         </div>
     {% endif %}
     <hr/>
+    {{ (event.html_description or '') | safe }}
+    <hr/>
     <ul class="list-group">
         {% for item in items %}
             <li class="list-group-item {% if item.user.fetch().gender == 'female' and not item.cancelled -%}text-white bg-dark{% endif -%}">
@@ -137,8 +139,6 @@
             </li>
         {% endif %}
     </ul>
-    <hr/>
-    {{ (event.html_description or '') | safe }}
     <hr/>
     {% include "zulip-comments.html" %}
     {% if current_user.is_admin or event.created_by and event.created_by.fetch().email == current_user.email %}
