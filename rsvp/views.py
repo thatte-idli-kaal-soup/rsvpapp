@@ -52,12 +52,13 @@ def redirect_heroku():
         return redirect(urlunparse(urlparts_list), code=301)
 
 
+# Views ####
+
+
 @app.route("/version-<version>/<path:static_file>")
 def versioned_static(version, static_file):
     return send_file(static_file)
 
-
-# Views ####
 
 # Event Views #########################################################
 

@@ -41,7 +41,7 @@ def zulip_title(event, truncate=False):
     if hasattr(event, "date"):
         title = "{:%Y-%m-%d %H:%M} - {}".format(event.date, event.name).strip()
     else:
-        title = event.title
+        title = event.title  # post
     if truncate and len(title) > 60:
         title = title[:57] + "..."
     return title
