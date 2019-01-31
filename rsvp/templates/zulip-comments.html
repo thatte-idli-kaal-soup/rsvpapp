@@ -15,11 +15,11 @@
             <h6><span class="font-weight-bold">{{ comment.sender_full_name }}</span></h6>
             <div class="message_content">{{ comment.content | safe }}</div>
             <div class="message_reactions">
-                {% for reaction in comment.reactions %}
+                {% for emoji_code, reaction_group in comment.reactions|groupby('emoji_code') %}
                     <div class="float-left border rounded p-1">
-                        <div class="float-left emoji emoji-{{ reaction.emoji_code }}">&#x{{reaction.emoji_code}}</div>
+                        <div class="float-left emoji emoji-{{ emoji_code }}">&#x{{emoji_code}}</div>
                         <div class="px-1 float-right text-sm message_reaction_count">
-                            <small>{{ comment.reactions | length }}</small>
+                            <small>{{ reaction_group | length }}</small>
                         </div>
                     </div>
                 {% endfor %}
