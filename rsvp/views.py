@@ -131,6 +131,7 @@ def new_rsvp(event_id):
 
 
 @app.route("/event", methods=["POST"])
+@login_required
 def create_event():
     date = request.form["date"]
     time = request.form["time"]
@@ -148,6 +149,7 @@ def create_event():
 
 
 @app.route("/search", methods=["POST"])
+@login_required
 def search():
     query = request.form.get("query")
     events = Event.objects.order_by("-date")
