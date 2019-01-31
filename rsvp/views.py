@@ -58,6 +58,10 @@ def versioned_static(version, static_file):
 
 
 # Views ####
+
+# Event Views #########################################################
+
+
 @app.route("/")
 @login_required
 def index():
@@ -90,6 +94,38 @@ def event(id):
         description=description,
         comments=zulip_event_responses(event),
     )
+
+
+@app.route("/event", methods=["POST"])
+@login_required
+def create_event():
+    date = request.form["date"]
+    time = request.form["time"]
+    item_doc = {
+        "name": request.form["event-name"],
+        "date": "{} {}".format(date, time),
+        "created_by": current_user.email
+        if current_user.is_authenticated
+        else None,
+        "description": request.form.get("event-description", ""),
+    }
+    event = Event(**item_doc)
+    event.save()
+    return redirect(url_for("index"))
+
+
+@app.route("/search", methods=["POST"])
+@login_required
+def search():
+    query = request.form.get("query")
+    events = Event.objects.order_by("-date")
+    if query:
+        events = events.search_text(query).order_by("$text_score")
+
+    return render_template("search.html", events=events, query=query)
+
+
+# RSVP Views ###########################################################
 
 
 @app.route("/new/<event_id>", methods=["POST"])
@@ -130,33 +166,27 @@ def new_rsvp(event_id):
     return redirect(url_for("event", id=event_id))
 
 
-@app.route("/event", methods=["POST"])
-@login_required
-def create_event():
-    date = request.form["date"]
-    time = request.form["time"]
-    item_doc = {
-        "name": request.form["event-name"],
-        "date": "{} {}".format(date, time),
-        "created_by": current_user.email
-        if current_user.is_authenticated
-        else None,
-        "description": request.form.get("event-description", ""),
-    }
-    event = Event(**item_doc)
-    event.save()
-    return redirect(url_for("index"))
+# User Views ###########################################################
 
 
-@app.route("/search", methods=["POST"])
-@login_required
-def search():
-    query = request.form.get("query")
-    events = Event.objects.order_by("-date")
-    if query:
-        events = events.search_text(query).order_by("$text_score")
+@app.route("/profile", methods=["GET", "POST"])
+@fresh_login_required
+def user_profile():
+    if request.method == "GET":
+        return render_template("user_form.html")
 
-    return render_template("search.html", events=events, query=query)
+    email = request.form["email"]
+    if email != current_user.email:
+        flash("You can only modify your information", "danger")
+    else:
+        user = User.objects.get_or_404(email=email)
+        user.upi_id = request.form["upi-id"].strip()
+        user.blood_group = request.form["blood-group"].strip()
+        user.nick = request.form["nick"].strip()
+        user.dob = request.form["dob"] or None
+        user.save()
+        flash("Successfully updated your information", "info")
+    return redirect(url_for("user_profile"))
 
 
 @app.route("/users", methods=["GET"])
@@ -191,26 +221,6 @@ def users():
     )
 
 
-@app.route("/profile", methods=["GET", "POST"])
-@fresh_login_required
-def user_profile():
-    if request.method == "GET":
-        return render_template("user_form.html")
-
-    email = request.form["email"]
-    if email != current_user.email:
-        flash("You can only modify your information", "danger")
-    else:
-        user = User.objects.get_or_404(email=email)
-        user.upi_id = request.form["upi-id"].strip()
-        user.blood_group = request.form["blood-group"].strip()
-        user.nick = request.form["nick"].strip()
-        user.dob = request.form["dob"] or None
-        user.save()
-        flash("Successfully updated your information", "info")
-    return redirect(url_for("user_profile"))
-
-
 @app.route("/approve_user/<email>", methods=["GET"])
 @role_required("admin")
 def approve_user(email):
@@ -237,34 +247,6 @@ def approve_users():
         key=lambda u: u.name.lower(),
     )
     return render_template("approve_users.html", users=users)
-
-
-@app.route("/media", methods=["GET"])
-@fresh_login_required
-def media():
-    social = copy.deepcopy(app.config["SOCIAL"])
-    if current_user.has_any_role("admin", "social-admin"):
-        for platform in social:
-            if not platform["type"] == "account":
-                continue
-
-            platform["password"] = generate_password(
-                platform["name"], app.secret_key
-            )
-    service = create_service()
-    gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
-    gdrive_dirs = sorted(
-        list_sub_dirs(service, gdrive_root), key=lambda x: x["name"]
-    )
-    photos = GDrivePhoto.new_photos()
-    return render_template(
-        "social.html", social=social, gdrive_dirs=gdrive_dirs, photos=photos
-    )
-
-
-@app.route("/features", methods=["GET"])
-def features():
-    return render_template("features.html")
 
 
 # Login/Logout ####
@@ -312,6 +294,9 @@ def attendance():
     ] = "attachment; filename=attendance-{}--{}.csv".format(start, end)
     response.headers["Content-type"] = "text/csv"
     return response
+
+
+# Post Views ###########################################################
 
 
 @app.route("/posts")
@@ -362,7 +347,7 @@ def add_post():
     return redirect(url_for("show_post", id=post.id))
 
 
-# Bookmark views
+# Bookmark views #######################################################
 
 
 @app.route("/bookmarks/")
@@ -381,7 +366,35 @@ def show_bookmarks_page(page=1):
     )
 
 
-# Miscellaneous views
+# Miscellaneous views ##################################################
+
+
+@app.route("/media", methods=["GET"])
+@fresh_login_required
+def media():
+    social = copy.deepcopy(app.config["SOCIAL"])
+    if current_user.has_any_role("admin", "social-admin"):
+        for platform in social:
+            if not platform["type"] == "account":
+                continue
+
+            platform["password"] = generate_password(
+                platform["name"], app.secret_key
+            )
+    service = create_service()
+    gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
+    gdrive_dirs = sorted(
+        list_sub_dirs(service, gdrive_root), key=lambda x: x["name"]
+    )
+    photos = GDrivePhoto.new_photos()
+    return render_template(
+        "social.html", social=social, gdrive_dirs=gdrive_dirs, photos=photos
+    )
+
+
+@app.route("/features", methods=["GET"])
+def features():
+    return render_template("features.html")
 
 
 @app.route("/onesta/<letters>")
