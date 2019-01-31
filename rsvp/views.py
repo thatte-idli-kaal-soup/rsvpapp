@@ -364,6 +364,9 @@ def add_post():
     }
     if post_id:
         post = Post.objects.get(id=post_id)
+        # don't set author when editing - admins can edit stuff
+        data.pop("author", None)
+        # NOTE: post.update can't be used since post/pre save hooks aren't called
         for key, value in data.items():
             setattr(post, key, value)
     else:
