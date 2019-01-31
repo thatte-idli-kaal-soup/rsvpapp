@@ -21,6 +21,7 @@ from flask_login import (
 )
 from mongoengine.errors import DoesNotExist
 
+from .cloudinary_utils import image_url, list_images
 from .gdrive_utils import create_service, list_sub_dirs
 from .models import (
     Bookmark,
@@ -373,6 +374,17 @@ def add_post():
         post = Post(**data)
     post.save()
     return redirect(url_for("show_post", id=post.id))
+
+
+# Image views ##########################################################
+
+
+@app.route("/images/")
+@login_required
+def images():
+    return render_template(
+        "images.html", images=list_images(), image_url=image_url
+    )
 
 
 # Bookmark views #######################################################
