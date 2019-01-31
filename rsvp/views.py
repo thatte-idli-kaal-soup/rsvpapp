@@ -130,11 +130,9 @@ def create_event():
         event = Event.objects.get(id=event_id)
         # Don't set created_by when editing!
         item_doc.pop("created_by", None)
-        # HACK: event.update doesn't call the pre/post save hooks
-        description = item_doc.pop("description")
-        event.update(**item_doc)
-        event.description = description
-    # NOTE: event.save() must be called even for update, to call post/pre save hooks.
+        # NOTE: event.update can't be used since post/pre save hooks aren't called
+        for key, value in item_doc.items():
+            setattr(event, key, value)
     event.save()
     return redirect(url_for("event", id=event.id))
 
