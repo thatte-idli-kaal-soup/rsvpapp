@@ -156,6 +156,14 @@ def zulip_event_responses(event):
     response = zulip_client.get_messages(data)
     messages = response.get("messages", [])
     messages = [msg for msg in messages if "-bot@" not in msg["sender_email"]]
+    messages = [
+        msg
+        for msg in messages
+        if not (
+            "mentioned" in msg["flags"]
+            and msg["content"].startswith('<p><span class="user-mention"')
+        )
+    ]
     for message in messages:
         message["timestamp"] = arrow.get(message["timestamp"]).humanize()
 
