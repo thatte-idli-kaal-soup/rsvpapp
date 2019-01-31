@@ -75,6 +75,9 @@
                 <span class="badge badge-secondary">Archived</span>
             {% endif %}
         {% endif %}
+        {% if event.can_edit(current_user) %}
+            <a href="{{ url_for("event_editor", id=event.id) }}" align="center" name="submit" class="btn btn-secondary mr-2">Edit</a>
+        {% endif %}
     </p>
     {% if current_user.is_admin or (not event.archived and not event.cancelled) %}
         <div class="card">
@@ -141,16 +144,4 @@
     </ul>
     <hr/>
     {% include "zulip-comments.html" %}
-    {% if current_user.is_admin or event.created_by and event.created_by.fetch().email == current_user.email %}
-    <div class="form-group row">
-        <div class="col-sm-10">
-            <textarea class="form-control" id="event-description" name="event-description" rows="2">{{ event.description or '' }}</textarea>
-        </div>
-    </div>
-    <button type="submit" onclick='update_description("{{ event.id }}")'
-            class="btn btn-primary">
-        Update
-    </button>
-    <hr/>
-    {% endif %}
 {% endblock %}

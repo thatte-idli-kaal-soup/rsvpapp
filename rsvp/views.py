@@ -97,6 +97,19 @@ def event(id):
     )
 
 
+@app.route("/new_event", methods=["GET"])
+@app.route("/edit_event/<id>", methods=["GET"])
+@login_required
+def event_editor(id=None):
+    event = Event.objects(id=id).first() if id is not None else None
+
+    # Verify that the user can edit the event
+    if event and not event.can_edit(current_user):
+        return redirect(url_for("index"))
+
+    return render_template("event-editor.html", event=event)
+
+
 @app.route("/event", methods=["POST"])
 @login_required
 def create_event():
@@ -105,14 +118,25 @@ def create_event():
     item_doc = {
         "name": request.form["event-name"],
         "date": "{} {}".format(date, time),
-        "created_by": current_user.email
-        if current_user.is_authenticated
-        else None,
+        "created_by": (
+            current_user.email if current_user.is_authenticated else None
+        ),
         "description": request.form.get("event-description", ""),
     }
-    event = Event(**item_doc)
+    event_id = request.form.get("event_id", None)
+    if event_id is None:
+        event = Event(**item_doc)
+    else:
+        event = Event.objects.get(id=event_id)
+        # Don't set created_by when editing!
+        item_doc.pop("created_by", None)
+        # HACK: event.update doesn't call the pre/post save hooks
+        description = item_doc.pop("description")
+        event.update(**item_doc)
+        event.description = description
+    # NOTE: event.save() must be called even for update, to call post/pre save hooks.
     event.save()
-    return redirect(url_for("index"))
+    return redirect(url_for("event", id=event.id))
 
 
 @app.route("/search", methods=["POST"])

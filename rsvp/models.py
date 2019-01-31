@@ -45,6 +45,11 @@ class Event(db.Document):
     def rsvp_count(self):
         return len(self.active_rsvps)
 
+    def can_edit(self, user):
+        return user.is_admin or (
+            self.created_by and self.created_by.fetch().email == user.email
+        )
+
 
 signals.pre_save.connect(Event.pre_save, sender=Event)
 signals.post_save.connect(zulip_announce_event, sender=Event)
@@ -89,6 +94,8 @@ class User(db.Document, UserMixin):
 
 
 class AnonymousUser(AnonymousUserMixin):
+    email = None
+
     def has_role(self, role):
         return False
 

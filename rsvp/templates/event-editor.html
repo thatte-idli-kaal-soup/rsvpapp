@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block scripts %}
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/editor/0.1.0/editor.css">
+    <script src="//cdn.jsdelivr.net/editor/0.1.0/editor.js"></script>
+    <script src="//cdn.jsdelivr.net/editor/0.1.0/marked.js"></script>
+
+    <script>
+     var editor = new Editor({
+         element: document.getElementById("event-description"),
+         placeholder: "Please add a plan for the session!",
+     });
+     update_message = function(){
+         if ($('#event-name').val() === "" || $('#date').val() === '') {
+             return;
+         }
+         $(".alert").text('Creating event ...').show();
+     }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <section class="card">
+        <div class="card-body">
+            <div class="h2 card-title">
+                {% if event %}
+                    Edit Event
+                {% else %}
+                    Create Event
+                {% endif %}
+            </div>
+            <div class="card-text">
+                <p class="alert alert-info" style="display: none;"></p>
+                <form class="form" action="/event" method='POST'>
+                    <div class="form-group row">
+                        <label for="event-name" class="col-sm-2 col-form-label">Name</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="event-name" id="event-name" placeholder="Event name" value="{{ event.name }}" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="date" class="col-sm-2 col-form-label">Date</label>
+                        {% with date=event.date.date() if event else "" %}
+                            <div class="col-sm-4">
+                                <input type="date" class="form-control" name="date" id="date" value="{{ date }}" required>
+                            </div>
+                        {% endwith %}
+                        <label for="time" class="col-sm-2 col-form-label">Time</label>
+                        {% with time=event.date.time() if event else "06:00" %}
+                            <div class="col-sm-4">
+                                <input type="time" class="form-control" name="time" value="{{ time }}" id="time" required>
+                            </div>
+                        {% endwith %}
+                    </div>
+                    <div class="form-group row">
+                        <label for="event-description" class="col-sm-2 col-form-label">Description</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="event-description" name="event-description" rows="2" placeholder="Please add a plan for the session!">{{ event.description }}</textarea>
+                        </div>
+                    </div>
+                    <input type="hidden" name="event_id" value="{{ event.id }}">
+                    <button type="Submit" onclick="update_message()"
+                            align="center" name="submit"
+                            class="btn btn-primary">
+                        Submit
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+{% endblock %}
