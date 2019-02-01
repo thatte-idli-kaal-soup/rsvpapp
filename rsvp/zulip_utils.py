@@ -26,11 +26,8 @@ def send_message_zulip(to, subject, content, type_="private"):
     try:
         print(u'Sending message "%s" to %s (%s)' % (content, to, type_))
         response = zulip_client.send_message(data)
-        print(
-            u"Post returned with %s: %s"
-            % (response.status_code, response.content)
-        )
-        return response.status_code == 200
+        print(u"Post returned with {}".format(response))
+        return response["result"] == "success"
 
     except Exception as e:
         print(e)
