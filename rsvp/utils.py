@@ -25,6 +25,12 @@ class BootstrapMarkdownRenderer(mistune.Renderer):
             % text.rstrip("\n")
         )
 
+    def image(self, src, title, text):
+        """Rendering a image with title and text, and bootstrap class."""
+        html = super(BootstrapMarkdownRenderer, self).image(src, title, text)
+        bs_class = "rounded mx-auto d-block"
+        return html.replace("<img ", '<img class="{}"'.format(bs_class))
+
 
 def get_attendance(events):
     users = {rsvp.user for e in events for rsvp in e.rsvps}
