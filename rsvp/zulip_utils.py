@@ -80,8 +80,9 @@ def zulip_announce_post(sender, document, **kwargs):
         document = sender.objects.get(id=document.id)
 
     url = post_absolute_url(document)
-    title = zulip_title(document.title)
-    send_message_zulip(zulip_stream, title, document.content, "stream")
+    content = "New post at: {}\n\n{}".format(url, document.content)
+    title = zulip_title(document)
+    send_message_zulip(zulip_stream, title, content, "stream")
 
 
 def zulip_announce_new_photos(new_paths, new_photos):
