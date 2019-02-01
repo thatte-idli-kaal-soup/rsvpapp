@@ -17,6 +17,15 @@ from sendgrid.helpers.mail import Email, Content, Mail, Personalization
 from werkzeug.security import pbkdf2_hex
 
 
+class BootstrapMarkdownRenderer(mistune.Renderer):
+    def block_quote(self, text):
+        """Rendering <blockquote> with the given text and bootstrap class."""
+        return (
+            "<blockquote class='blockquote'>%s\n</blockquote>\n"
+            % text.rstrip("\n")
+        )
+
+
 def get_attendance(events):
     users = {rsvp.user for e in events for rsvp in e.rsvps}
     dates = ["{:%Y-%m-%d}\n{}".format(e.date, e.name) for e in events]
@@ -50,11 +59,16 @@ def format_date(value):
         return value
 
 
+renderer = BootstrapMarkdownRenderer()
+
+
 def markdown_to_html(md):
     """Convert markdown to html."""
     if not md:
         md = ""
-    return mistune.markdown(md, escape=False, hard_wrap=True, use_xhtml=True)
+    return mistune.markdown(
+        md, escape=False, hard_wrap=True, use_xhtml=True, renderer=renderer
+    )
 
 
 def random_id():
