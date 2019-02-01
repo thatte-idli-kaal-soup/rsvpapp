@@ -15,7 +15,7 @@
                     {% if post.draft %}
                         <span class="badge badge-secondary">Draft</span>
                     {% endif %}
-                    {{post.created_at.strftime('%B %d, %Y')}} {% if post.author %}by {{post.author.fetch().name}}{% endif %}
+                    {% if post.author %} posted by {{post.author.fetch().name}}{% endif %} at {{post.created_at.strftime('%B %d, %Y')}}
                 </p>
             </div>
             <hr>
