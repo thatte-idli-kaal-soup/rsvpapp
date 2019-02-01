@@ -53,7 +53,9 @@ def inject_notifications():
 
     # New posts
     two_days = datetime.datetime.now() - datetime.timedelta(days=2)
-    recent_post_count = Post.objects.filter(created_at__gte=two_days).count()
+    recent_post_count = Post.objects.filter(
+        created_at__gte=two_days, draft=False
+    ).count()
     extra_context["recent_post_count"] = recent_post_count
 
     # New photos

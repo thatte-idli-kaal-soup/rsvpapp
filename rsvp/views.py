@@ -359,6 +359,7 @@ def add_post():
         "title": request.form["title"],
         "content": request.form["content"],
         "public": request.form.get("public") is not None,
+        "draft": request.form.get("draft") is not None,
         "author": current_user.email,
     }
     if post_id:

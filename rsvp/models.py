@@ -115,6 +115,7 @@ class Post(db.Document):
     archived = db.BooleanField(default=False)
     author = db.LazyReferenceField("User")
     public = db.BooleanField(default=False)
+    draft = db.BooleanField(default=False)
 
     @classmethod
     def pre_save(cls, sender, document, **kwargs):

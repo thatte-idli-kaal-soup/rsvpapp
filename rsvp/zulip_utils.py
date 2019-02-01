@@ -68,7 +68,10 @@ def zulip_announce_event(sender, document, **kwargs):
 
 def zulip_announce_post(sender, document, **kwargs):
     created = kwargs.get("created", False)
-    if not created:
+    announce = not document.draft and (
+        created or "draft" in document._changed_fields
+    )
+    if not announce:
         return
 
     if "RSVP_HOST" not in os.environ:
