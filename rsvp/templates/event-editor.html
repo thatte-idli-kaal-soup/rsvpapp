@@ -58,7 +58,9 @@
                             <textarea class="form-control" id="event-description" name="event-description" rows="2" placeholder="Please add a plan for the session!">{{ event.description }}</textarea>
                         </div>
                     </div>
-                    <input type="hidden" name="event_id" value="{{ event.id }}">
+                    {% if event.id %}
+                        <input type="hidden" name="event_id" value="{{ event.id }}">
+                    {% endif %}
                     <button type="Submit" onclick="update_message()"
                             align="center" name="submit"
                             class="btn btn-primary">

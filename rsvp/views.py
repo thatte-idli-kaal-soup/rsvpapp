@@ -124,7 +124,7 @@ def create_event():
         ),
         "description": request.form.get("event-description", ""),
     }
-    event_id = request.form.get("event_id", None)
+    event_id = request.form.get("event_id")
     if event_id is None:
         event = Event(**item_doc)
     else:
