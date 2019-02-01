@@ -30,7 +30,7 @@ def image_url(public_id, format_, transform=TRANSFORMS["standard"], tag=TAG):
         format=format_,
         width=width,
         height=height,
-        crop="fill",
+        crop="limit",
         secure=True,
     )
     return url
