@@ -223,8 +223,8 @@ def add_birthday(service, user):
 
 def add_rsvp_event_post_save_hook(sender, document, **kwargs):
     created = kwargs.get("created", False)
-    if created:
-        document = sender.objects.get(id=document.id)
+    # Fetch object from DB so that it has validated and typecasted fields
+    document = sender.objects.get(id=document.id)
 
     from flask import current_app
 
@@ -234,12 +234,16 @@ def add_rsvp_event_post_save_hook(sender, document, **kwargs):
     if document.cancelled:
         delete_rsvp_event(document)
 
-    else:
+    elif created:
         add_rsvp_event(
             document,
             current_app.config["EVENT_DURATION"],
             current_app.config["TIMEZONE"],
         )
+
+    else:
+        # FIXME: See if we can handle date/time changes correctly
+        pass
 
 
 def delete_rsvp_event(event):
