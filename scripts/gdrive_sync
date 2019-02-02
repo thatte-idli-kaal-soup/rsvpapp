@@ -119,12 +119,12 @@ def sync_calendar_rsvp_events(ctx):
     today = datetime.datetime.now()
     upcoming_events = Event.objects.filter(date__gte=today).order_by("date")
     app_config = read_app_config()
-    duration, timezone = app_config["EVENT_DURATION"], app_config["TIMEZONE"]
+    timezone = app_config["TIMEZONE"]
     for event in upcoming_events:
         if event.cancelled:
             delete_rsvp_event(service, event)
         else:
-            add_rsvp_event(service, event, duration, timezone)
+            add_rsvp_event(service, event, timezone)
 
 
 cli.add_command(sync_photos)

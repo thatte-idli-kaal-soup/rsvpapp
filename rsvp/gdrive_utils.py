@@ -313,7 +313,7 @@ def delete_birthday(service, user):
         delete_calendar_event(service, calendarId, event["iCalUID"])
 
 
-def add_rsvp_event(service, event, duration, timezone):
+def add_rsvp_event(service, event, timezone):
     calendarId = get_calendar_id(service)
     title = event.name
     start_date = event.date
