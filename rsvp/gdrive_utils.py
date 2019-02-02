@@ -1,12 +1,10 @@
 # Standard library
-from datetime import timedelta
 from itertools import cycle
 import json
 import os
 
 # 3rd party
 from apiclient.discovery import build
-from apiclient.http import HttpError
 from google.oauth2 import service_account
 import requests
 
@@ -319,8 +317,7 @@ def add_rsvp_event(service, event, duration, timezone):
     calendarId = get_calendar_id(service)
     title = event.name
     start_date = event.date
-    # FIXME: We need all-day Events!
-    end_date = event.date + timedelta(seconds=duration)
+    end_date = event.end_date
     iCalUID = generate_calendar_event_id(event, "rsvp")
     body = {
         "start": {"dateTime": start_date.isoformat(), "timeZone": timezone},

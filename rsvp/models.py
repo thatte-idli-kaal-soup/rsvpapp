@@ -4,7 +4,7 @@ from flask_login import UserMixin, AnonymousUserMixin
 from flask_mongoengine import MongoEngine
 from mongoengine import signals
 
-from .utils import random_id, markdown_to_html
+from .utils import random_id, markdown_to_html, read_app_config
 from .zulip_utils import zulip_announce_event, zulip_announce_post
 
 
@@ -26,7 +26,9 @@ class Event(db.Document):
     name = db.StringField(required=True)
     description = db.StringField()
     html_description = db.StringField()
+    # FIXME: Should be called start_date
     date = db.DateTimeField(required=True)
+    _end_date = db.DateTimeField()
     archived = db.BooleanField(required=True, default=False)
     created_by = db.LazyReferenceField("User")
     cancelled = db.BooleanField(required=True, default=False)
@@ -48,6 +50,14 @@ class Event(db.Document):
         return user.is_admin or (
             self.created_by and self.created_by.fetch().email == user.email
         )
+
+    @property
+    def end_date(self):
+        if self._end_date is not None:
+            return self._end_date
+        config = read_app_config()
+        duration = config["EVENT_DURATION"]
+        return self.date + datetime.timedelta(seconds=duration)
 
 
 signals.pre_save.connect(Event.pre_save, sender=Event)
