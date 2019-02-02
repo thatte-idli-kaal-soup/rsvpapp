@@ -18,6 +18,7 @@ service account is being used from.
 
 """
 
+import datetime
 from itertools import chain
 import os
 import sys
@@ -25,15 +26,18 @@ import sys
 import click
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from rsvp.models import GDrivePhoto, User
+from rsvp.models import Event, GDrivePhoto, User
 from rsvp.gdrive_utils import (
     add_birthday,
+    add_rsvp_event,
     create_service,
     delete_birthday,
+    delete_rsvp_event,
     photos,
     update_permissions,
     update_calendar_sharing,
 )
+from rsvp.utils import read_app_config
 from rsvp.zulip_utils import zulip_announce_new_photos
 
 
@@ -108,10 +112,26 @@ def sync_calendar_birthdays(ctx):
         delete_birthday(service, user)
 
 
+@click.command()
+@click.pass_context
+def sync_calendar_rsvp_events(ctx):
+    service = ctx.obj["calendar_service"]
+    today = datetime.datetime.now()
+    upcoming_events = Event.objects.filter(date__gte=today).order_by("date")
+    app_config = read_app_config()
+    duration, timezone = app_config["EVENT_DURATION"], app_config["TIMEZONE"]
+    for event in upcoming_events:
+        if event.cancelled:
+            delete_rsvp_event(service, event)
+        else:
+            add_rsvp_event(service, event, duration, timezone)
+
+
 cli.add_command(sync_photos)
 cli.add_command(sync_permissions)
 cli.add_command(sync_calendar_permissions)
 cli.add_command(sync_calendar_birthdays)
+cli.add_command(sync_calendar_rsvp_events)
 
 if __name__ == "__main__":
     cli(obj={})

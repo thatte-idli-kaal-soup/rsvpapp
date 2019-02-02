@@ -101,6 +101,17 @@ def random_string(n=12):
     return "".join(choice(string.ascii_letters) for _ in range(12))
 
 
+def read_app_config():
+    settings = os.environ["SETTINGS"]
+    settings_path = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)), settings
+    )
+    config = {}
+    with open(settings_path) as f:
+        exec(f.read(), config)
+    return config
+
+
 def rsvp_by(rsvp):
     return rsvp.rsvp_by.fetch().name if rsvp.rsvp_by else "Anonymous"
 
