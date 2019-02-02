@@ -5,10 +5,12 @@
     <li class="list-group-item d-flex justify-content-between align-items-center">
         <span>Nick</span> <span>{{user.nick or '-'}}</span>
     </li>
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>Date of Birth</span>
-        <span>{% if user.dob %}{{user.dob|format_date}}{% else %}-{% endif %}</span>
-    </li>
+    {% if not user.hide_dob %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>Date of Birth</span>
+            <span>{% if user.dob %}{{user.dob|format_date}}{% else %}-{% endif %}</span>
+        </li>
+    {% endif %}
     <li class="list-group-item d-flex justify-content-between align-items-center">
         <span>UPI ID</span> <span>{{(user.upi_id or '-')|safe}}</span>
     </li>

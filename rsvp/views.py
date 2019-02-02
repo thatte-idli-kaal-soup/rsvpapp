@@ -208,6 +208,7 @@ def user_profile():
         user.blood_group = request.form["blood-group"].strip()
         user.nick = request.form["nick"].strip()
         user.dob = request.form["dob"] or None
+        user.hide_dob = request.form["hide_dob"] is not None
         user.save()
         flash("Successfully updated your information", "info")
     return redirect(url_for("user_profile"))

@@ -18,6 +18,7 @@ service account is being used from.
 
 """
 
+from itertools import chain
 import os
 import sys
 
@@ -97,12 +98,13 @@ def sync_calendar_permissions(ctx):
 @click.pass_context
 def sync_calendar_birthdays(ctx):
     service = ctx.obj["calendar_service"]
-    users = User.approved_users().filter(dob__ne=None)
+    users = User.approved_users().filter(dob__ne=None, hide_dob=False)
     for user in users:
         add_birthday(service, user)
 
-    users = User.approved_users().filter(dob=None)
-    for user in users:
+    no_dob = User.approved_users().filter(dob=None)
+    hide_dob = User.approved_users().filter(hide_dob=True)
+    for user in chain(no_dob, hide_dob):
         delete_birthday(service, user)
 
 

@@ -23,6 +23,14 @@
                         </div>
                         <input type="text" class="form-control my-2" name="upi-id" id="upi-id" placeholder="UPI ID" value="{{user.upi_id or ''}}">
                         <input type="text" class="form-control my-2" name="blood-group" id="blood-group" placeholder="Blood Group" value="{{user.blood_group or ''}}">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    <input id="hide_dob" name="hide_dob" type="checkbox" aria-label="Hide Birthday" {% if user.hide_dob %}checked{% endif %}>
+                                </div>
+                            </div>
+                            <label for="hide_dob" class="form-control" aria-label="Hide Birthday">Hide Birthday?</label>
+                        </div>
                         <button type="submit" align="center" name="submit" class="btn btn-info my-1">
                             Submit
                         </button>
