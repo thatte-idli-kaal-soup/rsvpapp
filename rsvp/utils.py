@@ -94,11 +94,11 @@ def markdown_to_html(md):
 
 
 def random_id():
-    return ObjectId(
-        bytes(
-            "".join(choice(string.ascii_letters) for _ in range(12)), "ascii"
-        )
-    )
+    return ObjectId(bytes(random_string(), "ascii"))
+
+
+def random_string(n=12):
+    return "".join(choice(string.ascii_letters) for _ in range(12))
 
 
 def rsvp_by(rsvp):

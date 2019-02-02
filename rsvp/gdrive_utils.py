@@ -11,7 +11,7 @@ from google.oauth2 import service_account
 import requests
 
 # Local library
-from .utils import event_absolute_url
+from .utils import event_absolute_url, random_string
 
 SERVICE_ACCOUNT_FILE = "service_account_file.json"
 SCOPES = {
@@ -206,11 +206,30 @@ def update_calendar_sharing(service, emails):
         print("Granted access to {}".format(user))
 
 
+def generate_calendar_event_id(obj, type_):
+    if type_ == "rsvp":
+        key = obj.id
+    elif type_ == "birthday":
+        key = obj.email
+    else:
+        raise ValueError("Unknown Calendar Event Type: {}".format(type_))
+
+    suffix = random_string()
+    return "{prefix}:{key}:{suffix}".format(
+        prefix=type_, key=key, suffix=suffix
+    )
+
+
+def ical_uid_to_search_uid(iCalUID):
+    # rsvp:xyz:abc -> rsvp:xyz
+    return ":".join(iCalUID.split(":")[:2])
+
+
 def add_birthday(service, user):
     calendarId = get_calendar_id(service)
     title = "{}'s Birthday".format(user.nick or user.name)
     date = user.dob.strftime("%Y-%m-%d")
-    iCalUID = "birthday:{}".format(user.email)
+    iCalUID = generate_calendar_event_id(user, "birthday")
     body = {
         "start": {"date": date},
         "end": {"date": date},
@@ -238,14 +257,13 @@ def delete_calendar_event(iCalUID):
         print("Event not found: {}".format(iCalUID))
 
 
-def add_rsvp_event(event, duration, timezone):
-    service = create_service("calendar")
+def add_rsvp_event(service, event, duration, timezone):
     calendarId = get_calendar_id(service)
     title = event.name
     start_date = event.date
     # FIXME: We need all-day Events!
     end_date = event.date + timedelta(seconds=duration)
-    iCalUID = "rsvp:{}".format(event.id)
+    iCalUID = generate_calendar_event_id(event, "rsvp")
     body = {
         "start": {"dateTime": start_date.isoformat(), "timeZone": timezone},
         "end": {"dateTime": end_date.isoformat(), "timeZone": timezone},
@@ -259,26 +277,49 @@ def add_rsvp_event(event, duration, timezone):
     add_or_update_event(service, calendarId, iCalUID, body)
 
 
+def find_event_by_ical_uid(service, calendarId, iCalUID):
+    events = list_events(service, calendarId)
+    search_uid = ical_uid_to_search_uid(iCalUID)
+    return [
+        event
+        for event in events
+        if ical_uid_to_search_uid(event["iCalUID"]) == search_uid
+    ]
+
+
 def add_or_update_event(service, calendarId, iCalUID, body):
-    try:
+    matches = find_event_by_ical_uid(service, calendarId, iCalUID)
+    if len(matches) == 1 and _event_needs_update(matches[0], body):
+        event = matches[0]
+        service.events().update(
+            calendarId=calendarId, eventId=event["id"], body=body
+        ).execute()
+        print("Updated {}".format(event["iCalUID"]))
+
+    elif len(matches) != 1:
+        for event in matches:
+            delete_calendar_event(event["iCalUID"])
+            print("Deleted {}".format(event["iCalUID"]))
         service.events().insert(calendarId=calendarId, body=body).execute()
         print("Added {}".format(iCalUID))
-    except HttpError as e:
-        if e.resp.status == 409:
-            event = (
-                service.events()
-                .list(calendarId=calendarId, iCalUID=iCalUID)
-                .execute()["items"][0]
-            )
-            if _event_needs_update(event, body):
-                service.events().update(
-                    calendarId=calendarId, eventId=event["id"], body=body
-                ).execute()
-                print("Updated {}".format(iCalUID))
-            else:
-                print("No updates to {}".format(iCalUID))
-        else:
-            raise
+
+    else:
+        print("No updates to {}".format(iCalUID))
+
+
+def list_events(service, calendarId):
+    events = (
+        service.events().list(calendarId=calendarId, maxResults=2500).execute()
+    )
+    event_items = events["items"]
+    while "nextPageToken" in events:
+        events = (
+            service.events()
+            .list(calendarId=calendarId, maxResults=2500)
+            .execute()
+        )
+        event_items = events["items"] + event_items
+    return event_items
 
 
 def _event_needs_update(existing, new):
