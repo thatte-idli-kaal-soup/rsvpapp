@@ -124,6 +124,11 @@ def create_event():
         ),
         "description": request.form.get("event-description", ""),
     }
+    end_date = request.form.get("end_date", "")
+    end_time = request.form.get("end_time", "")
+    if end_date and end_time:
+        item_doc["_end_date"] = "{} {}".format(end_date, end_time)
+
     event_id = request.form.get("event_id")
     if event_id is None:
         event = Event(**item_doc)
