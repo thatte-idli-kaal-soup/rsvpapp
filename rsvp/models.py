@@ -4,7 +4,6 @@ from flask_login import UserMixin, AnonymousUserMixin
 from flask_mongoengine import MongoEngine
 from mongoengine import signals
 
-from .gdrive_utils import add_rsvp_event_post_save_hook
 from .utils import random_id, markdown_to_html
 from .zulip_utils import zulip_announce_event, zulip_announce_post
 
@@ -53,7 +52,6 @@ class Event(db.Document):
 
 signals.pre_save.connect(Event.pre_save, sender=Event)
 signals.post_save.connect(zulip_announce_event, sender=Event)
-signals.post_save.connect(add_rsvp_event_post_save_hook, sender=Event)
 
 
 class User(db.Document, UserMixin):
