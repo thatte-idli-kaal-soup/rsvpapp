@@ -5,6 +5,7 @@ from functools import wraps
 import io
 import os
 from random import choice
+import re
 import string
 
 # 3rd party
@@ -15,6 +16,9 @@ import mistune
 import sendgrid
 from sendgrid.helpers.mail import Email, Content, Mail, Personalization
 from werkzeug.security import pbkdf2_hex
+
+
+SLUG_RE = re.compile("[^A-Za-z]+")
 
 
 class BootstrapMarkdownRenderer(mistune.Renderer):
@@ -30,6 +34,18 @@ class BootstrapMarkdownRenderer(mistune.Renderer):
         html = super(BootstrapMarkdownRenderer, self).image(src, title, text)
         bs_class = "rounded mx-auto d-block"
         return html.replace("<img ", '<img class="{}"'.format(bs_class))
+
+    def header(self, text, level, raw=None):
+        """Rendering header/heading tags like ``<h1>`` ``<h2>``.
+
+        Overridden to add an id to the headlines
+        """
+        id_ = get_slug(text)
+        return '<h%d id="%s">%s</h%d>\n' % (level, id_, text, level)
+
+
+def get_slug(text):
+    return SLUG_RE.sub("-", text.casefold()).strip("-")
 
 
 def get_attendance(events):
