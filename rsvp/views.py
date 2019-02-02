@@ -108,7 +108,8 @@ def event_editor(id=None):
     if event and not event.can_edit(current_user):
         return redirect(url_for("index"))
 
-    return render_template("event-editor.html", event=event)
+    duration = app.config["EVENT_DURATION"]
+    return render_template("event-editor.html", event=event, duration=duration)
 
 
 @app.route("/event", methods=["POST"])

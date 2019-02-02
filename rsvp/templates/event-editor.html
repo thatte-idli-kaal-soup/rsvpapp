@@ -16,6 +16,30 @@
          }
          $(".alert").text('Creating event ...').show();
      }
+
+     var setEndTime = function () {
+         console.log("Setting end time...");
+         var startTime = $('#time').val(),
+             duration = {{ duration }};
+         let [hour, minute] = startTime.split(":").map(parseFloat);
+         console.log(hour, minute, duration, (duration % 3600) / 60);
+         const endHour = hour + parseInt(duration / 3600);
+         const endMinute = minute + parseInt((duration % 3600) / 60);
+         console.log(endHour, endMinute);
+         const endTime = String(endHour).padStart(2, '0') + ':' + String(endMinute).padStart(2, '0');
+         $('#end_time').val(endTime);
+     }
+     var setEndDate = function(){
+         console.log("Setting end date...");
+         $("#end_date").val($("#date").val());
+     }
+     $(function(){
+         if ( $('#end_time').val() === "" ) {
+             setEndTime();
+         }
+         $('#time').on("input", setEndTime);
+         $('#date').on("input", setEndDate);
+     });
     </script>
 {% endblock %}
 
