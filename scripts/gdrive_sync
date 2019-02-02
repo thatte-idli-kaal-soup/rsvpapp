@@ -28,6 +28,7 @@ from rsvp.models import GDrivePhoto, User
 from rsvp.gdrive_utils import (
     add_birthday,
     create_service,
+    delete_birthday,
     photos,
     update_permissions,
     update_calendar_sharing,
@@ -99,6 +100,10 @@ def sync_calendar_birthdays(ctx):
     users = User.approved_users().filter(dob__ne=None)
     for user in users:
         add_birthday(service, user)
+
+    users = User.approved_users().filter(dob=None)
+    for user in users:
+        delete_birthday(service, user)
 
 
 cli.add_command(sync_photos)
