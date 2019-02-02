@@ -225,24 +225,7 @@ def ical_uid_to_search_uid(iCalUID):
     return ":".join(iCalUID.split(":")[:2])
 
 
-def add_birthday(service, user):
-    calendarId = get_calendar_id(service)
-    title = "{}'s Birthday".format(user.nick or user.name)
-    date = user.dob.strftime("%Y-%m-%d")
-    iCalUID = generate_calendar_event_id(user, "birthday")
-    body = {
-        "start": {"date": date},
-        "end": {"date": date},
-        "recurrence": ["RRULE:FREQ=YEARLY"],
-        "summary": title,
-        "iCalUID": iCalUID,
-    }
-    add_or_update_event(service, calendarId, iCalUID, body)
-
-
-def delete_calendar_event(iCalUID):
-    service = create_service("calendar")
-    calendarId = get_calendar_id(service)
+def delete_calendar_event(service, calendarId, iCalUID):
     events = (
         service.events()
         .list(calendarId=calendarId, iCalUID=iCalUID)
@@ -255,26 +238,6 @@ def delete_calendar_event(iCalUID):
         ).execute()
     else:
         print("Event not found: {}".format(iCalUID))
-
-
-def add_rsvp_event(service, event, duration, timezone):
-    calendarId = get_calendar_id(service)
-    title = event.name
-    start_date = event.date
-    # FIXME: We need all-day Events!
-    end_date = event.date + timedelta(seconds=duration)
-    iCalUID = generate_calendar_event_id(event, "rsvp")
-    body = {
-        "start": {"dateTime": start_date.isoformat(), "timeZone": timezone},
-        "end": {"dateTime": end_date.isoformat(), "timeZone": timezone},
-        "summary": title,
-        "iCalUID": iCalUID,
-        "source": {
-            "url": event_absolute_url(event),
-            "title": "Go to RSVP app page",
-        },
-    }
-    add_or_update_event(service, calendarId, iCalUID, body)
 
 
 def find_event_by_ical_uid(service, calendarId, iCalUID):
@@ -298,7 +261,7 @@ def add_or_update_event(service, calendarId, iCalUID, body):
 
     elif len(matches) != 1:
         for event in matches:
-            delete_calendar_event(event["iCalUID"])
+            delete_calendar_event(service, calendarId, event["iCalUID"])
             print("Deleted {}".format(event["iCalUID"]))
         service.events().insert(calendarId=calendarId, body=body).execute()
         print("Added {}".format(iCalUID))
@@ -327,3 +290,54 @@ def _event_needs_update(existing, new):
         if key not in existing or existing[key] != value:
             return True
     return False
+
+
+def add_birthday(service, user):
+    calendarId = get_calendar_id(service)
+    title = "{}'s Birthday".format(user.nick or user.name)
+    date = user.dob.strftime("%Y-%m-%d")
+    iCalUID = generate_calendar_event_id(user, "birthday")
+    body = {
+        "start": {"date": date},
+        "end": {"date": date},
+        "recurrence": ["RRULE:FREQ=YEARLY"],
+        "summary": title,
+        "iCalUID": iCalUID,
+    }
+    add_or_update_event(service, calendarId, iCalUID, body)
+
+
+def delete_birthday(service, user):
+    calendarId = get_calendar_id(service)
+    iCalUID = generate_calendar_event_id(user, "birthday")
+    events = find_event_by_ical_uid(service, calendarId, iCalUID)
+    for event in events:
+        delete_calendar_event(service, calendarId, event["iCalUID"])
+
+
+def add_rsvp_event(service, event, duration, timezone):
+    calendarId = get_calendar_id(service)
+    title = event.name
+    start_date = event.date
+    # FIXME: We need all-day Events!
+    end_date = event.date + timedelta(seconds=duration)
+    iCalUID = generate_calendar_event_id(event, "rsvp")
+    body = {
+        "start": {"dateTime": start_date.isoformat(), "timeZone": timezone},
+        "end": {"dateTime": end_date.isoformat(), "timeZone": timezone},
+        "summary": title,
+        "iCalUID": iCalUID,
+        "source": {
+            "url": event_absolute_url(event),
+            "title": "Go to RSVP app page",
+        },
+    }
+    add_or_update_event(service, calendarId, iCalUID, body)
+
+
+def delete_rsvp_event(service, event):
+    calendarId = get_calendar_id(service)
+    iCalUID = generate_calendar_event_id(event, "rsvp")
+    events = find_event_by_ical_uid(service, calendarId, iCalUID)
+    for event in events:
+        delete_calendar_event(service, calendarId, event["iCalUID"])
