@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 
+echo "Syncing calendar with birthdays"
 python ./scripts/gdrive_sync sync_calendar_birthdays
+echo "Syncing calendar with RSVP events"
 python ./scripts/gdrive_sync sync_calendar_rsvp_events
 
+echo "Syncing photo metadata from GDrive"
 python ./scripts/gdrive_sync sync_photos
 
+echo "Syncing calendar permissions"
 python ./scripts/gdrive_sync sync_calendar_permissions
+echo "Syncing GDrive permissions"
 python ./scripts/gdrive_sync sync_permissions
 
+echo "Deleting cancelled events with no RSVPs"
 python ./scripts/manage_events delete_unrsvped_events
+echo "Archiving old events"
 python ./scripts/manage_events archive_events
