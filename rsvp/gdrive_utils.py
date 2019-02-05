@@ -167,7 +167,11 @@ def get_calendar_acls(service, calendarId):
     page_token = None
     items = []
     while True:
-        acls = service.acl().list(calendarId=calendarId).execute()
+        acls = (
+            service.acl()
+            .list(calendarId=calendarId, pageToken=page_token)
+            .execute()
+        )
         items.extend(acls["items"])
         page_token = acls.get("nextPageToken")
         if not page_token:
