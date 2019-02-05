@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+python ./scripts/manage_db backup

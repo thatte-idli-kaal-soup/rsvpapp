@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+python ./scripts/gdrive_sync sync_calendar_birthdays
+python ./scripts/gdrive_sync sync_calendar_rsvp_events
+
+python ./scripts/gdrive_sync sync_photos
+
+python ./scripts/gdrive_sync sync_calendar_permissions
+python ./scripts/gdrive_sync sync_permissions
+
+python ./scripts/manage_events delete_unrsvped_events
+python ./scripts/manage_events archive_events
