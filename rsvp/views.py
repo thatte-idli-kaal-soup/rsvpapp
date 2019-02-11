@@ -85,11 +85,12 @@ def event(id):
     event_text = "{} - {}".format(event["name"], format_date(event["date"]))
     description = "RSVP for {}".format(event_text)
     approved_users = User.approved_users()
+    rsvps = sorted(event.rsvps, key=lambda x: (x.cancelled, x.date))
     return render_template(
         "event.html",
         count=event.rsvp_count,
         event=event,
-        items=event.rsvps,
+        items=rsvps,
         active_rsvps=event.active_rsvps,
         approved_users=approved_users,
         TEXT2=event_text,
