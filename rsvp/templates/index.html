@@ -23,7 +23,7 @@
 
 {% block content %}
     <a href="{{ url_for("event_editor") }}" align="center" name="submit" class="btn btn-primary my-4">Create New Event</a>
-    <section>
+    <section class="upcoming-events">
         <p class="h2">Upcoming Events
             <span class="badge badge-primary badge-pill">{{upcoming_events|length}}</span>
         </p>
@@ -52,4 +52,12 @@
             {% endfor %}
         </ul>
     </section>
+
+    <section class="recent-posts">
+        {% if posts %}
+            <p class="d-inline h2">Recent Posts</p>
+            {% include 'post-list.html' %}
+        {% endif %}
+    </section>
+
 {% endblock %}

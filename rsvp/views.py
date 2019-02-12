@@ -68,7 +68,10 @@ def versioned_static(version, static_file):
 @login_required
 def index():
     upcoming_events = Event.objects.filter(archived=False).order_by("date")
-    return render_template("index.html", upcoming_events=upcoming_events)
+    posts = Post.objects.filter(draft=False).order_by("-created_at")[:2]
+    return render_template(
+        "index.html", upcoming_events=upcoming_events, posts=posts
+    )
 
 
 @app.route("/archived")

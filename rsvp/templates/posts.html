@@ -1,24 +1,5 @@
 {% extends "base.html" %}
-
 {% block content %}
-    <a class="float-right btn btn-primary" href="{{ url_for('add_post') }}">Add post</a>
-    {% for post in posts %}
-        {% if not post.draft or post.can_edit(current_user) %}
-            <div class="blog-post">
-                <p>
-                    <a href="{{ url_for('show_post', id=post.id) }}"><span class="h3">{{post.title}}</span></a>
-                </p>
-                <p class="blog-post-meta">
-                    {% if post.public %}
-                        <span class="badge badge-primary">Public</span>
-                    {% endif %}
-                    {% if post.draft %}
-                        <span class="badge badge-secondary">Draft</span>
-                    {% endif %}
-                    {% if post.author %} posted by {{post.author.fetch().name}}{% endif %} at {{post.created_at.strftime('%B %d, %Y')}}
-                </p>
-            </div>
-            <hr>
-        {% endif %}
-    {% endfor %}
+    <p class="d-inline h2">All Posts</p>
+    {% include 'post-list.html' %}
 {% endblock %}
