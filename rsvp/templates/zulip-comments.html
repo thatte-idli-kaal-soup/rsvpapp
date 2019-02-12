@@ -27,3 +27,13 @@
         </div>
     </div>
 {% endfor %}
+
+<script type="text/javascript">
+ // Render all emojis
+ $('.message_content span.emoji').map(function(idx, element){
+     var match = element.className.match('emoji-([0-9a-f]+)');
+     if (match.length >= 2) {
+         element.innerHTML = '&#x' + match[1];
+     }
+ });
+</script>
