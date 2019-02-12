@@ -22,7 +22,7 @@
 {% endblock %}
 
 {% block content %}
-    <a href="{{ url_for("event_editor") }}" align="center" name="submit" class="btn btn-primary my-4">Create New Event</a>
+    <a href="{{ url_for("event_editor") }}" align="center" name="submit" class="float-right btn btn-primary my-4">Create New Event</a>
     <section class="upcoming-events">
         <p class="h2">Upcoming Events
             <span class="badge badge-primary badge-pill">{{upcoming_events|length}}</span>
