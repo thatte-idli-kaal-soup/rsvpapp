@@ -33,7 +33,7 @@ def cli():
 def archive_events():
     """Archive old events."""
     click.echo("Archiving events...")
-    today = datetime.datetime.now()
+    today = datetime.datetime.now() + datetime.timedelta(seconds=30 * 60)
     upcoming_events = Event.objects.filter(date__gte=today).order_by("date")
     archived_events = Event.objects.filter(date__lt=today).order_by("-date")
     upcoming_events.update(archived=False)
