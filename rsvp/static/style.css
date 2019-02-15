@@ -48,3 +48,21 @@ section {
     margin-left: 8px;
     border-left: 5px solid #dedede;
 }
+
+.message_content .user-mention {
+        background-color: #ededed;
+    border-radius: 3px;
+    padding: 0 .2em;
+    box-shadow: 0 0 0 1px #ccc;
+    margin-right: 2px;
+    margin-left: 2px;
+    white-space: nowrap;
+    background: -moz-linear-gradient(top,rgba(0,0,0,.1) 0,transparent 100%);
+    background: -webkit-gradient(linear,left top,left bottom,color-stop(0,rgba(0,0,0,.1)),color-stop(100%,transparent));
+    background: -webkit-linear-gradient(top,rgba(0,0,0,.1),transparent);
+    background: -o-linear-gradient(top,rgba(0,0,0,.1) 0,transparent 100%);
+    background: -ms-linear-gradient(top,rgba(0,0,0,.1) 0,transparent 100%);
+    background: linear-gradient(180deg,rgba(0,0,0,.1) 0,transparent);
+    display: inline-block;
+    margin-bottom: 1px;
+}
