@@ -1,5 +1,7 @@
 import copy
+from datetime import datetime
 import os
+import random
 from urllib.parse import urlparse, urlunparse
 
 from flask import (
@@ -35,6 +37,7 @@ from .models import (
 from .utils import (
     format_date,
     generate_password,
+    get_aspect_ratio,
     get_attendance,
     role_required,
     send_approved_email,
@@ -69,8 +72,28 @@ def versioned_static(version, static_file):
 def index():
     upcoming_events = Event.objects.filter(archived=False).order_by("date")
     posts = Post.objects.filter(draft=False).order_by("-created_at")[:2]
+    photo_id = "16iy0gA9ipYhjDdRq3duMr9njzO7OalL3"
+    photos = list(GDrivePhoto.objects.aggregate({"$sample": {"size": 1000}}))
+    photo_context = {}
+    if photos:
+        photo = random.choice(photos)
+        photo_context["photo_id"] = photo["gdrive_id"]
+        photo_context["photo_drive"] = photo["gdrive_parent"]
+        metadata = photo["gdrive_metadata"]
+        photo_context["photo_location"] = metadata.get("location")
+        photo_context["photo_aspect_ratio"] = get_aspect_ratio(
+            metadata["width"], metadata["height"], metadata["rotation"]
+        )
+        if "time" in metadata:
+            photo_context["photo_time"] = datetime.strptime(
+                metadata["time"], "%Y:%m:%d %H:%M:%S"
+            )
+
     return render_template(
-        "index.html", upcoming_events=upcoming_events, posts=posts
+        "index.html",
+        upcoming_events=upcoming_events,
+        posts=posts,
+        **photo_context
     )
 
 

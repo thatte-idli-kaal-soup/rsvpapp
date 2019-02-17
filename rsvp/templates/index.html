@@ -60,4 +60,23 @@
         {% endif %}
     </section>
 
+    {% if photo_id %}
+        <section class="random-photo">
+            <div class="embed-responsive embed-responsive-{{photo_aspect_ratio}}">
+                <iframe src="https://drive.google.com/file/d/{{photo_id}}/preview"></iframe>
+            </div>
+            {% if photo_location %}
+                <a href="http://maps.google.com/?q={{ photo_location.latitude }},{{ photo_location.longitude }}" target="_blank">
+                    <i class="fa fa-map-marker-alt"></i>
+                </a>
+            {% endif %}
+            {% if photo_time %}
+                ({{ photo_time.strftime("%d %b %Y, %H:%M") }})
+            {% endif %}
+            <a href="https://drive.google.com/drive/folders/{{photo_drive}}" target="_blank">
+                See more
+            </a>
+        </section>
+    {% endif %}
+
 {% endblock %}
