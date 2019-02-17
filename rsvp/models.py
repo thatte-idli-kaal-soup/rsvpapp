@@ -122,7 +122,7 @@ class Post(db.Document):
     html_content = db.StringField()
     created_at = db.DateTimeField(required=True, default=datetime.datetime.now)
     archived = db.BooleanField(default=False)
-    author = db.LazyReferenceField("User")
+    authors = db.ListField(db.ReferenceField("User"))
     public = db.BooleanField(default=False)
     draft = db.BooleanField(default=False)
 
@@ -131,7 +131,13 @@ class Post(db.Document):
         document.html_content = markdown_to_html(document.content)
 
     def can_edit(self, user):
-        return user.is_admin or self.author.fetch().email == user.email
+        return user.is_admin or (user.email in {a.id for a in self.authors})
+
+    def list_authors(self):
+        names = []
+        for author in self.authors:
+            names.append(author.nick or author.name)
+        return ", ".join(names)
 
 
 signals.pre_save.connect(Post.pre_save, sender=Post)

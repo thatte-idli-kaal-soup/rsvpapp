@@ -371,14 +371,14 @@ def add_post():
         "content": request.form["content"],
         "public": request.form.get("public") is not None,
         "draft": request.form.get("draft") is not None,
-        "author": current_user.email,
+        "authors": [{"user": current_user.email}],
     }
     if post_id:
         post = Post.objects.get(id=post_id)
         if not post.can_edit(current_user):
             return redirect(url_for("show_post", id=post.id))
         # don't set author when editing - admins can edit stuff
-        data.pop("author", None)
+        data.pop("authors", None)
         # NOTE: post.update can't be used since post/pre save hooks aren't called
         for key, value in data.items():
             setattr(post, key, value)
