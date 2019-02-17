@@ -22,11 +22,11 @@
 {% endblock %}
 
 {% block content %}
-    <a href="{{ url_for("event_editor") }}" align="center" name="submit" class="float-right btn btn-primary my-4">Create New Event</a>
     <section class="upcoming-events">
-        <p class="h2">Upcoming Events
+        <p class="d-inline h4">Upcoming Events
             <span class="badge badge-primary badge-pill">{{upcoming_events|length}}</span>
         </p>
+        <a href="{{ url_for("event_editor") }}" align="center" class="d-inline btn btn-primary my-4">Add</a>
         <ul class="list-group">
             {% for item in upcoming_events %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -55,7 +55,8 @@
 
     <section class="recent-posts">
         {% if posts %}
-            <p class="d-inline h2">Recent Posts</p>
+            <p class="d-inline h4">Latest Post</p>
+            <a class="text-muted" href="{{ url_for('show_posts') }}">See all</a>
             {% include 'post-list.html' %}
         {% endif %}
     </section>
