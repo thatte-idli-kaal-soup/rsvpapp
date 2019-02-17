@@ -4,13 +4,82 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/editor/0.1.0/editor.css">
     <script src="//cdn.jsdelivr.net/editor/0.1.0/editor.js"></script>
     <script src="//cdn.jsdelivr.net/editor/0.1.0/marked.js"></script>
-
     <script>
      var editor = new Editor({
          element: document.getElementById("content"),
          placeholder: "Post Content!",
      });
+    </script>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.min.css" integrity="sha256-EhmqrzYSImS7269rfDxk4H+AHDyu/KwV1d8FDgIXScI=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.css" integrity="sha256-9xc5FBFR3TnnIx/G9SEbdMm0BWyGNRDH1XITfATut8Q=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+
+    <script>
+     console.log("Setting up author selection");
+     var REGEX_EMAIL = '([a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*@' +
+                       '(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)';
+
+     $('#select-authors').selectize({
+         persist: false,
+         maxItems: null,
+         valueField: 'email',
+         labelField: 'name',
+         searchField: ['name', 'email', 'nick'],
+         options: [
+             {% for author in authors %}
+             { email: '{{author[0]}}', name: '{{author[1]}}', nick: '{{author[2]}}' }
+             {% if not loop.last %}
+             ,
+             {% endif %}
+             {% endfor %}
+         ],
+         items: [
+             {% for author in post.authors %}
+             '{{ author.email }}'
+             {% if not loop.last %}
+             ,
+             {% endif %}
+             {% endfor %}
+         ],
+         render: {
+             item: function(item, escape) {
+                 return '<div><span class="name">' + escape(item.name) + '</span></div>';
+             },
+             option: function(item, escape) {
+                 return '<div><span class="name">' + escape(item.name) + '</span></div>';
+             }
+         },
+         createFilter: function(input) {
+             var match, regex;
+
+             // email@address.com
+             regex = new RegExp('^' + REGEX_EMAIL + '$', 'i');
+             match = input.match(regex);
+             if (match) return !this.options.hasOwnProperty(match[0]);
+
+             // name <email@address.com>
+             regex = new RegExp('^([^<]*)\<' + REGEX_EMAIL + '\>$', 'i');
+             match = input.match(regex);
+             if (match) return !this.options.hasOwnProperty(match[2]);
+
+             return false;
+         },
+         create: function(input) {
+             if ((new RegExp('^' + REGEX_EMAIL + '$', 'i')).test(input)) {
+                 return {email: input};
+             }
+             var match = input.match(new RegExp('^([^<]*)\<' + REGEX_EMAIL + '\>$', 'i'));
+             if (match) {
+                 return {
+                     email : match[2],
+                     name  : $.trim(match[1])
+                 };
+             }
+             alert('Invalid email address.');
+             return false;
+         }
+     });
     </script>
 {% endblock %}
 
@@ -32,6 +101,14 @@
                             <textarea class="form-control" id="content" name="content" rows="2" placeholder="Post content">{{post.content}}</textarea>
 
                         </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <label for="authors" aria-label="Authors" class="col-sm-2 col-form-label">Authors</label>
+                        <select id="select-authors"
+                                name="authors"
+                                multiple="multiple"
+                                placeholder="Pick some co-authors...">
+                        </select>
                     </div>
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">

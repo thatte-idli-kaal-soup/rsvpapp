@@ -357,7 +357,8 @@ def show_post(id):
 @login_required
 def edit_post(id):
     post = Post.objects.get(id=id)
-    return render_template("post-editor.html", post=post)
+    authors = User.approved_users().values_list("email", "name", "nick")
+    return render_template("post-editor.html", post=post, authors=authors)
 
 
 @app.route("/post", methods=["GET", "POST"])
@@ -366,19 +367,21 @@ def add_post():
     if request.method == "GET":
         return render_template("post-editor.html", post=None)
     post_id = request.form.get("post-id")
+    authors = request.form.getlist("authors")
+    if current_user.email not in authors:
+        authors.append(current_user.email)
+    authors = [User(pk=author) for author in authors]
     data = {
         "title": request.form["title"],
         "content": request.form["content"],
         "public": request.form.get("public") is not None,
         "draft": request.form.get("draft") is not None,
-        "authors": [{"user": current_user.email}],
+        "authors": authors,
     }
     if post_id:
         post = Post.objects.get(id=post_id)
         if not post.can_edit(current_user):
             return redirect(url_for("show_post", id=post.id))
-        # don't set author when editing - admins can edit stuff
-        data.pop("authors", None)
         # NOTE: post.update can't be used since post/pre save hooks aren't called
         for key, value in data.items():
             setattr(post, key, value)
