@@ -365,7 +365,8 @@ def edit_post(id):
 @login_required
 def add_post():
     if request.method == "GET":
-        return render_template("post-editor.html", post=None)
+        authors = User.approved_users().values_list("email", "name", "nick")
+        return render_template("post-editor.html", post=None, authors=authors)
     post_id = request.form.get("post-id")
     authors = request.form.getlist("authors")
     if current_user.email not in authors:
