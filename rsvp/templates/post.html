@@ -10,7 +10,7 @@
             {{post.title}}
         </div>
         <p class="blog-post-meta">
-            {% if post.authors %} posted by {{post.list_authors()}}{% endif %} at {{post.created_at.strftime('%B %d, %Y')}}
+            {% if post.authors %} posted by {{post.list_authors()}}{% endif %} on {{post.created_at.strftime('%B %d, %Y')}}
             {% if post.public %}
                 <span class="badge badge-primary">Public</span>
             {% endif %}
