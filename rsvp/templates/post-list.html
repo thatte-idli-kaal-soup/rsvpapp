@@ -1,20 +1,23 @@
 <a class="float-right btn btn-primary" href="{{ url_for('add_post') }}">Add post</a>
+{% set h = "h3" if not photo_id else "h5" %}
 {% for post in posts %}
     {% if not post.draft or post.can_edit(current_user) %}
         <div class="blog-post">
             <p>
-                <a href="{{ url_for('show_post', id=post.id) }}"><span class="h3">{{post.title}}</span></a>
+                <a href="{{ url_for('show_post', id=post.id) }}"><span class={{h}}>{{post.title}}</span></a>
             </p>
-            <p class="blog-post-meta">
-                {% if post.public %}
-                    <span class="badge badge-primary">Public</span>
-                {% endif %}
-                {% if post.draft %}
-                    <span class="badge badge-secondary">Draft</span>
-                {% endif %}
-                {% if post.authors %} posted by {{post.list_authors()}}{% endif %} on
-                {{post.created_at.strftime('%B %d, %Y')}}
-            </p>
+            {% if not photo_id %}
+                <p class="blog-post-meta">
+                    {% if post.public %}
+                        <span class="badge badge-primary">Public</span>
+                    {% endif %}
+                    {% if post.draft %}
+                        <span class="badge badge-secondary">Draft</span>
+                    {% endif %}
+                    {% if post.authors %} posted by {{post.list_authors()}}{% endif %} on
+                    {{post.created_at.strftime('%B %d, %Y')}}
+                </p>
+            {% endif %}
         </div>
         <hr />
     {% endif %}
