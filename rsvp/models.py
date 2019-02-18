@@ -137,7 +137,8 @@ class Post(db.Document):
         names = []
         for author in self.authors:
             names.append(author.nick or author.name)
-        return ", ".join(names)
+        names = ", ".join(names)
+        return " & ".join(names.rsplit(",", 1))
 
 
 signals.pre_save.connect(Post.pre_save, sender=Post)
