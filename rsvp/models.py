@@ -128,6 +128,9 @@ class Post(db.Document):
 
     @classmethod
     def pre_save(cls, sender, document, **kwargs):
+        # If a document is a draft, turn off the public flag
+        if document.draft:
+            document.public = False
         document.html_content = markdown_to_html(document.content)
 
     def can_edit(self, user):
