@@ -116,7 +116,7 @@
                                 <input id="public" name="public" type="checkbox" aria-label="Public post" {% if post.public %}checked{% endif %}>
                             </div>
                         </div>
-                        <label for="public" class="form-control" aria-label="Public post">Public post?</label>
+                        <label for="public" class="form-control" aria-label="Public post">Public post? (viewable without logging in)</label>
                     </div>
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
@@ -124,7 +124,7 @@
                                 <input id="draft" name="draft" type="checkbox" aria-label="Draft post" {% if post.draft %}checked{% endif %}>
                             </div>
                         </div>
-                        <label for="draft" class="form-control" aria-label="Draft post">Draft post?</label>
+                        <label for="draft" class="form-control" aria-label="Draft post">Draft post? (only visible to authors and site admins)</label>
                     </div>
                     <input type="hidden" name="post-id" value="{{post.id}}">
                     <button type="Submit" align="center" name="submit" class="btn btn-primary">
