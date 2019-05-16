@@ -54,9 +54,9 @@ def zulip_announce_event(sender, document, **kwargs):
         print("Please set RSVP_HOST")
         return
 
-    if created:
-        # Fetch object from DB to be able to use validated/cleaned values
-        document = sender.objects.get(id=document.id)
+    # Fetch object from DB to be able to use validated/cleaned values
+    document = sender.objects.get(id=document.id)
+
     url = event_absolute_url(document)
     title = zulip_title(document)
     content = render_template("zulip_announce.md", event=document, url=url)
@@ -75,9 +75,8 @@ def zulip_announce_post(sender, document, **kwargs):
         print("Please set RSVP_HOST")
         return
 
-    if created:
-        # Fetch object from DB to be able to use validated/cleaned values
-        document = sender.objects.get(id=document.id)
+    # Fetch object from DB to be able to use validated/cleaned values
+    document = sender.objects.get(id=document.id)
 
     url = post_absolute_url(document)
     content = "New post at: {}\n\n{}".format(url, document.content)
