@@ -237,11 +237,12 @@ def user_profile():
         flash("You can only modify your information", "danger")
     else:
         user = User.objects.get_or_404(email=email)
+        user.gender = request.form["gender"].strip()
         user.upi_id = request.form["upi-id"].strip()
         user.blood_group = request.form["blood-group"].strip()
         user.nick = request.form["nick"].strip()
         user.dob = request.form["dob"] or None
-        user.hide_dob = request.form["hide_dob"] is not None
+        user.hide_dob = request.form.get("hide_dob") is not None
         user.save()
         flash("Successfully updated your information", "info")
     return redirect(url_for("user_profile"))
