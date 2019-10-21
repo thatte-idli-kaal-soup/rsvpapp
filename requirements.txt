@@ -80,6 +80,6 @@ urllib3==1.24.1
 URLObject==2.4.3
 wcwidth==0.1.7
 webpreview==1.5.0
-Werkzeug==0.14.1
+Werkzeug==0.15.3
 WTForms==2.1
 zulip==0.5.8
