@@ -32,6 +32,7 @@ class Event(db.Document):
     archived = db.BooleanField(required=True, default=False)
     created_by = db.LazyReferenceField("User")
     cancelled = db.BooleanField(required=True, default=False)
+    splitwise_group_id = db.StringField()
     meta = {"indexes": [{"fields": ["$name", "$description"]}]}  # text index
 
     @classmethod
