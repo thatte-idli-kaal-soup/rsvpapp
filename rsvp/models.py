@@ -70,6 +70,7 @@ class User(db.Document, UserMixin):
     gender = db.StringField()
     active = db.BooleanField(default=True)
     upi_id = db.StringField()
+    splitwise_id = db.StringField()
     blood_group = db.StringField()
     nick = db.StringField()
     dob = db.DateTimeField()
