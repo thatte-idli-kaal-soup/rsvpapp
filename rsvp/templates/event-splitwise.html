@@ -1,8 +1,9 @@
 {% if event.splitwise_group_id %}
     <a class="btn btn-info" href="https://secure.splitwise.com/#/groups/{{event.splitwise_group_id}}" target="_blank" >View Splitwise Group</a>
-{% elif current_user.is_admin %}
-    <form action="{{ url_for('create_splitwise_group', event_id=event.id) }}" method="POST">
-        <input type="submit" class="btn btn-info" value="Create Splitwise Group"/>
+{% endif %}
+{% if current_user.is_admin %}
+    <form action="{{ url_for('sync_splitwise_group', event_id=event.id) }}" method="POST">
+        <input type="submit" class="btn btn-info" value="{% if event.splitwise_group_id %}Update{% else %}Create{% endif %} Splitwise Group"/>
     </form>
 {% endif %}
 <hr>

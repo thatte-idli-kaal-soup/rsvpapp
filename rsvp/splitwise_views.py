@@ -5,7 +5,7 @@ from flask_dance.consumer import OAuth2ConsumerBlueprint
 from flask_login import current_user, login_required
 
 from .app import app
-from .models import Event, ANONYMOUS_EMAIL
+from .models import Event, ANONYMOUS_EMAIL, User
 
 splitwise_blueprint = OAuth2ConsumerBlueprint(
     "splitwise",
@@ -34,8 +34,8 @@ def allow_splitwise():
     return "Successfully obtained your Splitwise ID ({})".format(splitwise_id)
 
 
-@app.route("/splitwise/create_group/<event_id>", methods=["POST"])
-def create_splitwise_group(event_id):
+@app.route("/splitwise/sync_group/<event_id>", methods=["POST"])
+def sync_splitwise_group(event_id):
     if not splitwise.authorized:
         return redirect(url_for("splitwise.login"))
     event = Event.objects.get(id=event_id)
@@ -46,9 +46,15 @@ def create_splitwise_group(event_id):
             "group_type": "Event",
             "simplify_by_default": True,
         }
-        resp = splitwise.post("/api/v3.0/create_group", data=data)
-        event.splitwise_group_id = str(resp.json()["group"]["id"])
+        create_url = "/api/v3.0/create_group"
+        group = splitwise.post(create_url, data=data).json()["group"]
+        event.splitwise_group_id = str(group["id"])
         event.save()
+        created = True
+    else:
+        created = False
+        get_url = "/api/v3.0/get_group/{}".format(event.splitwise_group_id)
+        group = splitwise.post(get_url).json()["group"]
 
     for rsvp in event.active_rsvps:
         user = rsvp.user.fetch()
@@ -67,5 +73,31 @@ def create_splitwise_group(event_id):
                 "last_name": last_name,
                 "email": user.email,
             }
-        resp = splitwise.post("/api/v3.0/add_user_to_group", data=data)
+        splitwise.post("/api/v3.0/add_user_to_group", data=data)
+
+    # If a group already existed, remove users in the group who don't have an RSVP
+    if not created:
+        members = group["members"]
+        for member in members:
+            splitwise_id, email = str(member["id"]), member["email"]
+            try:
+                user = User.objects.get(splitwise_id=splitwise_id)
+            except User.DoesNotExist:
+                try:
+                    user = User.objects.get(email=email)
+                except User.DoesNotExist:
+                    user = None
+
+            if user is None:
+                continue
+
+            if event.active_rsvps.filter(user=user).count():
+                continue
+
+            data = {
+                "group_id": event.splitwise_group_id,
+                "user_id": splitwise_id,
+            }
+            splitwise.post("/api/v3.0/remove_user_from_group", data=data)
+
     return redirect(url_for("event", id=event.id))
