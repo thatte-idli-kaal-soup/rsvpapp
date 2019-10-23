@@ -204,11 +204,6 @@ def new_rsvp(event_id):
         flash("Cannot modify an archived event!", "warning")
     elif (
         user.email != ANONYMOUS_EMAIL
-        and len(event.active_rsvps.filter(user=user)) > 0
-    ):
-        flash("{} has already RSVP-ed!".format(email), "warning")
-    elif (
-        user.email != ANONYMOUS_EMAIL
         and len(event.rsvps.filter(user=user)) > 0
     ):
         rsvp = event.rsvps.get(user=user)
