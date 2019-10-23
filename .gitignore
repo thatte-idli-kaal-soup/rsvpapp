@@ -3,3 +3,4 @@ __pycache__/
 /service_account_file.json
 /.envrc
 /.config
+*.pyc
