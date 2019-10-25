@@ -17,6 +17,12 @@ a mongodb setup locally, and are not keen on setting it up.
 
 ### Installation & Running the app (without Docker)
 
+1. Setup MongoDB on your machine.
+
+   If you are a developer from `thatteidlikaalsoup`, and don't want to spend the
+   time and effort to setup MongoDB, ask @punchagan for access to a Test DB,
+   against which you can develop.
+
 1. Setup a virtualenv and activate it
 
 ```sh
