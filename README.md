@@ -2,7 +2,20 @@
 
 RSVP app for TIKS
 
-## Installation & Running the app
+## Developer help
+
+### Docker setup
+
+Running the app using Docker is the preferred way, especially if you don't have
+a mongodb setup locally, and are not keen on setting it up.
+
+1. Install `docker-compose` if you don't have it installed already
+
+2. Copy the `web-variables.env.template` to `web-variables.env`
+
+3. Run `docker-compose -up` to get the app running.
+
+### Installation & Running the app (without Docker)
 
 1. Setup a virtualenv and activate it
 

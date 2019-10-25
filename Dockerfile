@@ -1,10 +1,6 @@
-FROM teamcloudyuga/python:alpine
-COPY . /usr/src/app
-WORKDIR /usr/src/app
-ENV LINK http://www.meetup.com/cloudyuga/
-ENV TEXT1 CloudYuga
-ENV TEXT2 Garage RSVP!
-ENV LOGO https://raw.githubusercontent.com/cloudyuga/rsvpapp/master/static/cloudyuga.png
-ENV COMPANY CloudYuga Technology Pvt. Ltd.
+FROM python:3.7-buster
+# NOTE: This file is not used for deployment. We only have it so that
+# docker-compose uses the right image and builds the web container.
+COPY requirements.txt /app/
+WORKDIR /app
 RUN pip3 install -r requirements.txt
-CMD python rsvp.py
