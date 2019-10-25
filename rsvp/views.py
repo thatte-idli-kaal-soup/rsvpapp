@@ -20,6 +20,7 @@ from flask_login import (
     fresh_login_required,
     login_required,
     logout_user,
+    login_user,
 )
 from mongoengine.errors import DoesNotExist
 
@@ -304,6 +305,22 @@ def approve_users():
 
 
 # Login/Logout ####
+@app.route("/dev_login")
+def dev_login():
+    next_url = request.args.get("next", url_for("index"))
+    if not current_user.is_authenticated:
+        session["next_url"] = next_url
+        dev_email = "dev@example.com"
+        try:
+            user = User.objects.get(email=dev_email)
+        except User.DoesNotExist:
+            user = User(email=dev_email, name="Developer", gender="female")
+            user.roles.append(".approved-user")
+            user.save()
+        login_user(user, remember=True)
+    return redirect(next_url)
+
+
 @app.route("/login")
 def login():
     next_url = request.args.get("next", url_for("index"))

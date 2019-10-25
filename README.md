@@ -51,3 +51,12 @@ export OAUTHLIB_INSECURE_TRANSPORT=1
 ```sh
 python rsvp.py
 ```
+
+### Authentication
+
+The app uses Google OAuth for authentication. But, to allow developers to work
+on the app without having the whole Google auth stuff setup, a `dev_login`
+method is available for developers.
+
+You need to set an environment variable, `NO_GOOGLE_AUTH=1`. This is set by
+default in the `web-variables.env.template` file.

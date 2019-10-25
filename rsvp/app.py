@@ -93,7 +93,9 @@ def google_logged_in(blueprint, token):
 
 # Setup Login Manager
 login_manager = LoginManager(app)
-login_manager.login_view = "login"
+login_manager.login_view = (
+    "dev_login" if os.environ["NO_GOOGLE_AUTH"] == "1" else "login"
+)
 login_manager.refresh_view = "refresh"
 login_manager.session_protection = "basic"
 login_manager.anonymous_user = AnonymousUser
