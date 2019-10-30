@@ -42,6 +42,11 @@ def inject_branding():
 
 
 @app.context_processor
+def inject_demo_warning():
+    return dict(private_app=app.config["PRIVATE_APP"])
+
+
+@app.context_processor
 def inject_notifications():
     extra_context = dict()
 

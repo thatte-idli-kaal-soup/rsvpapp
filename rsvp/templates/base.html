@@ -91,6 +91,14 @@
                 {% endif %}
             </nav>
         </header>
+        {% if not private_app  %}
+            <div class="alert alert-warning text-center mt-5 mb-0 pb-0">
+                The app is currently running in demo/public mode. Anyone with a
+                Google account can use the app, without approval from an admin.
+                Please turn on the <code>PRIVATE_APP</code> setting, to disable
+                this.
+            </div>
+        {% endif %}
         <main class="container" role="main">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
