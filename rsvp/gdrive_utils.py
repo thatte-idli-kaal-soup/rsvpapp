@@ -19,6 +19,7 @@ SCOPES = {
 
 
 def download_service_account_file():
+    print("Downloading service account file to", SERVICE_ACCOUNT_FILE)
     url = os.environ["GOOGLE_SERVICE_ACCOUNT_FILE_URL"]
     with open(SERVICE_ACCOUNT_FILE, "w") as f:
         json.dump(requests.get(url).json(), f)
