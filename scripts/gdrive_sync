@@ -62,6 +62,8 @@ def sync_photos(ctx):
     gd_photos = [
         GDrivePhoto(**photo) for photo in photos(service, gdrive_root)
     ]
+    if not gd_photos:
+        return
     previous_photos = set(GDrivePhoto.objects.values_list("gdrive_id"))
     previous_paths = set(
         GDrivePhoto.objects.values_list("gdrive_parent", "gdrive_path")
