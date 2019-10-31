@@ -23,7 +23,7 @@ flask-mongoengine==0.9.5
 Flask-SSLify==0.1.5
 https://github.com/pilt/flask-versioned/archive/c6591bc9a5605242d5d82dd4e3bf30c11452748e.zip
 Flask-WTF==0.14.2
-google-api-python-client==1.6.7
+google-api-python-client==1.7.11
 google-auth==1.4.1
 google-auth-httplib2==0.0.3
 gunicorn==19.7.1
