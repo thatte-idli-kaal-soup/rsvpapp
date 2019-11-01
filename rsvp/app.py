@@ -20,6 +20,13 @@ if "DYNO" in os.environ:
     sslify = SSLify(app)
 versioned = Versioned(app)
 db.init_app(app)
+
+# Create anonymous user
+try:
+    User.objects.get(email=ANONYMOUS_EMAIL)
+except User.DoesNotExist:
+    User.objects.create(email=ANONYMOUS_EMAIL, name="Unknown User")
+
 # Google OAuth stuff
 blueprint = make_google_blueprint(
     client_id=os.environ["GOOGLE_CLIENT_ID"],
