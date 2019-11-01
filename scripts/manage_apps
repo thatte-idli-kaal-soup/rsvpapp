@@ -25,7 +25,6 @@ REQUIRED_CONFIG_VARS = (
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
     "GOOGLE_SERVICE_ACCOUNT_FILE_URL",
-    "GOOGLE_DRIVE_MEDIA_DRIVE_ID",
     "PRIVATE_APP",
 )
 ADMINS = ["Puneeth Chaganti:punchagan@gmail.com"]
@@ -49,6 +48,7 @@ def create_new_deployment(name):
     _add_remote(name)
     _create_config(name)
     _set_heroku_config(name)
+    _update_media_root_dir(name)
     _add_addons(name)
     _deploy_app(name)
     _add_admin_users(name)
@@ -150,6 +150,28 @@ def _update_config(config):
         if config_var in config:
             continue
         config[config_var] = click.prompt(config_var).strip()
+
+
+def _update_media_root_dir(name):
+    config_file = _config_path(name)
+    config = _read_config(config_file)
+    drive_media_root = config["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
+    if drive_media_root:
+        return
+    command = [
+        "heroku",
+        "run",
+        "-a",
+        name,
+        "./scripts/gdrive_sync",
+        "create_drive_root_dir",
+        name,
+    ]
+    output = subprocess.check_output(command)
+    drive_id = output.strip().split()[-1].decode("utf8")
+    config["GOOGLE_DRIVE_MEDIA_DRIVE_ID"] = drive_id
+    _write_config(config, config_file)
+    _set_heroku_config(name)
 
 
 cli.add_command(create_new_deployment)
