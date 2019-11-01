@@ -55,6 +55,12 @@ def create_new_deployment(name):
     _open_app(name)
 
 
+@click.command()
+@click.argument("name", type=str)
+def update_heroku_config(name):
+    _set_heroku_config(name)
+
+
 def _add_admin_users(name):
     command = [
         "heroku",
@@ -175,5 +181,6 @@ def _update_media_root_dir(name):
 
 
 cli.add_command(create_new_deployment)
+cli.add_command(update_heroku_config)
 if __name__ == "__main__":
     cli()
