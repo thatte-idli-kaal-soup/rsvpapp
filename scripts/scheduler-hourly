@@ -11,7 +11,7 @@ python ./scripts/gdrive_sync sync_photos
 echo "Syncing calendar permissions"
 python ./scripts/gdrive_sync sync_calendar_permissions
 echo "Syncing GDrive permissions"
-python ./scripts/gdrive_sync sync_permissions
+python ./scripts/gdrive_sync sync_drive_permissions
 
 echo "Deleting cancelled events with no RSVPs"
 python ./scripts/manage_events delete_unrsvped_events

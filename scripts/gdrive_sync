@@ -83,7 +83,7 @@ def sync_photos(ctx):
 
 @click.command()
 @click.pass_context
-def sync_permissions(ctx):
+def sync_drive_permissions(ctx):
     service = ctx.obj["drive_service"]
     gdrive_root = ctx.obj["gdrive_root"]
     emails = User.approved_users().values_list("email")
@@ -130,7 +130,7 @@ def sync_calendar_rsvp_events(ctx):
 
 
 cli.add_command(sync_photos)
-cli.add_command(sync_permissions)
+cli.add_command(sync_drive_permissions)
 cli.add_command(sync_calendar_permissions)
 cli.add_command(sync_calendar_birthdays)
 cli.add_command(sync_calendar_rsvp_events)
