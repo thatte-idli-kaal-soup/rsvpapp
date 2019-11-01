@@ -73,7 +73,6 @@ def versioned_static(version, static_file):
 def index():
     upcoming_events = Event.objects.filter(archived=False).order_by("date")
     posts = Post.objects.filter(draft=False).order_by("-created_at")[:2]
-    photo_id = "16iy0gA9ipYhjDdRq3duMr9njzO7OalL3"
     photos = list(GDrivePhoto.objects.aggregate({"$sample": {"size": 1000}}))
     photo_context = {}
     if photos:
