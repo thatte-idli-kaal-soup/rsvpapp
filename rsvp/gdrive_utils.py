@@ -41,7 +41,9 @@ def create_root_folder(service, name="Media"):
         "mimeType": "application/vnd.google-apps.folder",
     }
     root = service.files().create(body=file_metadata, fields="id").execute()
-    print("Folder ID:", root.get("id"))
+    root_id = root.get("id")
+    print(root_id)
+    return root_id
 
 
 def update_permissions(service, file_id, emails):

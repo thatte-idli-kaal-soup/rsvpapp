@@ -30,6 +30,7 @@ from rsvp.models import Event, GDrivePhoto, User
 from rsvp.gdrive_utils import (
     add_birthday,
     add_rsvp_event,
+    create_root_folder,
     create_service,
     delete_birthday,
     delete_rsvp_event,
@@ -52,6 +53,14 @@ def cli(ctx):
             "gdrive_root": os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"],
         }
     )
+
+
+@click.command()
+@click.argument("name", type=str, default="RSVP Media")
+@click.pass_context
+def create_drive_root_dir(ctx, name):
+    service = ctx.obj["drive_service"]
+    create_root_folder(service, name)
 
 
 @click.command()
@@ -129,6 +138,7 @@ def sync_calendar_rsvp_events(ctx):
             add_rsvp_event(service, event, timezone)
 
 
+cli.add_command(create_drive_root_dir)
 cli.add_command(sync_photos)
 cli.add_command(sync_drive_permissions)
 cli.add_command(sync_calendar_permissions)
