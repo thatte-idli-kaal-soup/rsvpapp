@@ -14,7 +14,7 @@ cloudinary==1.15.0
 cryptography==2.3.1
 Cython==0.29.13
 decorator==4.2.1
-dropbox==8.7.1
+dropbox==9.4.0
 flake8==3.5.0
 Flask==1.0.2
 Flask-Dance==0.14.0
