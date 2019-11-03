@@ -66,23 +66,33 @@ def api_rsvps(event_id):
         try:
             user = User.objects.get(email=doc["user"])
         except User.DoesNotExist:
-            return '{"error": "user does not exist"}', 400
+            if doc.pop("use_anonymous", False):
+                user = User.objects.get(email=ANONYMOUS_EMAIL)
+            else:
+                return '{"error": "user does not exist"}', 400
 
-    try:
+    if (
+        user.email == ANONYMOUS_EMAIL
+        or event.rsvps.filter(user=user).count() == 0
+    ):
+        data = {
+            "rsvp_by": current_user.email
+            if current_user.is_authenticated
+            else ANONYMOUS_EMAIL,
+            "user": user.email,
+        }
+        data.update(doc)
+        if user.email == ANONYMOUS_EMAIL:
+            data["note"] = "{user} ({note})".format(**data)
+            data["user"] = user.email
+        rsvp = RSVP(**data)
+        event.rsvps.append(rsvp)
+    else:
         rsvp = event.rsvps.get(user=user)
         if "note" in doc:
             rsvp.note = doc["note"]
         rsvp.cancelled = False
         rsvp.save()
-    except DoesNotExist:
-        data = {
-            "rsvp_by": current_user.email
-            if current_user.is_authenticated
-            else ANONYMOUS_EMAIL
-        }
-        data.update(doc)
-        rsvp = RSVP(**data)
-        event.rsvps.append(rsvp)
     event.save()
     return rsvp.to_json()
 

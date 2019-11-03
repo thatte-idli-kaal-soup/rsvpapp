@@ -3,42 +3,7 @@
 {% block scripts %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.2/awesomplete.min.css" integrity="sha256-TQcHzEz3/ZJ8MeAoO1SRE5sa5q68U57dwZO/tArtNqk=" crossorigin="anonymous" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.2/awesomplete.min.js" integrity="sha256-xA+USAVmEnBnz1FiLRSG8xglJflQVHmQvbx5+u4bslk=" crossorigin="anonymous"></script>
-    <script>
-     delete_rsvp = function(event_id, rsvp_id){
-         $(".alert").text('Un-RSVPing...').show();
-         fetch(`/api/rsvps/${event_id}/${rsvp_id}`,
-               {credentials: 'same-origin', method: "DELETE"}).then(function(response){
-                   if (response.status == 200){
-                       window.location.href = "";
-                   }
-                   return response.json();
-               }).then(function(data){
-                   $(".alert").text(data.error).show();
-               });
-     }
-
-     update_message = function(){
-         if ($('#name').val() !== "") {
-             $(".alert").text('RSVPing...').show();
-         }
-     }
-
-     update_description = function(event_id){
-         var data = {
-             description: editor.codemirror.getValue()
-         }
-         fetch(`/api/event/${event_id}`,
-               {credentials: 'same-origin', method: "PATCH", body: JSON.stringify(data)}).then(function(response){
-                   if (response.status == 200){
-                       window.location.href = "";
-                   }
-                   return response.json();
-               }).then(function(data){
-                   $(".alert").text(data.error).show();
-               });
-     }
-
-    </script>
+    <script src="{{ url_for('static', filename='event.js')|versioned }}"></script>
     <!-- Awesomeplete -->
     <script>
      var input = document.getElementById("email");
@@ -83,7 +48,7 @@
         <div class="card">
             <div class="card-body">
                 <p class="alert alert-info" style="display: none;"></p>
-                <form class="form-inline" action="/new/{{event.id}}" method='POST'>
+                <div class="form-inline">
                     <div class="form-group required mx-2">
                         <input  type="text"
                                 name="email"
@@ -92,9 +57,9 @@
                                 value="{{current_user.email}}"
                                 required autofocus>
                     </div>
-                    <button type="Submit" onclick="update_message()" align="center" name="submit" class="btn btn-primary mr-2">Submit</button>
+                    <button type="Submit" onclick='submit_rsvp("{{event.id}}")' align="center" name="submit" class="btn btn-primary mr-2">Submit</button>
                     <input type="text" name="note" class="form-control" id="note" placeholder="Additional note (optional)">
-                </form>
+                </div>
             </div>
         </div>
     {% endif %}
@@ -145,4 +110,4 @@
     <hr/>
     {% include 'event-splitwise.html' %}
     {% include "zulip-comments.html" %}
-{% endblock %}
+    {% endblock %}
