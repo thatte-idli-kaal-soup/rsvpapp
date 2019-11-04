@@ -20,6 +20,11 @@ class RSVP(db.EmbeddedDocument):
     rsvp_by = db.LazyReferenceField("User")
     cancelled = db.BooleanField(default=False)
 
+    def can_cancel(self, user):
+        return (
+            user == self.rsvp_by or user == self.user or self.rsvp_by is None
+        )
+
 
 class Event(db.Document):
     rsvps = db.EmbeddedDocumentListField(RSVP)

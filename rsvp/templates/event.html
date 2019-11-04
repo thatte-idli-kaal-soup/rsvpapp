@@ -64,11 +64,7 @@
                         {{item | rsvp_name}}
                     </span>
                     {% if not item.cancelled and (current_user.is_admin or
-                        (event.can_rsvp(current_user) and (
-                            current_user == item.rsvp_by
-                            or current_user == item.user
-                            or item.rsvp_by is none
-                        )))
+                        (event.can_rsvp(current_user) and item.can_cancel(current_user)))
                     %}
                         <button onclick='delete_rsvp("{{event.id}}","{{item.id}}")' class="close {% if item.user.fetch().gender == 'female' and not item.cancelled -%}text-white{% endif -%}">x</button>
                     {% endif %}
