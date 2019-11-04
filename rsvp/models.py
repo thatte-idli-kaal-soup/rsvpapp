@@ -25,6 +25,10 @@ class RSVP(db.EmbeddedDocument):
             user == self.rsvp_by or user == self.user or self.rsvp_by is None
         )
 
+    @property
+    def sort_attributes(self):
+        return (self.cancelled, self.date)
+
 
 class Event(db.Document):
     rsvps = db.EmbeddedDocumentListField(RSVP)
@@ -47,6 +51,10 @@ class Event(db.Document):
     @property
     def active_rsvps(self):
         return self.rsvps.filter(cancelled=False)
+
+    @property
+    def all_rsvps(self):
+        return sorted(self.rsvps, key=lambda x: x.sort_attributes)
 
     @property
     def end_date(self):
