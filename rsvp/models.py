@@ -49,6 +49,14 @@ class Event(db.Document):
         return self.rsvps.filter(cancelled=False)
 
     @property
+    def end_date(self):
+        if self._end_date is not None:
+            return self._end_date
+        config = read_app_config()
+        duration = config["EVENT_DURATION"]
+        return self.date + datetime.timedelta(seconds=duration)
+
+    @property
     def rsvp_count(self):
         return len(self.active_rsvps)
 
@@ -59,14 +67,6 @@ class Event(db.Document):
 
     def can_rsvp(self, user):
         return user.is_admin or not (self.archived or self.cancelled)
-
-    @property
-    def end_date(self):
-        if self._end_date is not None:
-            return self._end_date
-        config = read_app_config()
-        duration = config["EVENT_DURATION"]
-        return self.date + datetime.timedelta(seconds=duration)
 
 
 signals.pre_save.connect(Event.pre_save, sender=Event)
