@@ -29,47 +29,6 @@ class TestRSVPApp(BaseTest):
             )
         assert response.status_code == 200
 
-    def test_rsvp(self):
-        date = datetime.datetime.today().strftime("%Y-%m-%d")
-        event_data = {
-            "event-name": "test_event",
-            "date": date,
-            "time": "06:00",
-        }
-        response = self.client.post(
-            "/event", data=event_data, follow_redirects=True
-        )
-        response = self.client.get("/api/events", follow_redirects=True)
-        events = json.loads(response.data)
-        event_id = events[0]["_id"]["$oid"]
-        user_data = {"email": self.user.email, "note": "my awesome note"}
-        response = self.client.post(
-            "/new/{}".format(event_id), data=user_data, follow_redirects=True
-        )
-        assert response.status_code == 200
-        assert self.user.name in str(response.data)
-        assert user_data["note"] in str(response.data)
-
-    def test_rsvp_archived_doesnot_work(self):
-        event_data = {
-            "event-name": "test_event",
-            "date": "2018-01-01",
-            "time": "06:00",
-        }
-        response = self.client.post(
-            "/event", data=event_data, follow_redirects=True
-        )
-        response = self.client.get("/api/events", follow_redirects=True)
-        events = json.loads(response.data)
-        event_id = events[0]["_id"]["$oid"]
-        models.Event.objects.filter(id=event_id).update(archived=True)
-        user_data = {"email": self.user.email, "note": "my awesome note"}
-        response = self.client.post(
-            "/new/{}".format(event_id), data=user_data, follow_redirects=True
-        )
-        assert response.status_code == 200
-        assert self.user.name not in str(response.data)
-
 
 class TestApi(BaseTest):
     def jsonget(self, path):

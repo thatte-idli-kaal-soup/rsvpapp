@@ -182,42 +182,6 @@ def search():
     return render_template("search.html", events=events, query=query)
 
 
-# RSVP Views ###########################################################
-
-
-@app.route("/new/<event_id>", methods=["POST"])
-@login_required
-def new_rsvp(event_id):
-    event = Event.objects(id=event_id).first()
-    email = request.form["email"].strip()
-    note = request.form["note"].strip()
-    try:
-        print("Trying to fetch user with email {}".format(repr(email)))
-        user = User.objects.get(email=email)
-    except DoesNotExist:
-        flash(
-            "Could not find user with email, using anonymous user!", "warning"
-        )
-        user = User.objects.get(email=ANONYMOUS_EMAIL)
-        note = "{}: {}".format(email, note) if note else email
-    if not current_user.is_admin and (event.archived or event.cancelled):
-        flash("Cannot modify an archived event!", "warning")
-    elif (
-        user.email != ANONYMOUS_EMAIL
-        and len(event.rsvps.filter(user=user)) > 0
-    ):
-        rsvp = event.rsvps.get(user=user)
-        rsvp.cancelled = False
-        rsvp.note = note
-        rsvp.save()
-    elif email:
-        rsvp_by = current_user.email if current_user.is_authenticated else None
-        rsvp = RSVP(user=user, rsvp_by=rsvp_by, note=note)
-        event.rsvps.append(rsvp)
-        event.save()
-    return redirect(url_for("event", id=event_id))
-
-
 # User Views ###########################################################
 
 
