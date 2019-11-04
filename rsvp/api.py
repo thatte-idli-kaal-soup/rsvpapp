@@ -102,7 +102,6 @@ def api_rsvps(event_id):
         if rsvp.cancelled:
             rsvp.date = datetime.datetime.now()
         rsvp.cancelled = False
-        rsvp.save()
 
     event.save()
     return rsvp.to_json()
