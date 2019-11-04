@@ -63,10 +63,11 @@ def api_rsvps(event_id):
         return '{"error": "user field is missing"}', 400
 
     else:
+        use_anonymous = doc.pop("use_anonymous", False)
         try:
             user = User.objects.get(email=doc["user"])
         except User.DoesNotExist:
-            if doc.pop("use_anonymous", False):
+            if use_anonymous:
                 user = User.objects.get(email=ANONYMOUS_EMAIL)
             else:
                 return '{"error": "user does not exist"}', 400
@@ -83,7 +84,11 @@ def api_rsvps(event_id):
         }
         data.update(doc)
         if user.email == ANONYMOUS_EMAIL:
-            data["note"] = "{user} ({note})".format(**data)
+            data["note"] = (
+                "{user} ({note})".format(**data)
+                if data["note"]
+                else data["user"]
+            )
             data["user"] = user.email
         rsvp = RSVP(**data)
         event.rsvps.append(rsvp)
