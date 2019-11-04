@@ -122,14 +122,13 @@ def api_rsvp(event_id, rsvp_id):
     if not event.can_rsvp(current_user):
         return json.dumps({"error": "cannot modify event"}), 404
 
-    if request.method == "DELETE":
-        if rsvp.user.fetch().email == ANONYMOUS_EMAIL:
-            event.rsvps.remove(rsvp)
-            event.save()
-        else:
-            rsvp.cancelled = True
-            rsvp.save()
-        return json.dumps({"deleted": "true"})
+    if rsvp.user.fetch().email == ANONYMOUS_EMAIL:
+        event.rsvps.remove(rsvp)
+        event.save()
+    else:
+        rsvp.cancelled = True
+        rsvp.save()
+    return json.dumps({"deleted": "true"})
 
 
 @app.route("/api/users/", methods=["GET"])
