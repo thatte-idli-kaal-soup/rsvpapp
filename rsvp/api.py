@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from bson.objectid import ObjectId
@@ -71,10 +72,11 @@ def api_rsvps(event_id):
         else:
             return '{"error": "user does not exist"}', 400
 
-    if (
-        user.email == ANONYMOUS_EMAIL
-        or event.rsvps.filter(user=user).count() == 0
-    ):
+    new_rsvp = (user.email == ANONYMOUS_EMAIL) or event.rsvps.filter(
+        user=user
+    ).count() == 0
+
+    if new_rsvp:
         data = {
             "rsvp_by": current_user.email
             if current_user.is_authenticated
@@ -95,8 +97,13 @@ def api_rsvps(event_id):
         rsvp = event.rsvps.get(user=user)
         if "note" in doc:
             rsvp.note = doc["note"]
+        # Update the timestamp if a cancelled RSVP is being updated, adding
+        # notes to an existing RSVP should not change the timestamp.
+        if rsvp.cancelled:
+            rsvp.date = datetime.datetime.now()
         rsvp.cancelled = False
         rsvp.save()
+
     event.save()
     return rsvp.to_json()
 
