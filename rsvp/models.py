@@ -52,6 +52,9 @@ class Event(db.Document):
             self.created_by and self.created_by.fetch().email == user.email
         )
 
+    def can_rsvp(self, user):
+        return user.is_admin or not (self.archived or self.cancelled)
+
     @property
     def end_date(self):
         if self._end_date is not None:

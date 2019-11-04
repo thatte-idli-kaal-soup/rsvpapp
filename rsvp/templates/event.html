@@ -33,7 +33,7 @@
             <a href="{{ url_for("event_editor", id=event.id) }}" align="center" name="submit" class="btn btn-secondary mr-2">Edit</a>
         {% endif %}
     </p>
-    {% if current_user.is_admin or (not event.archived and not event.cancelled) %}
+    {% if event.can_rsvp(current_user) %}
         <div class="card">
             <div class="card-body">
                 <p class="alert alert-info" style="display: none;"></p>
@@ -63,11 +63,11 @@
                           "data-toggle="tooltip" title="RSVP by {{item | rsvp_by}}">
                         {{item | rsvp_name}}
                     </span>
-                    {% if current_user.is_admin or (not event.cancelled and not event.archived and (
+                    {% if event.can_rsvp(current_user) and (
                         current_user == item.rsvp_by
                         or current_user == item.user
                         or item.rsvp_by is none)
-                    )  %}
+                    %}
                         <button onclick='delete_rsvp("{{event.id}}","{{item.id}}")' class="close {% if item.user.fetch().gender == 'female' and not item.cancelled -%}text-white{% endif -%}">x</button>
                     {% endif %}
                 </div>
@@ -99,4 +99,4 @@
     <hr/>
     {% include 'event-splitwise.html' %}
     {% include "zulip-comments.html" %}
-    {% endblock %}
+{% endblock %}

@@ -51,8 +51,8 @@ def api_rsvps(event_id):
             )
         return json.dumps(event_json)
 
-    if not current_user.is_admin and event.archived:
-        return json.dumps({"error": "cannot modify archived event"}), 404
+    if not event.can_rsvp(current_user):
+        return json.dumps({"error": "cannot modify event"}), 404
 
     try:
         doc = json.loads(request.data)
@@ -109,8 +109,8 @@ def api_rsvp(event_id, rsvp_id):
     if request.method == "GET":
         return rsvp.to_json(indent=True)
 
-    if not current_user.is_admin and event.archived:
-        return json.dumps({"error": "cannot modify archived event"}), 404
+    if not event.can_rsvp(current_user):
+        return json.dumps({"error": "cannot modify event"}), 404
 
     if request.method == "DELETE":
         if rsvp.user.fetch().email == ANONYMOUS_EMAIL:
