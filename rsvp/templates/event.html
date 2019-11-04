@@ -59,7 +59,7 @@
         {% for item in items %}
             <li class="list-group-item {% if item.user.fetch().gender == 'female' and not item.cancelled -%}text-white bg-dark{% endif -%}">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="rsvp {% if item.cancelled %}rsvp-cancelled{% endif %}"
+                    <span class="rsvp {% if item.cancelled %}rsvp-cancelled{% elif item.waitlisted %}rsvp-waitlisted{% endif %}"
                           "data-toggle="tooltip" title="RSVP by {{item | rsvp_by}}">
                         {{item | rsvp_name}}
                     </span>

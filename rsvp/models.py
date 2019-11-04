@@ -19,6 +19,7 @@ class RSVP(db.EmbeddedDocument):
     date = db.DateTimeField(required=True, default=datetime.datetime.now)
     rsvp_by = db.LazyReferenceField("User")
     cancelled = db.BooleanField(default=False)
+    waitlisted = db.BooleanField(default=False)
 
     def can_cancel(self, user):
         return (
@@ -27,11 +28,12 @@ class RSVP(db.EmbeddedDocument):
 
     @property
     def sort_attributes(self):
-        return (self.cancelled, self.date)
+        return (self.cancelled, self.waitlisted, self.date)
 
 
 class Event(db.Document):
     rsvps = db.EmbeddedDocumentListField(RSVP)
+    rsvp_limit = db.IntField(default=0)
     name = db.StringField(required=True)
     description = db.StringField()
     html_description = db.StringField()
@@ -50,7 +52,10 @@ class Event(db.Document):
 
     @property
     def active_rsvps(self):
-        return self.rsvps.filter(cancelled=False)
+        return sorted(
+            self.rsvps.filter(cancelled=False, waitlisted=False),
+            key=lambda x: x.sort_attributes,
+        )
 
     @property
     def all_rsvps(self):
@@ -65,6 +70,12 @@ class Event(db.Document):
         return self.date + datetime.timedelta(seconds=duration)
 
     @property
+    def non_cancelled_rsvps(self):
+        return sorted(
+            self.rsvps.filter(cancelled=False), key=lambda x: x.sort_attributes
+        )
+
+    @property
     def rsvp_count(self):
         return len(self.active_rsvps)
 
@@ -75,6 +86,13 @@ class Event(db.Document):
 
     def can_rsvp(self, user):
         return user.is_admin or not (self.archived or self.cancelled)
+
+    def update_waitlist(self):
+        for i, rsvp in enumerate(self.non_cancelled_rsvps):
+            rsvp.waitlisted = (
+                i >= self.rsvp_limit if self.rsvp_limit > 0 else False
+            )
+        self.save()
 
 
 signals.pre_save.connect(Event.pre_save, sender=Event)

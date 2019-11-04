@@ -37,6 +37,7 @@ def api_event(event_id):
         if field in doc:
             setattr(event, field, doc[field])
     event.save()
+    event.update_waitlist()
     return event.to_json()
 
 
@@ -104,6 +105,7 @@ def api_rsvps(event_id):
         rsvp.cancelled = False
 
     event.save()
+    event.update_waitlist()
     return rsvp.to_json()
 
 
@@ -124,10 +126,10 @@ def api_rsvp(event_id, rsvp_id):
 
     if rsvp.user.fetch().email == ANONYMOUS_EMAIL:
         event.rsvps.remove(rsvp)
-        event.save()
     else:
         rsvp.cancelled = True
-        rsvp.save()
+    event.save()
+    event.update_waitlist()
     return json.dumps({"deleted": "true"})
 
 

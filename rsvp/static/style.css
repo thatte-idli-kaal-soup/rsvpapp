@@ -33,6 +33,15 @@ section {
     color: grey;
 }
 
+.rsvp-waitlisted {
+    font-style: italic;
+    color: orangered;
+}
+
+.rsvp-waitlisted::after {
+    content: "(W/L)";
+}
+
 .blog-post-title {
     margin-bottom: .25rem;
     font-size: 2.5rem;

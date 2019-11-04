@@ -146,6 +146,7 @@ def create_event():
     time = request.form["time"]
     item_doc = {
         "name": request.form["event-name"],
+        "rsvp_limit": int(request.form["event-rsvp-limit"]),
         "date": "{} {}".format(date, time),
         "created_by": (
             current_user.email if current_user.is_authenticated else None
@@ -168,6 +169,7 @@ def create_event():
         for key, value in item_doc.items():
             setattr(event, key, value)
     event.save()
+    event.update_waitlist()
     return redirect(url_for("event", id=event.id))
 
 
