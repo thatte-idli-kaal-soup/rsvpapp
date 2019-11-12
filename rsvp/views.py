@@ -244,8 +244,8 @@ def users():
 @role_required("admin")
 def approve_user(email):
     user = User.objects.get_or_404(email=email)
-    if not user.has_role(".approved-user"):
-        user.update(push__roles=".approved-user")
+    if not user.is_approved:
+        user.add_to_team("default")
         send_approved_email(user)
     return redirect(url_for("users"))
 

@@ -134,6 +134,15 @@ class User(db.Document, UserMixin):
                 return True
         return False
 
+    def add_to_team(self, team_slug):
+        role = Role(name=".approved-user", team=team_slug)
+        self.roles.append(role)
+        self.save()
+
+    @property
+    def is_approved(self):
+        return self.has_role(".approved-user")
+
     @staticmethod
     def approved_users():
         return User.objects.filter(roles__name__in=[".approved-user"]).all()
