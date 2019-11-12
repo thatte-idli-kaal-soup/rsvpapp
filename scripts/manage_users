@@ -60,18 +60,20 @@ def list_users(
 @click.command()
 def list_roles():
     roles = {
-        role
+        (role.team.fetch().name, role.team.fetch().slug, role.name)
         for user in User.objects.only("roles")
-        for role in (user.roles or [])
+        for role in user.roles
     }
-    for role in sorted(roles):
-        users = User.objects(roles__in=[role]).only("email")
+    for team_name, team_slug, role in sorted(roles):
+        users = User.objects(
+            roles__name__in=[role], roles__team=team_slug
+        ).only("email")
         users_count = users.count()
         if users_count <= 3:
             display_users = ", ".join(users.values_list("email"))
         else:
             display_users = "{} users".format(users_count)
-        click.echo("{}\t{}".format(role, display_users))
+        click.echo("{}\t{}\t{}".format(team_name, role, display_users))
 
 
 @click.command()
