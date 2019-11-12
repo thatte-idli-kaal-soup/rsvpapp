@@ -88,13 +88,13 @@ def google_logged_in(blueprint, token):
         user = User(email=email, name=info["name"], gender=info.get("gender"))
         user.save()
         created = True
-    if not app.config["PRIVATE_APP"] or user.has_role(".approved-user"):
+    if not app.config["PRIVATE_APP"] or user.is_approved:
         # FIXME: May not be ideal, but we are trying not to annoy people!
         login_user(user, remember=True)
         next_ = redirect(session.get("next_url", url_for("index")))
     else:
         if created:
-            admins = User.objects(roles__in=["admin"])
+            admins = User.admins()
             # FIXME: Should we let the user know if the mail sending failed?
             send_approval_email(user, admins)
         next_ = redirect(url_for("approval_awaited", name=user.name))
