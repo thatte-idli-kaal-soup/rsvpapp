@@ -138,6 +138,10 @@ class User(db.Document, UserMixin):
     def approved_users():
         return User.objects.filter(roles__name__in=[".approved-user"]).all()
 
+    @staticmethod
+    def pending_approval_users():
+        return User.objects.filter(roles__name__nin=[".approved-user"]).all()
+
     @property
     def visible_roles(self):
         return [r for r in self.roles if not r.name.startswith(".")]

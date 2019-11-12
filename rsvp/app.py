@@ -59,9 +59,7 @@ def inject_notifications():
 
     # Unapproved users
     if current_user and current_user.is_admin:
-        approval_awaited_count = User.objects(
-            roles__nin=[".approved-user"]
-        ).count()
+        approval_awaited_count = User.pending_approval_users().count()
         extra_context["approval_awaited_count"] = approval_awaited_count
 
     # New posts
