@@ -261,10 +261,7 @@ def disapprove_user(email):
 @app.route("/approve_users/", methods=["GET"])
 @role_required("admin")
 def approve_users():
-    users = sorted(
-        User.objects(roles__nin=[".approved-user"]),
-        key=lambda u: u.name.lower(),
-    )
+    users = sorted(User.pending_approval_users(), key=lambda u: u.name.lower())
     return render_template("approve_users.html", users=users)
 
 
