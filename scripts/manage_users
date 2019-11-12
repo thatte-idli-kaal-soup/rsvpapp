@@ -21,15 +21,20 @@ def cli():
 
 @click.command()
 @click.option("--format", default="tsv")
+@click.option("--team", default="default")
 @click.option("--display-roles", default=False, is_flag=True)
 @click.option("--display-gender", default=False, is_flag=True)
 @click.option("--include-roles", multiple=True)
 def list_users(
-    format="tsv", display_roles=False, include_roles=None, display_gender=False
+    team=None,
+    format="tsv",
+    display_roles=False,
+    include_roles=None,
+    display_gender=False,
 ):
     seperator = ", " if format == "csv" else "\t"
     users = (
-        User.objects(roles__in=include_roles)
+        User.objects(roles__name__in=include_roles, roles__team=team)
         if include_roles
         else User.objects.all()
     )
@@ -46,7 +51,7 @@ def list_users(
                 name=user.name,
                 email=user.email,
                 gender=user.gender,
-                roles=", ".join(user.roles),
+                roles=", ".join(r.name for r in user.visible_roles),
                 sep=seperator,
             )
         )
