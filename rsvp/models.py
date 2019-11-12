@@ -126,22 +126,25 @@ class User(db.Document, UserMixin):
         return self.email
 
     def has_role(self, role):
-        return role in self.roles
+        return role in {r.name for r in self.roles}
 
     def has_any_role(self, *roles):
         for role in roles:
-            if role in self.roles:
+            if self.has_role(role):
                 return True
-
         return False
 
     @staticmethod
     def approved_users():
-        return User.objects.filter(roles__in=[".approved-user"]).all()
+        return User.objects.filter(roles__name__in=[".approved-user"]).all()
+
+    @property
+    def visible_roles(self):
+        return [r for r in self.roles if not r.name.startswith(".")]
 
     @property
     def is_admin(self):
-        return "admin" in self.roles
+        return self.has_role("admin")
 
     @property
     def is_anonymous_user(self):

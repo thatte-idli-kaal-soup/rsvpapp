@@ -216,15 +216,14 @@ def users():
     gender = request.values.get("gender")
     users = User.approved_users()
     if role:
-        users = users.filter(roles__in=[role])
+        users = users.filter(roles__name__in=[role])
     if gender:
         users = users.filter(gender=None if gender == "unknown" else gender)
     roles = sorted(
         {
-            role
+            role.name
             for user in User.objects.all()
-            for role in user.roles
-            if not role.startswith(".")
+            for role in user.visible_roles
         }
     )
     genders = set(filter(None, User.objects.values_list("gender"))).union(

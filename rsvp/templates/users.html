@@ -33,10 +33,8 @@
             <div class="card bg-light mb-3">
                 <div class="card-header">
                     {{ user.name }}
-                    {% for role in user.roles %}
-                        {% if not role.startswith('.') %}
-                            <a class="badge badge-info" href="{{url_for('users', role=role)}}">{{role}}</a>
-                        {% endif %}
+                    {% for role in user.visible_roles %}
+                        <a class="badge badge-info" href="{{url_for('users', role=role.name)}}">{{role.name}}</a>
                     {% endfor %}
                 </div>
                 <div class="card-body">
