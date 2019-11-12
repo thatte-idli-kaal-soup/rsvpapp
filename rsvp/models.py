@@ -12,6 +12,16 @@ db = MongoEngine()
 ANONYMOUS_EMAIL = "anonymous@example.com"
 
 
+class Team(db.Document):
+    slug = db.StringField(primary_key=True)
+    name = db.StringField()
+
+
+class Role(db.EmbeddedDocument):
+    name = db.StringField()
+    team = db.LazyReferenceField("Team")
+
+
 class RSVP(db.EmbeddedDocument):
     id = db.ObjectIdField(default=random_id, primary_key=True)
     user = db.LazyReferenceField("User", unique=True)
@@ -110,7 +120,7 @@ class User(db.Document, UserMixin):
     nick = db.StringField()
     dob = db.DateTimeField()
     hide_dob = db.BooleanField(default=False)
-    roles = db.SortedListField(db.StringField())
+    roles = db.EmbeddedDocumentListField(Role)
 
     def get_id(self):
         return self.email
