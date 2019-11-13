@@ -163,11 +163,11 @@ def remove_role(role, users, all):
     """Remove a role for the specified users."""
     if all:
         click.echo("Removing role {} from all users".format(role))
-        User.objects(roles__in=[role]).update(pull__roles=role)
+        User.users_with_role(role).update(pull__roles__name=role)
     else:
         click.echo("Removing role {} from {} users".format(role, len(users)))
-        users = User.objects(Q(email__in=users) & Q(roles__in=[role]))
-        users.update(pull__roles=role)
+        users = User.users_with_role(role).filter(email__in=users)
+        users.update(pull__roles__name=role)
 
 
 @click.command()

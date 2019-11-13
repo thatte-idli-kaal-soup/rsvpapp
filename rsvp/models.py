@@ -147,8 +147,12 @@ class User(db.Document, UserMixin):
         return self.has_role(".approved-user")
 
     @staticmethod
+    def users_with_role(role):
+        return User.objects.filter(roles__name__in=[role]).all()
+
+    @staticmethod
     def approved_users():
-        return User.objects.filter(roles__name__in=[".approved-user"]).all()
+        return User.users_with_role(".approved-user")
 
     @staticmethod
     def pending_approval_users():
@@ -156,7 +160,7 @@ class User(db.Document, UserMixin):
 
     @staticmethod
     def admins():
-        return User.objects.filter(roles__name__in=["admin"]).all()
+        return User.users_with_role("admin")
 
     @property
     def visible_roles(self):
