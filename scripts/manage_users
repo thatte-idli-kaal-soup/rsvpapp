@@ -138,8 +138,9 @@ def add_role(role, users, all, interactive=False):
 
 
 @click.command()
+@click.option("--team", default="default")
 @click.argument("info", type=str, nargs=-1)
-def create_admins(info):
+def create_admins(info, team):
     """Create admin users with given email ids."""
     for each in info:
         name, email = each.split(":")
@@ -151,8 +152,7 @@ def create_admins(info):
         finally:
             for role in (".approved-user", "admin"):
                 if not user.has_role(role):
-                    user.roles.append(role)
-            user.save()
+                    user.add_role_in_team(team, role)
 
 
 @click.command()

@@ -135,7 +135,10 @@ class User(db.Document, UserMixin):
         return False
 
     def add_to_team(self, team_slug):
-        role = Role(name=".approved-user", team=team_slug)
+        self.add_role_in_team(team_slug, ".approved-user")
+
+    def add_role_in_team(self, team_slug, role_name):
+        role = Role(name=role_name, team=team_slug)
         self.roles.append(role)
         self.save()
 
