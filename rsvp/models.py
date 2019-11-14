@@ -4,7 +4,7 @@ from flask_login import UserMixin, AnonymousUserMixin
 from flask_mongoengine import MongoEngine
 from mongoengine import signals
 
-from .utils import random_id, markdown_to_html, read_app_config
+from .utils import random_id, markdown_to_html, read_app_config, format_date
 from .zulip_utils import zulip_announce_event, zulip_announce_post
 
 
@@ -78,6 +78,10 @@ class Event(db.Document):
     @property
     def rsvp_count(self):
         return len(self.active_rsvps)
+
+    @property
+    def title(self):
+        return "{} - {}".format(self.name, format_date(self.date))
 
     def can_edit(self, user):
         return user.is_admin or (

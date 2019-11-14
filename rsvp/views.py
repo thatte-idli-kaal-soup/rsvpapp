@@ -2,6 +2,7 @@ import copy
 from datetime import datetime
 import os
 import random
+import re
 from urllib.parse import urlparse, urlunparse
 
 from flask import (
@@ -22,7 +23,7 @@ from flask_login import (
     logout_user,
     login_user,
 )
-from mongoengine.errors import DoesNotExist
+from mongoengine.errors import DoesNotExist, ValidationError
 
 from .cloudinary_utils import image_url, list_images
 from .gdrive_utils import create_service, list_sub_dirs
@@ -108,8 +109,7 @@ def archived():
 @login_required
 def event(id):
     event = Event.objects(id=id).first()
-    event_text = "{} - {}".format(event["name"], format_date(event["date"]))
-    description = "RSVP for {}".format(event_text)
+    description = "RSVP for {}".format(event.title)
     approved_users = User.approved_users()
     rsvps = event.all_rsvps
     return render_template(
@@ -119,7 +119,7 @@ def event(id):
         items=rsvps,
         active_rsvps=event.active_rsvps,
         approved_users=approved_users,
-        TEXT2=event_text,
+        TEXT2=event.title,
         description=description,
         comments=zulip_event_responses(event),
     )
@@ -293,7 +293,25 @@ def login():
         return redirect(next_url)
 
     session["next_url"] = next_url
-    return render_template("login.html")
+    try:
+        description = next_url_description(next_url)
+    except (DoesNotExist, ValidationError):
+        description = None
+    context = dict(description=description) if description else {}
+    return render_template("login.html", **context)
+
+
+def next_url_description(path):
+    match = re.match("/(event|post)/(\w+)", path)
+    if not match:
+        return None
+    if match.group(1) == "event":
+        obj = Event.objects.get(id=match.group(2))
+    elif match.group(1) == "post":
+        obj = Post.objects.get(id=match.group(2))
+    else:
+        return None
+    return obj.title
 
 
 @app.route("/refresh")
