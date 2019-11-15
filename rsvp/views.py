@@ -469,7 +469,8 @@ def media():
 
 @app.route("/features", methods=["GET"])
 def features():
-    return render_template("features.html")
+    context = dict(TEXT1="Features")
+    return render_template("features.html", **context)
 
 
 @app.route("/onesta/<letters>")
