@@ -294,14 +294,14 @@ def login():
 
     session["next_url"] = next_url
     try:
-        description = next_url_description(next_url)
+        title = next_url_title(next_url)
     except (DoesNotExist, ValidationError):
-        description = None
-    context = dict(description=description) if description else {}
+        title = None
+    context = dict(TEXT1=title) if title else {}
     return render_template("login.html", **context)
 
 
-def next_url_description(path):
+def next_url_title(path):
     match = re.match("/(event|post)/(\w+)", path)
     if not match:
         return None
