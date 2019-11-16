@@ -10,10 +10,10 @@ import zulip
 
 from .utils import event_absolute_url, post_absolute_url
 
-zulip_email = os.environ["ZULIP_EMAIL"]
-zulip_key = os.environ["ZULIP_KEY"]
+zulip_email = os.environ.get("ZULIP_EMAIL", "")
+zulip_key = os.environ.get("ZULIP_KEY", "")
 zulip_site = zulip_email.split("@")[-1]
-zulip_stream = os.environ["ZULIP_ANNOUNCE_STREAM"]
+zulip_stream = os.environ.get("ZULIP_ANNOUNCE_STREAM", "")
 zulip_client = zulip.Client(
     email=zulip_email, api_key=zulip_key, site=zulip_site
 )
