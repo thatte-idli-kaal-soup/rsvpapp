@@ -1,0 +1,38 @@
+<section class="upcoming-events">
+    <span>
+        <p class="d-inline h4">
+            <span class="badge badge-secondary">{{upcoming_events|length}}</span>
+            Upcoming Events
+        </p>
+        <a href="{{ url_for("event_editor") }}" class="btn">
+            <i class="fa fa-plus-circle"></i>
+        </a>
+    </span>
+    <ul class="list-group">
+        {% for item in upcoming_events %}
+            <li class="list-group-item d-flex align-items-center">
+                <div class="event-date">
+                    <span class="day">
+                        {{ item.date.strftime("%d") }}
+                    </span>
+                    <span class="month">
+                        {{ item.date.strftime("%b") }}
+                    </span>
+                </div>
+                <span class="mr-auto {% if item.cancelled %}cancelled-event{% endif %}">
+                    <a href="/event/{{item.id}}">{{ item.name }}</a>
+                </span>
+                <div class="flex-fill">
+                    {% if (item.created_by.id == current_user.email or current_user.is_admin) and not item.cancelled %}
+                        <button class="btn btn-danger btn-sm" onclick='cancel_event("{{item.id}}")'>
+                            <i class="fa fa-times-circle"></i>
+                        </button>
+                    {% endif %}
+                    {% if item.rsvps %}
+                        <span class="badge badge-light">{{item.rsvp_count}} RSVP(s)</span>
+                    {% endif %}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</section>

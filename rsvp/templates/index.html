@@ -22,37 +22,7 @@
 {% endblock %}
 
 {% block content %}
-    <section class="upcoming-events">
-        <p class="d-inline h4">Upcoming Events
-            <span class="badge badge-primary badge-pill">{{upcoming_events|length}}</span>
-        </p>
-        <a href="{{ url_for("event_editor") }}" align="center" class="d-inline btn btn-primary my-4">Add</a>
-        <ul class="list-group">
-            {% for item in upcoming_events %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {% if item.cancelled %}
-                        <del>
-                    {% endif %}
-                    <span>
-                        <span><a href="/event/{{item.id}}">{{ item.name }}</a></span>
-                        {% if item.rsvps %}
-                            <span class="badge badge-primary badge-pill">{{item.rsvp_count}}</span>
-                        {% endif %}
-                        {% if (item.created_by.id == current_user.email or current_user.is_admin) and not item.cancelled %}
-                            <button class="btn btn-danger btn-sm" onclick='cancel_event("{{item.id}}")'>
-                                <small>cancel</small>
-                            </button>
-                        {% endif %}
-                    </span>
-                    <span>{{ item.date | format_date }}</span>
-                    {% if item.cancelled %}
-                        </del>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    </section>
-
+    {% include 'upcoming-event-list.html' %}
     <section class="recent-posts">
         {% if posts %}
             <p class="d-inline h4">Latest Post</p>

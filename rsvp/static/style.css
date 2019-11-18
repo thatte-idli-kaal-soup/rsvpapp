@@ -75,3 +75,27 @@ section {
     display: inline-block;
     margin-bottom: 1px;
 }
+
+
+.cancelled-event {
+    text-decoration: line-through;
+}
+.event-date{
+    text-transform: uppercase;
+    opacity: 0.8;
+    font-weight: 400;
+    text-align: justify;
+    padding: 5px 20px 5px 0px;
+    display: inline-table;
+    line-height: 1;
+}
+.event-date .day{
+    text-align: center;
+    font-size: 150%;
+    display: table-row;
+}
+.event-date .month{
+    text-align: center;
+    font-size: 70%;
+    display: table-row;
+}
