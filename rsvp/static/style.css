@@ -104,3 +104,11 @@ section {
     font-size: 0.8em;
     min-width: 2.5em;
 }
+
+.photo-metadata {
+    display: table;
+}
+
+.photo-metadata span {
+    display: table-row;
+}

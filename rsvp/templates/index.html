@@ -6,22 +6,32 @@
         {% include 'latest-posts.html' %}
     </div>
     {% if photo_id %}
-        <section class="random-photo">
-            <div class="embed-responsive embed-responsive-{{photo_aspect_ratio}}">
-                <iframe src="https://drive.google.com/file/d/{{photo_id}}/preview"></iframe>
-            </div>
-            {% if photo_location %}
-                <a href="http://maps.google.com/?q={{ photo_location.latitude }},{{ photo_location.longitude }}" target="_blank">
-                    <i class="fa fa-map-marker-alt"></i>
+        <div class="row random-photo">
+            <div class="col col-md-6">
+                <a target="_blank" href="https://drive.google.com/file/d/{{photo_id}}/view">
+                    <img class="img-fluid mx-auto d-block" src="{{photo_thumbnail}}" />
                 </a>
-            {% endif %}
-            {% if photo_time %}
-                ({{ photo_time.strftime("%d %b %Y, %H:%M") }})
-            {% endif %}
-            <a href="https://drive.google.com/drive/folders/{{photo_drive}}" target="_blank">
-                See more
-            </a>
-        </section>
+                <div class="photo-metadata mx-auto d-table text-center">
+                    <span>
+                        {% if photo_location %}
+                            <a href="http://maps.google.com/?q={{ photo_location.latitude }},{{ photo_location.longitude }}" target="_blank">
+                                <i class="fa fa-map-marker-alt"></i>
+                            </a>
+                        {% endif %}
+                    </span>
+                    <span>
+                        {% if photo_time %}
+                            {{ photo_time.strftime("%d %b %Y") }}
+                        {% endif %}
+                    </span>
+                    <span>
+                        <a href="https://drive.google.com/drive/folders/{{photo_drive}}" target="_blank">
+                            See more
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
     {% endif %}
 
 {% endblock %}
