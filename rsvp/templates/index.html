@@ -3,9 +3,7 @@
 {% block content %}
     <div class="row mt-md-5 mt-lg-0 mb-4">
         {% include 'upcoming-event-list.html' %}
-        {% if posts %}
-            {% include 'latest-posts.html' %}
-        {% endif %}
+        {% include 'latest-posts.html' %}
     </div>
     {% if photo_id %}
         <section class="random-photo">
