@@ -22,14 +22,9 @@
                 <span class="mr-auto {% if item.cancelled %}cancelled-event{% endif %}">
                     <a href="/event/{{item.id}}">{{ item.name }}</a>
                 </span>
-                <div class="flex-fill">
-                    {% if (item.created_by.id == current_user.email or current_user.is_admin) and not item.cancelled %}
-                        <button class="btn btn-danger btn-sm" onclick='cancel_event("{{item.id}}")'>
-                            <i class="fa fa-times-circle"></i>
-                        </button>
-                    {% endif %}
+                <div class="rsvp-count flex-fill">
                     {% if item.rsvps %}
-                        <span class="badge badge-light">{{item.rsvp_count}} RSVP(s)</span>
+                        <i class="fa fa-user"></i> {{item.rsvp_count}}
                     {% endif %}
                 </div>
             </li>
