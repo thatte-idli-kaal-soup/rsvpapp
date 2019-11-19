@@ -105,7 +105,7 @@ def photos(service, root):
             service.files()
             .list(
                 q=q.format(parent_id),
-                fields="files(id, imageMediaMetadata, createdTime)",
+                fields="files(id, imageMediaMetadata, thumbnailLink, createdTime)",
                 pageSize=1000,
             )
             .execute()["files"]
@@ -115,6 +115,7 @@ def photos(service, root):
                 "gdrive_parent": parent_id,
                 "gdrive_path": path,
                 "gdrive_id": photo["id"],
+                "gdrive_thumbnail": photo["thumbnailLink"],
                 "gdrive_metadata": photo["imageMediaMetadata"],
                 "gdrive_created_at": photo["createdTime"],
             }

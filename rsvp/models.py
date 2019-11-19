@@ -190,6 +190,7 @@ signals.post_save.connect(zulip_announce_post, sender=Post)
 
 class GDrivePhoto(db.Document):
     gdrive_id = db.StringField(required=True)
+    gdrive_thumbnail = db.URLField(required=True)
     gdrive_parent = db.StringField(required=True)
     gdrive_path = db.StringField(required=True)
     gdrive_metadata = db.DictField()
