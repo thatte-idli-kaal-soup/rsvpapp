@@ -63,7 +63,7 @@
                         </div>
                         <label for="event-rsvp-limit" class="col-sm-2 col-form-label">RSVP Limit</label>
                         <div class="col-sm-4">
-                            <input type="number" class="form-control" name="event-rsvp-limit" id="event-rsvp-limit" placeholder="Max number of RSVPs" value="{{ event.rsvp_limit }}" required>
+                            <input type="number" class="form-control" name="event-rsvp-limit" id="event-rsvp-limit" placeholder="Max number of RSVPs" value="{{ event.rsvp_limit or 0 }}" required>
                             <small>Set to 0 if there's no limit</small>
                         </div>
                     </div>
