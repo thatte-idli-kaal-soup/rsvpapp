@@ -91,13 +91,13 @@ section {
 }
 .event-date .day{
     text-align: center;
-    font-size: 150%;
-    display: table-row;
-}
-.event-date .month{
-    text-align: center;
     font-size: 70%;
     display: table-row;
+}
+.event-date .week{
+    text-align: center;
+    display: table-row;
+    font-size: 100%;
 }
 .rsvp-count {
     opacity: 0.7;

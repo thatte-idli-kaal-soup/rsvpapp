@@ -13,12 +13,8 @@
         {% for item in upcoming_events %}
             <li class="list-group-item d-flex align-items-center">
                 <div class="event-date">
-                    <span class="day">
-                        {{ item.date.strftime("%d") }}
-                    </span>
-                    <span class="month">
-                        {{ item.date.strftime("%b") }}
-                    </span>
+                    <span class="week">{{ item.date.strftime("%a") }}</span>
+                    <span class="day">{{ item.date.strftime("%d") }} {{ item.date.strftime("%b") }}</span>
                 </div>
                 <span class="mr-auto {% if item.cancelled %}cancelled-event{% endif %}">
                     <a href="/event/{{item.id}}">{{ item.name }}</a>
