@@ -79,7 +79,7 @@ section {
 .cancelled-event {
     text-decoration: line-through;
 }
-.event-date{
+.event-date, .post-date{
     text-transform: uppercase;
     opacity: 0.8;
     font-weight: 400;
@@ -89,12 +89,12 @@ section {
     line-height: 1;
     min-width: 3.5rem;
 }
-.event-date .day{
+.event-date .day, .post-date .month{
     text-align: center;
     font-size: 70%;
     display: table-row;
 }
-.event-date .week{
+.event-date .week, .post-date .day{
     text-align: center;
     display: table-row;
     font-size: 100%;

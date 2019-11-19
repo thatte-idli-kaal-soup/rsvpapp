@@ -2,9 +2,9 @@
     <ul class="list-group">
         {% for post in posts %}
             <li class="list-group-item d-flex align-items-center">
-                <div class="event-date">
-                    <span class="week">{{ post.created_at.strftime("%a") }}</span>
-                    <span class="day">{{ post.created_at.strftime("%d") }} {{ post.created_at.strftime("%b") }}</span>
+                <div class="post-date">
+                    <span class="day">{{ post.created_at.strftime("%d") }}</span>
+                    <span class="month">{{ post.created_at.strftime("%b") }}</span>
                 </div>
                 <span class="mr-auto event-title">
                     <a href="/post/{{post.id}}">{{ post.title }}</a>
