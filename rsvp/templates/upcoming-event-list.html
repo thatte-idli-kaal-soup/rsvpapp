@@ -7,6 +7,7 @@
         <a href="{{ url_for("event_editor") }}" class="btn">
             <i class="fa fa-plus-circle"></i>
         </a>
+        <a class="text-muted" href="{{ url_for('archived') }}">See all</a>
     </span>
     <ul class="list-group">
         {% for item in upcoming_events %}
