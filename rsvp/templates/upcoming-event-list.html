@@ -6,7 +6,7 @@
                     <span class="week">{{ item.date.strftime("%a") }}</span>
                     <span class="day">{{ item.date.strftime("%d") }} {{ item.date.strftime("%b") }}</span>
                 </div>
-                <span class="mr-auto {% if item.cancelled %}cancelled-event{% endif %}">
+                <span class="mr-auto event-title {% if item.cancelled %}cancelled-event{% endif %}">
                     <a href="/event/{{item.id}}">{{ item.name }}</a>
                 </span>
                 <div class="rsvp-count flex-fill">
