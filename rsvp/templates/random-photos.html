@@ -1,0 +1,28 @@
+{% with photo = photos.0 %}
+    <div class="row random-photo">
+        <div class="col col-md-6">
+            <a target="_blank" href="https://drive.google.com/file/d/{{photo.gdrive_id}}/view">
+                <img class="img-fluid mx-auto d-block" src="{{ photo.gdrive_thumbnail }}" />
+            </a>
+            <div class="photo-metadata mx-auto d-table text-center">
+                <span>
+                    {% if photo.gdrive_metadata.location %}
+                        <a href="http://maps.google.com/?q={{ photo.gdrive_metadata.location.latitude }},{{ photo.gdrive_metadata.location.longitude }}" target="_blank">
+                            <i class="fa fa-map-marker-alt"></i>
+                        </a>
+                    {% endif %}
+                </span>
+                <span>
+                    {% if photo.gdrive_metadata.time %}
+                        {{ photo.gdrive_metadata.time | format_gphoto_time }}
+                    {% endif %}
+                </span>
+                <span>
+                    <a href="https://drive.google.com/drive/folders/{{photo.gdrive_parent}}" target="_blank">
+                        See more
+                    </a>
+                </span>
+            </div>
+        </div>
+    </div>
+{% endwith %}

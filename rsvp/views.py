@@ -41,6 +41,7 @@ from .utils import (
     generate_password,
     get_aspect_ratio,
     get_attendance,
+    get_random_photos,
     role_required,
     send_approved_email,
 )
@@ -75,27 +76,12 @@ def index():
     upcoming_events = Event.objects.filter(archived=False).order_by("date")
     posts = Post.objects.filter(draft=False).order_by("-created_at")[:2]
     photos = list(GDrivePhoto.objects)
-    photo_context = {}
-    if photos:
-        photo = random.choice(photos)
-        photo_context["photo_id"] = photo["gdrive_id"]
-        photo_context["photo_thumbnail"] = photo["gdrive_thumbnail"]
-        photo_context["photo_drive"] = photo["gdrive_parent"]
-        metadata = photo["gdrive_metadata"]
-        photo_context["photo_location"] = metadata.get("location")
-        photo_context["photo_aspect_ratio"] = get_aspect_ratio(
-            metadata["width"], metadata["height"], metadata["rotation"]
-        )
-        if "time" in metadata:
-            photo_context["photo_time"] = datetime.strptime(
-                metadata["time"], "%Y:%m:%d %H:%M:%S"
-            )
-
+    photos = get_random_photos(photos) if photos else []
     return render_template(
         "index.html",
         upcoming_events=upcoming_events,
         posts=posts,
-        **photo_context
+        photos=photos,
     )
 
 

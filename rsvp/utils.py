@@ -1,10 +1,11 @@
 # Standard library
 import base64
 import csv
+from datetime import datetime
 from functools import wraps
 import io
 import os
-from random import choice
+from random import choice, shuffle
 import re
 import string
 
@@ -95,6 +96,10 @@ def format_date(value):
 
     except ValueError:
         return value
+
+
+def format_gphoto_time(time):
+    return datetime.strptime(time, "%Y:%m:%d %H:%M:%S").strftime("%d %b %Y")
 
 
 renderer = BootstrapMarkdownRenderer()
@@ -208,3 +213,8 @@ def event_absolute_url(event):
 
 def post_absolute_url(post):
     return "{}/post/{}".format(os.environ["RSVP_HOST"], str(post.id))
+
+
+def get_random_photos(photos, n=10):
+    shuffle(photos)
+    return photos[:n]
