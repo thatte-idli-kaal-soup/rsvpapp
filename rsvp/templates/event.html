@@ -95,7 +95,9 @@
                         data-clipboard-text="{% include 'full-names.md' %}">
                     Copy Full Names
                 </button>
-                <span class="badge badge-success badge-pill">{{count}}</span>
+                <span class="rsvp-count">
+                    <i class="fa fa-user"></i> {{count}}
+                </span>
             </li>
         {% endif %}
     </ul>
