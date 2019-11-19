@@ -74,3 +74,26 @@ update_description = function(event_id) {
                 .show();
         });
 };
+
+cancel_event = function(event_id) {
+    $('.alert')
+        .text('Cancelling event ...')
+        .show();
+    fetch(`/api/event/${event_id}`, {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        body: JSON.stringify({ cancelled: true }),
+        headers: { 'content-type': 'application/json' }
+    })
+        .then(function(response) {
+            if (response.status == 200) {
+                window.location.href = '';
+            }
+            return response.json();
+        })
+        .then(function(data) {
+            $('.alert')
+                .text(data.error)
+                .show();
+        });
+};

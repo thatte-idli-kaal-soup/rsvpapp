@@ -32,6 +32,11 @@
         {% if event.can_edit(current_user) %}
             <a href="{{ url_for("event_editor", id=event.id) }}" align="center" name="submit" class="btn btn-secondary mr-2">Edit</a>
         {% endif %}
+        {% if (event.created_by.id == current_user.email or current_user.is_admin) and not event.cancelled %}
+            <button class="btn btn-danger btn-sm" onclick='cancel_event("{{event.id}}")'>
+                <i class="fa fa-times-circle"></i>
+            </button>
+        {% endif %}
     </p>
     {% if event.can_rsvp(current_user) %}
         <div class="card">
