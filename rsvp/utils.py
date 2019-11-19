@@ -215,6 +215,6 @@ def post_absolute_url(post):
     return "{}/post/{}".format(os.environ["RSVP_HOST"], str(post.id))
 
 
-def get_random_photos(photos, n=10):
+def get_random_photos(photos, n=20):
     shuffle(photos)
     return photos[:n]
