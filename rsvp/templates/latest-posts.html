@@ -1,0 +1,28 @@
+<div class="col-md-6 mt-4 mt-md-0">
+    <ul class="list-group">
+        {% for post in posts %}
+            <li class="list-group-item d-flex align-items-center">
+                <div class="event-date">
+                    <span class="week">{{ post.created_at.strftime("%a") }}</span>
+                    <span class="day">{{ post.created_at.strftime("%d") }} {{ post.created_at.strftime("%b") }}</span>
+                </div>
+                <span class="mr-auto event-title">
+                    <a href="/post/{{post.id}}">{{ post.title }}</a>
+                </span>
+                <div class="flex-fill">
+                    {% if post.public %}
+                        <i class="fa fa-unlock"></i>
+                    {% else %}
+                        <i class="fa fa-lock"></i>
+                    {% endif %}
+                </div>
+            </li>
+        {% endfor %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a class="text-muted" href="{{ url_for('show_posts') }}">See all</a>
+            <a href="{{ url_for("add_post") }}" class="btn btn-light">
+                Add Post
+            </a>
+        </li>
+    </ul>
+</div>

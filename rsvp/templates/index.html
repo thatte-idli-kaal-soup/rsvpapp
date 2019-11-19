@@ -1,15 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% include 'upcoming-event-list.html' %}
-    <section class="recent-posts">
+    <div class="row mt-md-5 mt-lg-0 mb-4">
+        {% include 'upcoming-event-list.html' %}
         {% if posts %}
-            <p class="d-inline h4">Latest Post</p>
-            <a class="text-muted" href="{{ url_for('show_posts') }}">See all</a>
-            {% include 'post-list.html' %}
+            {% include 'latest-posts.html' %}
         {% endif %}
-    </section>
-
+    </div>
     {% if photo_id %}
         <section class="random-photo">
             <div class="embed-responsive embed-responsive-{{photo_aspect_ratio}}">
