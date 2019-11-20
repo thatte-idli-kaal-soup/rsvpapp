@@ -440,7 +440,7 @@ def media():
     )
     photos = GDrivePhoto.new_photos()
     return render_template(
-        "social.html", social=social, gdrive_dirs=gdrive_dirs, photos=photos
+        "media.html", social=social, gdrive_dirs=gdrive_dirs, photos=photos
     )
 
 
