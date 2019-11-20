@@ -1,7 +1,5 @@
 import copy
-from datetime import datetime
 import os
-import random
 import re
 from urllib.parse import urlparse, urlunparse
 
@@ -27,19 +25,9 @@ from mongoengine.errors import DoesNotExist, ValidationError
 
 from .cloudinary_utils import image_url, list_images
 from .gdrive_utils import create_service, list_sub_dirs
-from .models import (
-    Bookmark,
-    Event,
-    GDrivePhoto,
-    Post,
-    RSVP,
-    User,
-    ANONYMOUS_EMAIL,
-)
+from .models import Bookmark, Event, GDrivePhoto, Post, User
 from .utils import (
-    format_date,
     generate_password,
-    get_aspect_ratio,
     get_attendance,
     get_random_photos,
     role_required,
