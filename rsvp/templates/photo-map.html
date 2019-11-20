@@ -21,6 +21,12 @@
     </script>
 
     <script>
+     function getUrlParameter(name) {
+         name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+         var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+         var results = regex.exec(location.search);
+         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+     };
      var map = L.map('map', {
          maxZoom: 17
      });
@@ -51,6 +57,11 @@
          })
      });
      photoLayer.add(photos).addTo(map);
-     map.fitBounds(photoLayer.getBounds());
+     var lat = getUrlParameter('lat');
+     var lng = getUrlParameter('lng') ;
+     var bounds = lat === '' || lng === '' ? photoLayer.getBounds() : (
+         [{ lat: lat, lng: lng },
+          { lat: lat, lng: lng }]);
+     map.fitBounds(bounds);
     </script>
 {% endblock %}
