@@ -15,6 +15,12 @@ section {
     margin-bottom: 4em;
 }
 
+footer {
+    bottom: 0px;
+    position: absolute;
+    width: 100%;
+}
+
 .rsvp-cancelled {
     text-decoration: line-through;
     color: grey;
