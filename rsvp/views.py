@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 import re
 from urllib.parse import urlparse, urlunparse
@@ -27,6 +28,7 @@ from .cloudinary_utils import image_url, list_images
 from .gdrive_utils import create_service, list_sub_dirs
 from .models import Bookmark, Event, GDrivePhoto, Post, User
 from .utils import (
+    format_gphoto_time,
     generate_password,
     get_attendance,
     get_random_photos,
@@ -440,6 +442,31 @@ def media():
     return render_template(
         "social.html", social=social, gdrive_dirs=gdrive_dirs, photos=photos
     )
+
+
+@app.route("/photo-map", methods=["GET"])
+@login_required
+def geo_photos():
+    CAPTION_FMT = """
+    Clicked on: {}</br>
+    <a href="https://drive.google.com/file/d/{}/view" target="_blank">View Original</a>
+    """
+    data = [
+        {
+            "latitude": photo.gdrive_metadata["location"]["latitude"],
+            "longitude": photo.gdrive_metadata["location"]["longitude"],
+            "thumbnail": photo.gdrive_thumbnail,
+            "caption": CAPTION_FMT.format(
+                format_gphoto_time(photo.gdrive_metadata["time"])
+                if "time" in photo.gdrive_metadata
+                else "unknown",
+                photo.gdrive_id,
+            ),
+        }
+        for photo in GDrivePhoto.objects
+        if "location" in photo.gdrive_metadata
+    ]
+    return render_template("photo-map.html", data=json.dumps(data))
 
 
 @app.route("/features", methods=["GET"])

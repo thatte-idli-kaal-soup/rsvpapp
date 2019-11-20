@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block extra_head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin=""/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css" integrity="sha256-+bdWuWOXMFkX0v9Cvr3OWClPiYefDQz9GGZP/7xZxdc=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='Leaflet.Photo.css')|versioned }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='map.css')|versioned }}" />
+{% endblock %}
+
+{% block main %}
+    <div id="map" class="d-block position-absolute"></div>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+            integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+            crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js" integrity="sha256-WL6HHfYfbFEkZOFdsJQeY7lJG/E5airjvqbznghUzRw=" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='Leaflet.Photo.js')|versioned }}"></script>
+
+    <script type="application/json" id="map-data">
+     {{ data | safe }}
+    </script>
+
+    <script>
+     var map = L.map('map', {
+         maxZoom: 17
+     });
+
+     var tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+         subdomains: 'abcd',
+         maxZoom: 19
+     });
+     tileLayer.addTo(map);
+
+     var photoLayer = L.photo.cluster({ spiderfyDistanceMultiplier: 1.2 }).on('click', function (evt) {
+         evt.layer.bindPopup(L.Util.template('<img src="{url}"/></a><p>{caption}</p>', evt.layer.photo), {
+             className: 'leaflet-popup-photo',
+             minWidth: 400
+         }).openPopup();
+     });
+
+     var data = JSON.parse(document.getElementById("map-data").innerHTML);
+     var photos = [];
+     data.map(function(entry){
+         photos.push({
+             lat: entry.latitude,
+             lng: entry.longitude,
+             url: entry.thumbnail,
+             caption: entry.caption,
+             thumbnail: entry.thumbnail,
+         })
+     });
+     photoLayer.add(photos).addTo(map);
+     map.fitBounds(photoLayer.getBounds());
+    </script>
+{% endblock %}

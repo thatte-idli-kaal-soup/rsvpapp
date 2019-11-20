@@ -99,6 +99,7 @@
                 this.
             </div>
         {% endif %}
+        {% block main %}
         <main class="container" role="main">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -112,6 +113,7 @@
             {% block content %}
             {% endblock %}
         </main>
+        {% endblock %}
         <footer class="footer mt-5 py-3 bg-light text-center">
             <div class="container">
                 <a class="text-muted text-red" href="https://github.com/thatte-idli-kaal-soup/rsvpapp/graphs/contributors" target="_blank">Built</a> with ❤ in Bengaluru, India
