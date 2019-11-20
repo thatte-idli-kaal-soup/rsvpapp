@@ -446,7 +446,7 @@ def media():
 
 @app.route("/photo-map", methods=["GET"])
 @login_required
-def geo_photos():
+def photo_map():
     CAPTION_FMT = """
     Clicked on: {}</br>
     <a href="https://drive.google.com/file/d/{}/view" target="_blank">View Original</a>
