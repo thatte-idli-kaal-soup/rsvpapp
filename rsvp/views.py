@@ -438,9 +438,14 @@ def media():
     gdrive_dirs = sorted(
         list_sub_dirs(service, gdrive_root), key=lambda x: x["name"]
     )
+    youtube_playlist = os.environ.get("YOUTUBE_PLAYLIST_ID")
     photos = GDrivePhoto.new_photos()
     return render_template(
-        "media.html", social=social, gdrive_dirs=gdrive_dirs, photos=photos
+        "media.html",
+        social=social,
+        gdrive_dirs=gdrive_dirs,
+        photos=photos,
+        youtube_playlist=youtube_playlist,
     )
 
 

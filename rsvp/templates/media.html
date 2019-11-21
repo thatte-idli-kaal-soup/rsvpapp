@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+    {% if youtube_playlist %}
+        <p class="h3">{{TEXT1}} Videos</p>
+        <iframe width="800" height="450" src="https://www.youtube-nocookie.com/embed/videoseries?list={{youtube_playlist}}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    {% endif %}
+
     {% if photos %}
         <p class="h3">New GDrive Photos</p>
         <ul>
