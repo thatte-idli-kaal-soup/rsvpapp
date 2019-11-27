@@ -60,47 +60,51 @@
     <hr/>
     {{ (event.html_description or '') | safe }}
     <hr/>
-    <ul class="list-group">
-        {% for item in items %}
-            <li class="list-group-item {% if item.user.fetch().gender == 'female' and not item.cancelled -%}text-white bg-dark{% endif -%}">
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="rsvp {% if item.cancelled %}rsvp-cancelled{% elif item.waitlisted %}rsvp-waitlisted{% endif %}"
-                          "data-toggle="tooltip" title="RSVP by {{item | rsvp_by}}">
-                        {{item | rsvp_name}}
-                    </span>
-                    {% if not item.cancelled and (current_user.is_admin or
-                        (event.can_rsvp(current_user) and item.can_cancel(current_user)))
-                    %}
-                        <button onclick='delete_rsvp("{{event.id}}","{{item.id}}")' class="close {% if item.user.fetch().gender == 'female' and not item.cancelled -%}text-white{% endif -%}">x</button>
-                    {% endif %}
-                </div>
-                {% if item.note %}
-                    <div class="small text-muted">
-                        {{ item.note }}
-                    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <ul class="list-group">
+                {% for item in items %}
+                    <li class="list-group-item {% if item.user.fetch().gender == 'female' and not item.cancelled -%}text-white bg-dark{% endif -%}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="rsvp {% if item.cancelled %}rsvp-cancelled{% elif item.waitlisted %}rsvp-waitlisted{% endif %}"
+                                  "data-toggle="tooltip" title="RSVP by {{item | rsvp_by}}">
+                                {{item | rsvp_name}}
+                            </span>
+                            {% if not item.cancelled and (current_user.is_admin or
+                                (event.can_rsvp(current_user) and item.can_cancel(current_user)))
+                            %}
+                                <button onclick='delete_rsvp("{{event.id}}","{{item.id}}")' class="close {% if item.user.fetch().gender == 'female' and not item.cancelled -%}text-white{% endif -%}">x</button>
+                            {% endif %}
+                        </div>
+                        {% if item.note %}
+                            <div class="small text-muted">
+                                {{ item.note }}
+                            </div>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+                {% if count %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <button class="btn btn-outline-info btn-sm my-2 copy-button"
+                                data-placement="bottom"
+                                data-clipboard-action="copy"
+                                data-clipboard-text="{% include 'event.md' %}">
+                            Copy Event
+                        </button>
+                        <button class="btn btn-outline-info btn-sm my-2 copy-button"
+                                data-placement="bottom"
+                                data-clipboard-action="copy"
+                                data-clipboard-text="{% include 'full-names.md' %}">
+                            Copy Full Names
+                        </button>
+                        <span class="rsvp-count">
+                            <i class="fa fa-user"></i> {{count}}
+                        </span>
+                    </li>
                 {% endif %}
-            </li>
-        {% endfor %}
-        {% if count %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <button class="btn btn-outline-info btn-sm my-2 copy-button"
-                        data-placement="bottom"
-                        data-clipboard-action="copy"
-                        data-clipboard-text="{% include 'event.md' %}">
-                    Copy Event
-                </button>
-                <button class="btn btn-outline-info btn-sm my-2 copy-button"
-                        data-placement="bottom"
-                        data-clipboard-action="copy"
-                        data-clipboard-text="{% include 'full-names.md' %}">
-                    Copy Full Names
-                </button>
-                <span class="rsvp-count">
-                    <i class="fa fa-user"></i> {{count}}
-                </span>
-            </li>
-        {% endif %}
-    </ul>
+            </ul>
+        </div>
+    </div>
     <hr/>
     {% include 'event-splitwise.html' %}
     {% include "zulip-comments.html" %}
