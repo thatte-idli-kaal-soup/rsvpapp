@@ -97,3 +97,22 @@ cancel_event = function(event_id) {
                 .show();
         });
 };
+
+share_event = function(title) {
+    var data = {
+        title: title,
+        text: document.getElementById('event-description').innerText + '\n\n',
+        url: location.href
+    };
+    console.log(data);
+    if (navigator.share) {
+        navigator
+            .share(data)
+            .then(() => console.log('Successful share'))
+            .catch(error => console.log('Error sharing', error));
+    }
+};
+
+if (!navigator.share) {
+    $('#share-event').hide();
+}
