@@ -1,5 +1,6 @@
 import copy
 import json
+import mimetypes
 import os
 import re
 from urllib.parse import urlparse, urlunparse
@@ -27,13 +28,23 @@ from flask_login import (
 from mongoengine.errors import DoesNotExist, ValidationError
 
 from .cloudinary_utils import image_url, list_images
-from .gdrive_utils import create_service, list_sub_dirs, create_folder
+from .gdrive_utils import (
+    create_folder,
+    create_service,
+    delete_content,
+    list_files,
+    list_sub_dirs,
+    move_file,
+    rename_folder,
+    upload_photo,
+)
 from .models import Bookmark, Event, GDrivePhoto, Post, User
 from .utils import (
     format_gphoto_time,
     generate_password,
     get_attendance,
     get_random_photos,
+    random_string,
     role_required,
     send_approved_email,
 )
@@ -582,3 +593,61 @@ def manifest():
 @app.route("/sw.js")
 def service_worker():
     return send_from_directory("static", "sw.js")
+
+
+@app.route("/share", methods=["POST", "GET"])
+@login_required
+def handle_share():
+    service = create_service()
+    gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
+
+    if request.method == "GET":
+        folder_id = request.args.get("folder_id", "")
+
+    else:
+        photos = request.files.getlist("photos")
+        drive_name = "{}".format(random_string())
+        folder_id = create_folder(service, gdrive_root, drive_name)
+        for photo in photos:
+            filename = photo.filename
+            mimetype = (
+                photo.content_type
+                if photo.content_type is not None
+                else mimetypes.guess_type(filename)[0]
+            )
+            # FIXME: Do this concurrently?
+            upload_photo(service, folder_id, filename, mimetype, photo.stream)
+
+    existing_dirs = sorted(
+        list_sub_dirs(service, gdrive_root), key=lambda x: x["name"]
+    )[::-1]
+    existing_dirs = [d for d in existing_dirs if d["id"] != folder_id]
+    return render_template(
+        "update-share-metadata.html",
+        existing_dirs=existing_dirs,
+        folder_id=folder_id,
+    )
+
+
+@app.route("/update-share-metadata", methods=["POST"])
+def update_share_metadata():
+    folder_id = request.form["folder_id"]
+    drive_name = request.form.get("title")
+    drive_id = request.form.get("existing_dir", "")
+    service = create_service()
+    if drive_name:
+        rename_folder(service, folder_id, drive_name)
+        return redirect(url_for("media"))
+    elif drive_id:
+        files = list_files(service, folder_id)
+        for file_data in files:
+            # FIXME: Do this concurrently?
+            move_file(service, file_data["id"], folder_id, drive_id)
+        delete_content(service, folder_id)
+        return redirect(url_for("media"))
+    else:
+        flash(
+            "Select an existing folder to move the photos to, or provide a new drive name",
+            "danger",
+        )
+        return redirect(url_for("handle_share", folder_id=folder_id))

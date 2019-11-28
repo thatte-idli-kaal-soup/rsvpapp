@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <form class="form" action="{{ url_for('update_share_metadata') }}" method='POST'>
+        {% for dir in existing_dirs %}
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="existing_dir" id="{{ dir.id }}" value="{{ dir.id }}">
+                <label class="form-check-label" for="{{ dir.id }}">
+                    <i class="fab fa-google-drive"></i> {{ dir.name }}
+                </label>
+            </div>
+        {% endfor %}
+        <div class="form-group row">
+            <div class="col-sm-12">
+                <input type="text" value="" name="title" id="title" placeholder="New Folder Name">
+                <input type="hidden" value="{{ folder_id }}" name="folder_id" id="folder_id">
+            </div>
+        </div>
+        <button type="submit" align="center" name="submit" class="btn btn-primary">
+            Submit
+        </button>
+    </form>
+{% endblock %}
