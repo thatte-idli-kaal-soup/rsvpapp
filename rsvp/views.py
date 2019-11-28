@@ -569,6 +569,12 @@ def manifest():
         "scope": "/",
         "theme_color": "#3367D6",
         "serviceworker": {"src": "./static/sw.js", "scope": "/"},
+        "share_target": {
+            "action": "/share",
+            "method": "POST",
+            "enctype": "multipart/form-data",
+            "params": {"files": [{"name": "photos", "accept": ["image/*"]}]},
+        },
     }
     return jsonify(data)
 
