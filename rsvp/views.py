@@ -15,6 +15,7 @@ from flask import (
     session,
     make_response,
     jsonify,
+    send_from_directory,
 )
 from flask_login import (
     current_user,
@@ -567,5 +568,11 @@ def manifest():
         "display": "standalone",
         "scope": "/",
         "theme_color": "#3367D6",
+        "serviceworker": {"src": "./static/sw.js", "scope": "/"},
     }
     return jsonify(data)
+
+
+@app.route("/sw.js")
+def service_worker():
+    return send_from_directory("static", "sw.js")
