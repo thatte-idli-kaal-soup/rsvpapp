@@ -89,9 +89,14 @@ def event(id):
     description = "RSVP for {}".format(event.title)
     approved_users = User.approved_users()
     rsvps = event.all_rsvps
+    count = event.rsvp_count
+    female_count = len(event.female_rsvps)
+    male_count = count - female_count
     return render_template(
         "event.html",
-        count=event.rsvp_count,
+        count=count,
+        male_count=male_count,
+        female_count=female_count,
         event=event,
         items=rsvps,
         active_rsvps=event.active_rsvps,

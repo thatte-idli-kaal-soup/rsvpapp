@@ -83,6 +83,19 @@ class Event(db.Document):
     def title(self):
         return "{} - {}".format(self.name, format_date(self.date))
 
+    @property
+    def male_rsvps(self):
+        return self.rsvps_with_gender("male")
+
+    @property
+    def female_rsvps(self):
+        return self.rsvps_with_gender("female")
+
+    def rsvps_with_gender(self, gender):
+        return [
+            r for r in self.active_rsvps if r.user.fetch().gender == gender
+        ]
+
     def can_edit(self, user):
         return user.is_admin or (
             self.created_by and self.created_by.fetch().email == user.email

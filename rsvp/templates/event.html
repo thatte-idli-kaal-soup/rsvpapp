@@ -102,8 +102,13 @@
                                 data-clipboard-text="{% include 'full-names.md' %}">
                             Copy Full Names
                         </button>
-                        <span class="rsvp-count">
-                            <i class="fa fa-user"></i> {{count}}
+                        <span>
+                            <span class="rsvp-count text-white bg-dark rsvp-female-count">
+                                <i class="fa fa-female"></i> {{female_count}}
+                            </span>
+                            <span class="rsvp-count">
+                                <i class="fa fa-male"></i> {{male_count}}
+                            </span>
                         </span>
                     </li>
                 {% endif %}
