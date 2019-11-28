@@ -14,6 +14,7 @@
             integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
             crossorigin="anonymous">
         <link rel="icon" href="{{ LOGO }}" type="image/png" sizes="16x16">
+        <link rel="manifest" href="/manifest">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')|versioned }}">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 
@@ -100,19 +101,19 @@
             </div>
         {% endif %}
         {% block main %}
-        <main class="container" role="main">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div>
-                        {% for category, message in messages %}
-                            <p class="alert alert-{{ category }}">{{ message }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
-            {% block content %}
-            {% endblock %}
-        </main>
+            <main class="container" role="main">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div>
+                            {% for category, message in messages %}
+                                <p class="alert alert-{{ category }}">{{ message }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                {% block content %}
+                {% endblock %}
+            </main>
         {% endblock %}
         <footer class="footer mt-5 py-3 bg-light text-center">
             <div class="container">

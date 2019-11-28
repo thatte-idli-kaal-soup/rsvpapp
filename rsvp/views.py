@@ -14,6 +14,7 @@ from flask import (
     send_file,
     session,
     make_response,
+    jsonify,
 )
 from flask_login import (
     current_user,
@@ -542,3 +543,29 @@ def secret_santa(event_id):
         )
     else:
         return "Santas notified"
+
+
+@app.route("/manifest")
+def manifest():
+    data = {
+        "short_name": "RSVP - {}".format(app.config["TEXT1"]),
+        "name": "RSVP - {}".format(app.config["TEXT1"]),
+        "icons": [
+            {
+                "src": "https://cdn.glitch.com/537884d8-2d6f-40d1-b837-1f86ed4ae80a%2Ficon-192.png?1543523488495",
+                "sizes": "192x192",
+                "type": "image/png",
+            },
+            {
+                "src": "https://cdn.glitch.com/537884d8-2d6f-40d1-b837-1f86ed4ae80a%2Ficon-512.png?1543523488534",
+                "sizes": "512x512",
+                "type": "image/png",
+            },
+        ],
+        "start_url": "/",
+        "background_color": "#3367D6",
+        "display": "standalone",
+        "scope": "/",
+        "theme_color": "#3367D6",
+    }
+    return jsonify(data)
