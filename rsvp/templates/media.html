@@ -4,7 +4,9 @@
 
     {% if youtube_playlist %}
         <p class="h3">{{TEXT1}} Videos</p>
-        <iframe width="800" height="450" src="https://www.youtube-nocookie.com/embed/videoseries?list={{youtube_playlist}}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <div class="embed-responsive embed-responsive-16by9">
+            <iframe width="800" height="450" src="https://www.youtube-nocookie.com/embed/videoseries?list={{youtube_playlist}}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
     {% endif %}
 
     {% if photos %}
