@@ -25,7 +25,7 @@ from flask_login import (
 from mongoengine.errors import DoesNotExist, ValidationError
 
 from .cloudinary_utils import image_url, list_images
-from .gdrive_utils import create_service, list_sub_dirs
+from .gdrive_utils import create_service, list_sub_dirs, create_folder
 from .models import Bookmark, Event, GDrivePhoto, Post, User
 from .utils import (
     format_gphoto_time,
@@ -105,6 +105,27 @@ def event(id):
         description=description,
         comments=zulip_event_responses(event),
     )
+
+
+@app.route("/event/<id>/gdrive", methods=["GET", "POST"])
+@login_required
+def create_event_gdrive(id):
+    event = Event.objects(id=id).first()
+    if request.method == "GET":
+        if event.gdrive_id:
+            # FIXME: Redirect to the drive!
+            return redirect(url_for("event", id=id))
+        else:
+            flash(
+                "The event does not have a drive associated with it", "warning"
+            )
+            return redirect(url_for("event", id=id))
+    gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
+    service = create_service()
+    drive_name = "{} {}".format(event.date.strftime("%Y-%m"), event.name)
+    event.gdrive_id = create_folder(service, gdrive_root, drive_name)
+    event.save()
+    return redirect(url_for("event", id=id))
 
 
 @app.route("/new_event", methods=["GET"])

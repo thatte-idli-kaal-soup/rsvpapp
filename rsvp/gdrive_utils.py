@@ -134,6 +134,16 @@ def list_sub_dirs(service, root):
     return sub_dirs
 
 
+def create_folder(service, parent, name):
+    metadata = {
+        "name": name,
+        "mimeType": "application/vnd.google-apps.folder",
+        "parents": [parent],
+    }
+    folder = service.files().create(body=metadata, fields="id").execute()
+    return folder.get("id")
+
+
 def flat_zip(x, y):
     if isinstance(y, tuple):
         return (x, *y)
