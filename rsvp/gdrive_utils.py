@@ -35,15 +35,16 @@ def create_service(name="drive"):
     return service
 
 
+def create_folder(service, parent, name):
+    metadata = {"name": name, "mimeType": "application/vnd.google-apps.folder"}
+    if parent is not None:
+        metadata["parents"] = [parent]
+    folder = service.files().create(body=metadata, fields="id").execute()
+    return folder.get("id")
+
+
 def create_root_folder(service, name="Media"):
-    file_metadata = {
-        "name": name,
-        "mimeType": "application/vnd.google-apps.folder",
-    }
-    root = service.files().create(body=file_metadata, fields="id").execute()
-    root_id = root.get("id")
-    print(root_id)
-    return root_id
+    return create_folder(service, None, name)
 
 
 def update_permissions(service, file_id, emails):
@@ -132,16 +133,6 @@ def list_sub_dirs(service, root):
         .execute()["files"]
     )
     return sub_dirs
-
-
-def create_folder(service, parent, name):
-    metadata = {
-        "name": name,
-        "mimeType": "application/vnd.google-apps.folder",
-        "parents": [parent],
-    }
-    folder = service.files().create(body=metadata, fields="id").execute()
-    return folder.get("id")
 
 
 def flat_zip(x, y):
