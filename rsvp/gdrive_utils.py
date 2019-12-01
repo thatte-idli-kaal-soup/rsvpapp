@@ -5,6 +5,7 @@ import os
 
 # 3rd party
 from apiclient.discovery import build
+from apiclient.http import MediaIoBaseUpload
 from google.oauth2 import service_account
 import requests
 
@@ -45,6 +46,47 @@ def create_folder(service, parent, name):
 
 def create_root_folder(service, name="Media"):
     return create_folder(service, None, name)
+
+
+def rename_folder(service, folder_id, name):
+    metadata = {"name": name}
+    folder = (
+        service.files()
+        .update(fileId=folder_id, body=metadata, fields="id")
+        .execute()
+    )
+    return folder.get("id")
+
+
+def move_file(service, file_id, src_id, dst_id):
+    moved_file = (
+        service.files()
+        .update(
+            fileId=file_id,
+            removeParents=src_id,
+            addParents=dst_id,
+            fields="id",
+        )
+        .execute()
+    )
+    return moved_file.get("id")
+
+
+def upload_photo(service, parent, name, mimetype, fd):
+    metadata = {"name": name, "parents": [parent]}
+    media = MediaIoBaseUpload(fd, mimetype=mimetype)
+    photo = (
+        service.files()
+        .create(body=metadata, media_body=media, fields="id")
+        .execute()
+    )
+    photo_id = photo.get("id")
+    print("File ID: %s" % photo_id)
+    return photo_id
+
+
+def delete_content(service, gdrive_id):
+    service.files().delete(fileId=gdrive_id).execute()
 
 
 def update_permissions(service, file_id, emails):
@@ -133,6 +175,16 @@ def list_sub_dirs(service, root):
         .execute()["files"]
     )
     return sub_dirs
+
+
+def list_files(service, folder_id):
+    q = "'{}' in parents"
+    files = (
+        service.files()
+        .list(q=q.format(folder_id), fields="files(id, name)")
+        .execute()["files"]
+    )
+    return files
 
 
 def flat_zip(x, y):
