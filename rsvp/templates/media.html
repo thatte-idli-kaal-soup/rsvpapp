@@ -28,6 +28,7 @@
     {% endif %}
     <p class="h3">GDrive Directories</p>
     <p>You can view the pictures on a <a href="{{ url_for('photo_map') }}">map</a>, if you like</p>
+    <p>You can share new pictures from <a href="{{ url_for('share_photos') }}">here</a></p>
     <ul>
         {% for dir in gdrive_dirs %}
             <li>
