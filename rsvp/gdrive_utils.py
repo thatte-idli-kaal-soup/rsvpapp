@@ -6,7 +6,8 @@ import os
 # 3rd party
 from apiclient.discovery import build
 from apiclient.http import MediaIoBaseUpload
-from google.oauth2 import service_account
+from google.oauth2 import credentials as gcredentials, service_account
+
 import requests
 
 # Local library
@@ -34,6 +35,29 @@ def create_service(name="drive"):
     )
     service = build(name, "v3", credentials=credentials)
     return service
+
+
+def create_oauth_service(name="drive"):
+    """Create an OAuth service as a user, instead of a service account.
+
+    This means we can upload files as the user that we are logged in as,
+    instead of using the service account. This means all the files uploaded
+    count to this user's storage space, as opposed to being counted to the
+    service account's storage.
+
+    See https://stackoverflow.com/a/19766913 for steps to obtain refresh token
+
+    """
+
+    credentials = gcredentials.Credentials(
+        token="random-token",
+        refresh_token=os.environ["GDRIVE_REFRESH_TOKEN"],
+        client_id=os.environ["GDRIVE_CLIENT_ID"],
+        client_secret=os.environ["GDRIVE_CLIENT_SECRET"],
+        scopes=SCOPES[name],
+        token_uri="https://www.googleapis.com/oauth2/v4/token",
+    )
+    return build(name, "v3", credentials=credentials)
 
 
 def create_folder(service, parent, name):

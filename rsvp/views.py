@@ -30,7 +30,7 @@ from mongoengine.errors import DoesNotExist, ValidationError
 from .cloudinary_utils import image_url, list_images
 from .gdrive_utils import (
     create_folder,
-    create_service,
+    create_oauth_service,
     delete_content,
     list_files,
     list_sub_dirs,
@@ -134,7 +134,7 @@ def create_event_gdrive(id):
             )
             return redirect(url_for("event", id=id))
     gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
-    service = create_service()
+    service = create_oauth_service()
     drive_name = "{} {}".format(event.date.strftime("%Y-%m"), event.name)
     event.gdrive_id = create_folder(service, gdrive_root, drive_name)
     event.save()
@@ -472,7 +472,7 @@ def media():
             platform["password"] = generate_password(
                 platform["name"], app.secret_key
             )
-    service = create_service()
+    service = create_oauth_service()
     gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
     gdrive_dirs = sorted(
         list_sub_dirs(service, gdrive_root), key=lambda x: x["name"]
@@ -598,7 +598,7 @@ def service_worker():
 @app.route("/share", methods=["POST", "GET"])
 @login_required
 def handle_share():
-    service = create_service()
+    service = create_oauth_service()
     gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
 
     if request.method == "GET":
@@ -634,7 +634,7 @@ def update_share_metadata():
     folder_id = request.form["folder_id"]
     drive_name = request.form.get("title")
     drive_id = request.form.get("existing_dir", "")
-    service = create_service()
+    service = create_oauth_service()
     if drive_name:
         rename_folder(service, folder_id, drive_name)
         return redirect(url_for("media"))
