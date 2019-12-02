@@ -564,12 +564,12 @@ def manifest():
         "name": "RSVP - {}".format(app.config["TEXT1"]),
         "icons": [
             {
-                "src": "https://cdn.glitch.com/537884d8-2d6f-40d1-b837-1f86ed4ae80a%2Ficon-192.png?1543523488495",
+                "src": "https://user-images.githubusercontent.com/315678/69934490-0cf43f80-14f8-11ea-8194-5498d17ef265.png",
                 "sizes": "192x192",
                 "type": "image/png",
             },
             {
-                "src": "https://cdn.glitch.com/537884d8-2d6f-40d1-b837-1f86ed4ae80a%2Ficon-512.png?1543523488534",
+                "src": "https://user-images.githubusercontent.com/315678/69934491-0cf43f80-14f8-11ea-8a5a-1508d4a47904.png",
                 "sizes": "512x512",
                 "type": "image/png",
             },
