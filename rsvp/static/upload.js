@@ -20,3 +20,17 @@ uppy.use(Uppy.Form, {
     submitOnSuccess: false,
     triggerUploadOnSubmit: true
 });
+
+navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data.action !== 'upload-photos') return;
+    console.log(event.data.files, event.data.action);
+    event.data.files.map(file => {
+        uppy.addFile({
+            name: file.name,
+            type: file.type,
+            data: file,
+            source: 'Local',
+            isRemote: false
+        });
+    });
+});
