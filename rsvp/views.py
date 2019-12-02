@@ -595,6 +595,49 @@ def service_worker():
     return send_from_directory("static", "sw.js")
 
 
+@app.route("/share/photos", methods=["GET"])
+@login_required
+def share_photos():
+    service = create_oauth_service()
+    gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
+    existing_dirs = sorted(
+        list_sub_dirs(service, gdrive_root), key=lambda x: x["name"]
+    )[::-1]
+    return render_template("share-photos.html", existing_dirs=existing_dirs)
+
+
+@app.route("/share/photos/upload", methods=["POST"])
+@login_required
+def upload_photos():
+    service = create_oauth_service()
+    gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
+
+    photos = request.files.getlist("photos")
+    drive_name = request.form.get("title", "")
+    drive_id = request.form.get("existing_dir", "")
+    if not drive_id and not drive_name:
+        return (
+            jsonify({"error": "need an existing dir or a dir name specified"}),
+            400,
+        )
+
+    if drive_name:
+        drive_id = create_folder(service, gdrive_root, drive_name)
+
+    for photo in photos:
+        filename = photo.filename
+        mimetype = (
+            photo.content_type
+            if photo.content_type is not None
+            else mimetypes.guess_type(filename)[0]
+        )
+        # FIXME: Do this concurrently?
+        upload_photo(service, drive_id, filename, mimetype, photo.stream)
+
+    drive_url = "https://drive.google.com/drive/folders/{}".format(drive_id)
+    return jsonify({"success": "true", "drive_url": drive_url})
+
+
 @app.route("/share", methods=["POST", "GET"])
 @login_required
 def handle_share():

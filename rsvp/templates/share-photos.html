@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="drag-drop-area"></div>
+    <form class="form" id="folder-form">
+        {% for dir in existing_dirs %}
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="existing_dir" id="{{ dir.id }}" value="{{ dir.id }}">
+                <label class="form-check-label" for="{{ dir.id }}">
+                    <i class="fab fa-google-drive"></i> {{ dir.name }}
+                </label>
+            </div>
+        {% endfor %}
+        <div class="form-group row">
+            <div class="col-sm-12">
+                <input type="text" value="" name="title" id="title" placeholder="New Folder Name">
+            </div>
+        </div>
+        <button type="submit" align="center" name="submit" class="btn btn-primary">
+            Submit
+        </button>
+    </form>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://transloadit.edgly.net/releases/uppy/v1.6.0/uppy.min.js"></script>
+    <script src="{{ url_for('static', filename='upload.js')|versioned }}"></script>
+{% endblock %}
+
+{% block extra_head %}
+    <link href="https://transloadit.edgly.net/releases/uppy/v1.6.0/uppy.min.css" rel="stylesheet">
+{% endblock %}
