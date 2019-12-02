@@ -3,9 +3,8 @@ uppy.use(Uppy.Dashboard, {
     target: '#drag-drop-area',
     inline: true,
     hideUploadButton: true,
-    note:
-        'This will upload files to the shared Google Drive. Please select an existing folder or provide a new folder name',
-    proudlyDisplayPoweredByUppy: false
+    proudlyDisplayPoweredByUppy: false,
+    width: '100%'
 });
 uppy.use(Uppy.XHRUpload, {
     endpoint: '/share/photos/upload',
@@ -33,4 +32,17 @@ navigator.serviceWorker.addEventListener('message', event => {
             isRemote: false
         });
     });
+});
+
+uppy.on('complete', result => {
+    console.log('successful files:', result.successful);
+    if (result.successful.length > 0) {
+        var driveURL = result.successful[0].response.body.drive_url;
+        window.location.href = driveURL;
+    }
+});
+
+uppy.on('error', error => {
+    console.log(error);
+    uppy.info(JSON.parse(error.request.response).error, 'error', 5000);
 });
