@@ -575,10 +575,10 @@ def manifest():
             },
         ],
         "start_url": "/",
-        "background_color": "#3367D6",
+        "background_color": "#ffffff",
         "display": "standalone",
         "scope": "/",
-        "theme_color": "#3367D6",
+        "theme_color": "#ffffff",
         "serviceworker": {"src": "./static/sw.js", "scope": "/"},
         "share_target": {
             "action": "/share",
