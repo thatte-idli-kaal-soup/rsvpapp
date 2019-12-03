@@ -629,6 +629,8 @@ def upload_photos():
     if drive_name:
         drive_id = create_folder(service, gdrive_root, drive_name)
 
+    name, email = current_user.name, current_user.email
+    description = "Uploaded by {name} ({email})".format(name=name, email=email)
     for photo in photos:
         filename = photo.filename
         mimetype = (
@@ -637,7 +639,9 @@ def upload_photos():
             else mimetypes.guess_type(filename)[0]
         )
         # FIXME: Do this concurrently?
-        upload_photo(service, drive_id, filename, mimetype, photo.stream)
+        upload_photo(
+            service, drive_id, filename, mimetype, photo.stream, description
+        )
 
     drive_url = "https://drive.google.com/drive/folders/{}".format(drive_id)
     return jsonify({"success": "true", "drive_url": drive_url})

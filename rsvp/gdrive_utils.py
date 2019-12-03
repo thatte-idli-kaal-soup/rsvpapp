@@ -100,8 +100,8 @@ def move_file(service, file_id, src_id, dst_id):
     return moved_file.get("id")
 
 
-def upload_photo(service, parent, name, mimetype, fd):
-    metadata = {"name": name, "parents": [parent]}
+def upload_photo(service, parent, name, mimetype, fd, description=""):
+    metadata = {"name": name, "parents": [parent], "description": description}
     media = MediaIoBaseUpload(fd, mimetype=mimetype)
     photo = (
         service.files()
