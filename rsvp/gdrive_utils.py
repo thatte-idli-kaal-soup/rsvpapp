@@ -60,8 +60,12 @@ def create_oauth_service(name="drive"):
     return build(name, "v3", credentials=credentials)
 
 
-def create_folder(service, parent, name):
-    metadata = {"name": name, "mimeType": "application/vnd.google-apps.folder"}
+def create_folder(service, parent, name, description=""):
+    metadata = {
+        "name": name,
+        "mimeType": "application/vnd.google-apps.folder",
+        "description": description,
+    }
     if parent is not None:
         metadata["parents"] = [parent]
     folder = service.files().create(body=metadata, fields="id").execute()

@@ -136,7 +136,12 @@ def create_event_gdrive(id):
     gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
     service = create_oauth_service()
     drive_name = "{} {}".format(event.date.strftime("%Y-%m"), event.name)
-    event.gdrive_id = create_folder(service, gdrive_root, drive_name)
+    description = "Drive for {} - {}".format(
+        event.title, url_for("event", id=event.id, _external=True)
+    )
+    event.gdrive_id = create_folder(
+        service, gdrive_root, drive_name, description
+    )
     event.save()
     return redirect(url_for("event", id=id))
 
