@@ -5,7 +5,7 @@
 {% endwith %}
 
 <hr/>
-{% if not post.public %}
+{% if not post or not post.public %}
     {% for comment in comments %}
         <div class="media border p-3">
             <img class="mr-3" src="{{ comment.avatar_url }}" alt="">
