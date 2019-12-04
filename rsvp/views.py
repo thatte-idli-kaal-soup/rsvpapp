@@ -377,7 +377,9 @@ def attendance():
 @login_required
 def show_posts():
     posts = Post.objects.order_by("-created_at")
-    return render_template("posts.html", posts=posts)
+    return render_template(
+        "posts.html", posts=posts, show_year=True, hide_all_link=True
+    )
 
 
 @app.route("/post/<id>")

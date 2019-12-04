@@ -96,6 +96,11 @@ footer {
     display: table-row;
     font-size: 100%;
 }
+.post-date .year {
+    text-align: center;
+    display: table-row;
+    font-size: 60%;
+}
 .rsvp-count {
     opacity: 0.7;
     font-size: 0.8em;
