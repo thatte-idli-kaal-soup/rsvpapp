@@ -8,45 +8,7 @@
 {% block scripts %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js" integrity="sha256-L3S3EDEk31HcLA5C6T2ovHvOcD80+fgqaCDt2BAi92o=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"></script>
-    <script>
-     var getEventColor = function(data){
-         if (data.cancelled) {
-             return "red";
-         } else if (data.archived) {
-             return "grey";
-         }
-     }
-     $(function() {
-         // page is now ready, initialize the calendar...
-         $('#calendar').fullCalendar({
-             themeSystem: 'bootstrap4',
-             events: '/api/events/',
-             editable: false,
-             eventDataTransform: function(data){
-                 var event = {
-                     id: data._id.$oid,
-                     title: `${data.name}  (${(data.rsvps && data.rsvps.length)||0})`,
-                     start: data.date.$date,
-                     end: data._end_date?data._end_date.$date:undefined,
-                     url: `/event/${data._id.$oid}`,
-                     color: getEventColor(data)
-                 }
-                 return event;
-             },
-             footer: {
-                 right: 'addNew'
-             },
-             customButtons: {
-                 addNew: {
-                     text: 'Add Event',
-                     click: function() {
-                         document.location.href = "{{url_for('event_editor')}}";
-                     },
-                 }
-             }
-         })
-     });
-    </script>
+    <script src="{{ url_for('static', filename='calendar.js')|versioned }}"></script>
 {% endblock %}
 
 {% block extra_head %}
