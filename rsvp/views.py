@@ -88,11 +88,10 @@ def index():
     )
 
 
-@app.route("/archived")
+@app.route("/calendar")
 @login_required
-def archived():
-    archived_events = Event.objects.filter(archived=True).order_by("-date")
-    return render_template("archived.html", archived_events=archived_events)
+def calendar():
+    return render_template("calendar.html")
 
 
 @app.route("/event/<id>", methods=["GET"])

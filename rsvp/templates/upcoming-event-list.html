@@ -18,9 +18,9 @@
         {% endfor %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
             {% if not upcoming_events|length %}
-                <a class="text-muted" href="{{ url_for('archived') }}">No upcoming events</a>
+                <a class="text-muted" href="{{ url_for('calendar') }}">No upcoming events</a>
             {% else %}
-                <a class="text-muted" href="{{ url_for('archived') }}">See all</a>
+                <a class="text-muted" href="{{ url_for('calendar') }}">See all</a>
             {% endif %}
             <a href="{{ url_for("event_editor") }}" class="btn btn-light">
                 Add Event
