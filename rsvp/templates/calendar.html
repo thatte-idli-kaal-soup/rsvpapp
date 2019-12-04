@@ -4,13 +4,14 @@
     <div id="calendar"></div>
 {% endblock %}
 
-
-{% block scripts %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js" integrity="sha256-L3S3EDEk31HcLA5C6T2ovHvOcD80+fgqaCDt2BAi92o=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"></script>
-    <script src="{{ url_for('static', filename='calendar.js')|versioned }}"></script>
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.css" integrity="sha256-Lfe6+s5LEek8iiZ31nXhcSez0nmOxP+3ssquHMR3Alo=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/list/main.min.css" integrity="sha256-saO3mkZVAcyqsfgsGMrmE7Cs/TLN1RgVykZ5dnnJKug=" crossorigin="anonymous" />
 {% endblock %}
 
-{% block extra_head %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css" integrity="sha256-Tu3DN+5kwrhzlzhNUMuGht2h7cR6ARgKcYemB9u5SzA=" crossorigin="anonymous" />
+{% block scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.js" integrity="sha256-GBryZPfVv8G3K1Lu2QwcqQXAO4Szv4xlY4B/ftvyoMI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/list/main.min.js" integrity="sha256-q57s73NpMCTQ4ZXqb1X5bIywrICySeB6WvYxFGfz/PA=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/bootstrap/main.min.js" integrity="sha256-7ZOfggrgAdwfWGQAdm659B99D8KDYYNtA/mHYhsPwwg=" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='calendar.js')|versioned }}"></script>
 {% endblock %}

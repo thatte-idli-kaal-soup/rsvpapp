@@ -130,3 +130,15 @@ footer {
     width: 100% !important;
     height: auto !important;
 }
+
+.fc-addNew-button, .fc-prev-button, .fc-next-button, .fc-listMonth-button, .fc-listYear-button  {
+    color: #212529;
+    background-color: #f8f9fa;
+    border-color: #f8f9fa;
+}
+
+.fc-listMonth-button:not(:disabled):not(.disabled).active, .fc-listYear-button:not(:disabled):not(.disabled).active {
+    color: #212529;
+    background-color: #dae0e5;
+    border-color: #d3d9df;
+}
