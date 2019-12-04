@@ -2,7 +2,7 @@ import datetime
 import json
 
 from bson.objectid import ObjectId
-from flask import request
+from flask import request, jsonify
 from flask_login import current_user, login_required
 from mongoengine.errors import DoesNotExist
 
@@ -20,7 +20,7 @@ def api_events():
         events = events.filter(date__gte=start)
     if end:
         events = events.filter(date__lte=end)
-    return events.to_json()
+    return jsonify(json.loads(events.to_json()))
 
 
 @app.route("/api/event/<event_id>", methods=["PATCH"])
