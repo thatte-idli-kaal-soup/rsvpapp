@@ -1,3 +1,11 @@
+var rsvp_count = function(event) {
+    if (!event.rsvps) {
+        return 0;
+    }
+    return event.rsvps.filter(rsvp => {
+        return !rsvp.cancelled && !rsvp.waitlisted;
+    }).length;
+};
 $(function() {
     var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -34,7 +42,7 @@ $(function() {
         eventDataTransform: function(data) {
             var event = {
                 id: data._id.$oid,
-                title: `${data.name}  (${(data.rsvps && data.rsvps.length) || 0})`,
+                title: `${data.name}  (${rsvp_count(data)})`,
                 start: data.date.$date,
                 end: data._end_date ? data._end_date.$date : undefined,
                 url: `/event/${data._id.$oid}`,
