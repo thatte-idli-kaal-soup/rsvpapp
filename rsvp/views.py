@@ -206,7 +206,7 @@ def search():
 @fresh_login_required
 def user_profile():
     if request.method == "GET":
-        return render_template("user_form.html")
+        return render_template("profile.html")
 
     email = request.form["email"]
     if email != current_user.email:
