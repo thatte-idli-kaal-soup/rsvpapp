@@ -257,7 +257,7 @@ def get_attendance_chart(source):
                 scale=alt.Scale(domain=(0, 30)),
             ),
             x=alt.X("month:O"),
-            color=alt.Color("key:N", scale=color_scale, legend=None),
+            color=alt.Color("key:N", scale=color_scale),
         )
     )
     chart = chart | (legend + text)
