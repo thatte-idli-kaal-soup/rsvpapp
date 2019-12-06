@@ -231,11 +231,14 @@ def get_attendance_chart(source):
     color = alt.condition(
         select_weekday, alt.value("orange"), alt.value("lightgray")
     )
-    legend = (
-        alt.Chart(source)
-        .mark_rect()
-        .encode(x="weekday:N", y="year:O", color=color)
-        .add_selection(select_weekday)
+    base = alt.Chart(source).encode(x="weekday:N", y="year:O", color=color)
+    legend = base.mark_rect().add_selection(select_weekday)
+    text = (
+        base.mark_text(baseline="middle")
+        .transform_aggregate(
+            count="sum(attended)", groupby=["year", "weekday"]
+        )
+        .encode(text="count:O", color=alt.value("black"))
     )
     chart = (
         alt.Chart(source)
@@ -257,5 +260,5 @@ def get_attendance_chart(source):
             color=alt.Color("key:N", scale=color_scale, legend=None),
         )
     )
-    chart = chart | legend
+    chart = chart | (legend + text)
     return chart.to_json()
