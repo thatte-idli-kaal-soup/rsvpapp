@@ -25,8 +25,12 @@ def api_events():
 
 def event_to_attendance(event, user):
     attended = event.rsvps.filter(user=user).count()
-    year, month = event.date.year, event.date.month
-    return {"year": year, "month": month, "attended": attended}
+    return {
+        "year": event.date.year,
+        "month": event.date.strftime("%m-%b"),
+        "weekday": event.date.strftime("%w-%A"),
+        "attended": attended,
+    }
 
 
 @app.route("/api/attendance", methods=["GET"])

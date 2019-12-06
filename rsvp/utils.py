@@ -225,20 +225,27 @@ def get_attendance_chart(source):
     color_scale = alt.Scale(
         domain=("attendance", "sessions"), range=["darkorange", "black"]
     )
-    radio = alt.binding_radio(options=[2018, 2019], name="year")
-    select_year = alt.selection_single(
-        name="year", fields=["year"], bind=radio, init={"year": 2019}
+    select_weekday = alt.selection_multi(
+        name="weekday", fields=["weekday", "year"]
+    )
+    color = alt.condition(
+        select_weekday, alt.value("orange"), alt.value("lightgray")
+    )
+    legend = (
+        alt.Chart(source)
+        .mark_rect()
+        .encode(x="weekday:N", y="year:O", color=color)
+        .add_selection(select_weekday)
     )
     chart = (
         alt.Chart(source)
         .mark_bar()
-        .add_selection(select_year)
+        .transform_filter(select_weekday)
         .transform_joinaggregate(sessions="count()", groupby=["month", "year"])
         .transform_joinaggregate(
             attendance="sum(attended)", groupby=["month", "year"]
         )
         .transform_fold(["sessions", "attendance"])
-        .transform_filter(select_year)
         .encode(
             y=alt.Y(
                 "value:Q",
@@ -247,7 +254,8 @@ def get_attendance_chart(source):
                 scale=alt.Scale(domain=(0, 30)),
             ),
             x=alt.X("month:O"),
-            color=alt.Color("key:N", scale=color_scale),
+            color=alt.Color("key:N", scale=color_scale, legend=None),
         )
     )
+    chart = chart | legend
     return chart.to_json()
