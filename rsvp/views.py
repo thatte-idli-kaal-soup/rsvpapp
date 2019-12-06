@@ -31,11 +31,7 @@ from .cloudinary_utils import image_url, list_images
 from .gdrive_utils import (
     create_folder,
     create_oauth_service,
-    delete_content,
-    list_files,
     list_sub_dirs,
-    move_file,
-    rename_folder,
     upload_photo,
 )
 from .models import Bookmark, Event, GDrivePhoto, Post, User
@@ -44,7 +40,6 @@ from .utils import (
     generate_password,
     get_attendance,
     get_random_photos,
-    random_string,
     role_required,
     send_approved_email,
 )
