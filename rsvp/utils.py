@@ -10,6 +10,7 @@ import re
 import string
 
 # 3rd party
+import altair as alt
 from bson.objectid import ObjectId
 from flask_login import current_user
 from flask import current_app, render_template
@@ -218,3 +219,35 @@ def post_absolute_url(post):
 def get_random_photos(photos, n=20):
     shuffle(photos)
     return photos[:n]
+
+
+def get_attendance_chart(source):
+    color_scale = alt.Scale(
+        domain=("attendance", "sessions"), range=["darkorange", "black"]
+    )
+    radio = alt.binding_radio(options=[2018, 2019], name="year")
+    select_year = alt.selection_single(
+        name="year", fields=["year"], bind=radio, init={"year": 2019}
+    )
+    chart = (
+        alt.Chart(source)
+        .mark_bar()
+        .add_selection(select_year)
+        .transform_joinaggregate(sessions="count()", groupby=["month", "year"])
+        .transform_joinaggregate(
+            attendance="sum(attended)", groupby=["month", "year"]
+        )
+        .transform_fold(["sessions", "attendance"])
+        .transform_filter(select_year)
+        .encode(
+            y=alt.Y(
+                "value:Q",
+                title="attendance",
+                stack=None,
+                scale=alt.Scale(domain=(0, 30)),
+            ),
+            x=alt.X("month:O"),
+            color=alt.Color("key:N", scale=color_scale),
+        )
+    )
+    return chart.to_json()

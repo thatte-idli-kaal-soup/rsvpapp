@@ -23,6 +23,19 @@ def api_events():
     return jsonify(json.loads(events.to_json()))
 
 
+def event_to_attendance(event, user):
+    attended = event.rsvps.filter(user=user).count()
+    year, month = event.date.year, event.date.month
+    return {"year": year, "month": month, "attended": attended}
+
+
+@app.route("/api/attendance", methods=["GET"])
+def api_attendance():
+    events = Event.objects.all()
+    data = [event_to_attendance(event, current_user) for event in events]
+    return jsonify(data)
+
+
 @app.route("/api/event/<event_id>", methods=["PATCH"])
 @login_required
 def api_event(event_id):
