@@ -235,14 +235,16 @@ def get_attendance_chart(source):
     legend = (
         base.mark_rect()
         .add_selection(select_weekday)
-        .properties(width=200, height=50)
+        .properties(width=320, height=50)
     )
     text = (
-        base.mark_text(baseline="middle")
-        .transform_aggregate(
+        base.mark_text(baseline="middle", fontSize=8)
+        .transform_joinaggregate(
             count="sum(attended)", groupby=["year", "weekday"]
         )
-        .encode(text="count:O", color=alt.value("black"))
+        .transform_joinaggregate(total="count()", groupby=["year", "weekday"])
+        .encode(text="label:O", color=alt.value("black"))
+        .transform_calculate(label='datum.count + " of " + datum.total')
     )
     chart = (
         alt.Chart(source)
@@ -264,5 +266,5 @@ def get_attendance_chart(source):
             color=alt.Color("key:N", scale=color_scale),
         )
     )
-    chart = alt.VConcatChart(vconcat=(chart, (legend + text)))
+    chart = chart & (legend + text)
     return chart.to_json()
