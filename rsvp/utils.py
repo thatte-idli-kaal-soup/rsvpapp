@@ -232,7 +232,11 @@ def get_attendance_chart(source):
         select_weekday, alt.value("orange"), alt.value("lightgray")
     )
     base = alt.Chart(source).encode(x="weekday:N", y="year:O", color=color)
-    legend = base.mark_rect().add_selection(select_weekday)
+    legend = (
+        base.mark_rect()
+        .add_selection(select_weekday)
+        .properties(width=200, height=50)
+    )
     text = (
         base.mark_text(baseline="middle")
         .transform_aggregate(
