@@ -124,6 +124,7 @@ def api_rsvps(event_id):
             rsvp.date = datetime.datetime.now()
         rsvp.cancelled = doc.get("cancelled", False)
 
+    event.add_rsvp_to_pickup_team(rsvp)
     event.save()
     event.update_waitlist()
     return rsvp.to_json()

@@ -31,12 +31,22 @@ class RSVP(db.EmbeddedDocument):
         return (self.cancelled, self.waitlisted, self.date)
 
 
+class PickUpTeam(db.EmbeddedDocument):
+    id = db.ObjectIdField(default=random_id, primary_key=True)
+    name = db.StringField(required=True)
+    rsvp_ids = db.ListField(db.ObjectIdField())
+
+    def add_rsvp(self, rsvp_id):
+        self.rsvp_ids.append(rsvp_id)
+
+
 class Event(db.Document):
     rsvps = db.EmbeddedDocumentListField(RSVP)
     rsvp_limit = db.IntField(default=0)
     name = db.StringField(required=True)
     description = db.StringField()
     html_description = db.StringField()
+    pickup_teams = db.EmbeddedDocumentListField(PickUpTeam)
     # FIXME: Should be called start_date
     date = db.DateTimeField(required=True)
     _end_date = db.DateTimeField()
@@ -91,6 +101,34 @@ class Event(db.Document):
     @property
     def female_rsvps(self):
         return self.rsvps_with_gender("female")
+
+    def form_pickup_teams(self):
+        # FIXME: Fixed number of teams.
+        if len(self.pickup_teams) == 0:
+            Black = PickUpTeam(name="Black")
+            White = PickUpTeam(name="White")
+            self.pickup_teams = [Black, White]
+
+    def add_rsvp_to_pickup_team(self, rsvp):
+        user = rsvp.user.fetch()
+        if user.gender == "male":
+            if len(self.male_rsvps) % 2:
+                self.pickup_teams[0].add_rsvp(rsvp.id)
+            else:
+                self.pickup_teams[1].add_rsvp(rsvp.id)
+        elif user.gender == "female":
+            if len(self.female_rsvps) % 2:
+                self.pickup_teams[0].add_rsvp(rsvp.id)
+            else:
+                self.pickup_teams[1].add_rsvp(rsvp.id)
+        else:
+            # Try to handle users with unknown genders by pick up team size
+            if len(self.pickup_teams[0].rsvp_ids) <= len(
+                self.pickup_teams[1].rsvp_ids
+            ):
+                self.pickup_teams[0].add_rsvp(rsvp.id)
+            else:
+                self.pickup_teams[1].add_rsvp(rsvp.id)
 
     def rsvps_with_gender(self, gender):
         return [
