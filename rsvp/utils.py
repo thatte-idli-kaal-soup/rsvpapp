@@ -260,5 +260,5 @@ def get_attendance_chart(source):
             color=alt.Color("key:N", scale=color_scale),
         )
     )
-    chart = chart | (legend + text)
+    chart = alt.VConcatChart(vconcat=(chart, (legend + text)))
     return chart.to_json()
