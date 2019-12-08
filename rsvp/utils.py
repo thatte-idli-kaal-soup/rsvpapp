@@ -238,7 +238,7 @@ def get_attendance_chart(source):
         .properties(width=320, height=50)
     )
     text = (
-        base.mark_text(baseline="middle", fontSize=8)
+        base.mark_text(baseline="middle", fontSize=8, fontWeight=200)
         .transform_joinaggregate(
             count="sum(attended)", groupby=["year", "weekday"]
         )
