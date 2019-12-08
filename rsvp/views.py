@@ -610,23 +610,29 @@ def share_photos():
     return render_template("share-photos.html", existing_dirs=existing_dirs)
 
 
+@app.route("/share/photos/create_dir", methods=["POST"])
+@login_required
+def create_photo_dir():
+    service = create_oauth_service()
+    gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
+    drive_name = request.json.get("title", "")
+    drive_id = create_folder(service, gdrive_root, drive_name)
+    return jsonify({"drive_id": drive_id}), 201
+
+
 @app.route("/share/photos/upload", methods=["POST"])
 @login_required
 def upload_photos():
     service = create_oauth_service()
-    gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
 
     photos = request.files.getlist("photos")
-    drive_name = request.form.get("title", "")
-    drive_id = request.form.get("existing_dir", "")
-    if not drive_id and not drive_name:
+    existing_id = request.form.get("existing_dir", "")
+    drive_id = request.form.get("new_dir", "") or existing_id
+    if not drive_id:
         return (
             jsonify({"error": "need an existing dir or a dir name specified"}),
             400,
         )
-
-    if drive_name:
-        drive_id = create_folder(service, gdrive_root, drive_name)
 
     name, email = current_user.name, current_user.email
     description = "Uploaded by {name} ({email})".format(name=name, email=email)
@@ -637,7 +643,6 @@ def upload_photos():
             if photo.content_type is not None
             else mimetypes.guess_type(filename)[0]
         )
-        # FIXME: Do this concurrently?
         upload_photo(
             service, drive_id, filename, mimetype, photo.stream, description
         )
