@@ -620,11 +620,13 @@ def create_photo_dir():
     return jsonify({"drive_id": drive_id}), 201
 
 
-@app.route("/share/photos/upload", methods=["POST"])
+@app.route("/share/photos/upload", methods=["GET", "POST"])
 @login_required
 def upload_photos():
-    service = create_oauth_service()
+    if request.method == "GET":
+        return redirect(url_for("share_photos"))
 
+    service = create_oauth_service()
     photos = request.files.getlist("photos")
     existing_id = request.form.get("existing_dir", "")
     drive_id = request.form.get("new_dir", "") or existing_id
