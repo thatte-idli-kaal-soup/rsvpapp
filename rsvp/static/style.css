@@ -147,3 +147,10 @@ footer {
     background-color: #dae0e5;
     border-color: #d3d9df;
 }
+
+#folder-form-container {
+    border: solid 2px;
+    padding: 2em;
+    margin: 2em 0;
+    min-height: 100px;
+}
