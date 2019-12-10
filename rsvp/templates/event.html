@@ -40,32 +40,37 @@
         </div>
     </span>
     {% if event.can_rsvp(current_user) %}
-        <div class="card">
-            <div class="card-body">
-                <p class="alert alert-info" style="display: none;"></p>
-                <div class="form-inline">
-                    <div class="form-group required mr-2">
-                        <input type="text"
-                               name="email"
-                               class="form-control"
-                               id="email"
-                               value="{{current_user.email}}"
-                               required autofocus>
+        <div class="row-md-6 container-md-6">
+            <div class="card col-md-6" id="event-rsvp">
+                <div class="card-body">
+                    <p class="alert alert-info" style="display: none;"></p>
+                    <div class="form-inline">
+                        <div class="form-group required mr-2">
+                            <input type="text"
+                                   name="email"
+                                   class="form-control"
+                                   id="email"
+                                   value="{{current_user.email}}"
+                                   required autofocus>
+                        </div>
+                        <button type="Submit" onclick='submit_rsvp("{{event.id}}")' align="center" name="submit" class="btn btn-primary form-group">Submit</button>
+                        <input type="text" name="note" class="form-control" id="note" placeholder="Additional note (optional)">
                     </div>
-                    <button type="Submit" onclick='submit_rsvp("{{event.id}}")' align="center" name="submit" class="btn btn-primary form-group mr-2">Submit</button>
-                    <input type="text" name="note" class="form-control" id="note" placeholder="Additional note (optional)">
                 </div>
             </div>
         </div>
     {% endif %}
-    <hr/>
-    <div id="event-description">
-        {{ (event.html_description or '') | safe }}
-    </div>
-    <hr/>
+    {% if event.html_description %}
+        <div id="event-description">
+            {{ (event.html_description or '') | safe }}
+        </div>
+    {% endif %}
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6" id="rsvp-list">
             <ul class="list-group">
+                {% if not items %}
+                    <li class="list-group-item">No RSVPs for this event</li>
+                {% endif %}
                 {% for item in items %}
                     <li class="list-group-item {% if item.user.fetch().gender == 'female' and not item.cancelled -%}text-white bg-secondary{% endif -%}">
                         <div class="d-flex justify-content-between align-items-center">

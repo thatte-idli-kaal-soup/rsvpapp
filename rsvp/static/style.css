@@ -154,3 +154,14 @@ footer {
     margin: 2em 0;
     min-height: 100px;
 }
+
+#event-description {
+    border: lightgray solid 0.5px;
+    border-radius: 0.25em;
+    padding: 1em;
+    margin-top: 1em;
+}
+
+#rsvp-list, #event-rsvp {
+    margin-top: 1em;
+}
