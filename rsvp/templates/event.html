@@ -19,42 +19,40 @@
 {% endblock %}
 
 {% block content %}
-    <p class="h2">
-        {% if event.cancelled %}
-            <del>{{ TEXT2 }}</del>
-            <span class="badge badge-danger">Cancelled</span>
-        {% else %}
-            {{ TEXT2 }}
-            {% if event.archived %}
-                <span class="badge badge-secondary">Archived</span>
-            {% endif %}
-        {% endif %}
-        {% if event.can_edit(current_user) %}
-            <a href="{{ url_for("event_editor", id=event.id) }}" align="center" name="submit" class="btn btn-secondary mr-2">Edit</a>
-        {% endif %}
-        {% if (event.created_by.id == current_user.email or current_user.is_admin) and not event.cancelled %}
-            <button class="btn btn-danger btn-sm" onclick='cancel_event("{{event.id}}")'>
-                <i class="fa fa-times-circle"></i>
-            </button>
-        {% endif %}
-        <button id="share-event" class="btn btn-success btn-sm" onclick='share_event("{{event.title}}")'>
-            <i class="fa fa-share-alt"></i>
-        </button>
-    </p>
+    <span class="d-flex align-items-center">
+        <div class="event-date">
+            <span class="week">{{ event.date.strftime("%a") }}</span>
+            <span class="day">{{ event.date.strftime("%d %b") }} </span>
+            <span class="day">{{ event.date.strftime("%H:%M") }} </span>
+        </div>
+        <div class="ml-2">
+            <p class="h5 my-0">
+                <span class="event-title {% if event.cancelled %}cancelled-event{% endif %}">
+                    {{ event.name }}
+                    {% if event.archived %}
+                        <i class="fa fa-archive text-secondary" title="Archived"></i>
+                    {% endif %}
+                </span>
+            </p>
+            <p class="text-muted my-0">
+                <small>Created by {{ event.created_by.fetch().name }}</small>
+            </p>
+        </div>
+    </span>
     {% if event.can_rsvp(current_user) %}
         <div class="card">
             <div class="card-body">
                 <p class="alert alert-info" style="display: none;"></p>
                 <div class="form-inline">
-                    <div class="form-group required mx-2">
-                        <input  type="text"
-                                name="email"
-                                class="form-control"
-                                id="email"
-                                value="{{current_user.email}}"
-                                required autofocus>
+                    <div class="form-group required mr-2">
+                        <input type="text"
+                               name="email"
+                               class="form-control"
+                               id="email"
+                               value="{{current_user.email}}"
+                               required autofocus>
                     </div>
-                    <button type="Submit" onclick='submit_rsvp("{{event.id}}")' align="center" name="submit" class="btn btn-primary mr-2">Submit</button>
+                    <button type="Submit" onclick='submit_rsvp("{{event.id}}")' align="center" name="submit" class="btn btn-primary form-group mr-2">Submit</button>
                     <input type="text" name="note" class="form-control" id="note" placeholder="Additional note (optional)">
                 </div>
             </div>
@@ -69,7 +67,7 @@
         <div class="col-md-6">
             <ul class="list-group">
                 {% for item in items %}
-                    <li class="list-group-item {% if item.user.fetch().gender == 'female' and not item.cancelled -%}text-white bg-dark{% endif -%}">
+                    <li class="list-group-item {% if item.user.fetch().gender == 'female' and not item.cancelled -%}text-white bg-secondary{% endif -%}">
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="rsvp {% if item.cancelled %}rsvp-cancelled{% elif item.waitlisted %}rsvp-waitlisted{% endif %}"
                                   "data-toggle="tooltip" title="RSVP by {{item | rsvp_by}}">
@@ -88,20 +86,55 @@
                         {% endif %}
                     </li>
                 {% endfor %}
-                {% if count %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <button class="btn btn-outline-info btn-sm my-2 copy-button"
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        <button id="share-event" class="btn btn-sm" onclick='share_event("{{event.title}}")'>
+                            <i class="fa fa-share-alt"></i>
+                        </button>
+                        <button class="btn btn-sm copy-button"
+                                id="copy-event"
+                                type="button"
                                 data-placement="bottom"
                                 data-clipboard-action="copy"
                                 data-clipboard-text="{% include 'event.md' %}">
-                            Copy Event
+                            <i class="fa fa-clipboard"></i>
                         </button>
-                        <button class="btn btn-outline-info btn-sm my-2 copy-button"
-                                data-placement="bottom"
-                                data-clipboard-action="copy"
-                                data-clipboard-text="{% include 'full-names.md' %}">
-                            Copy Full Names
-                        </button>
+                        <div style="display:inline" class="dropdown">
+                            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-ellipsis-h"></i>
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                                <button class="dropdown-item copy-button"
+                                        type="button"
+                                        data-placement="top"
+                                        data-clipboard-action="copy"
+                                        data-clipboard-text="{% include 'full-names.md' %}">
+                                    <i class="fa fa-clipboard-list"></i>
+                                    Copy Full Names
+                                </button>
+                                {% if event.can_edit(current_user) %}
+                                    <a href="{{ url_for("event_editor", id=event.id) }}" class="btn dropdown-item">
+                                        <i class="fa fa-edit text-secondary"></i>
+                                        Edit
+                                    </a>
+                                {% endif %}
+                                {% if (event.created_by.id == current_user.email or current_user.is_admin) and not event.cancelled %}
+                                    <button class="btn btn-danger dropdown-item"
+                                            onclick='cancel_event("{{event.id}}")'>
+                                        <i class="fa fa-times-circle text-danger"></i>
+                                        Cancel Event
+                                    </button>
+                                {% endif %}
+                                <div class="dropdown-divider"></div>
+                                {% include 'event-splitwise.html' %}
+                                <div class="dropdown-divider"></div>
+                                {% include 'event-gdrive.html' %}
+                                <div class="dropdown-divider"></div>
+                                {% include 'zulip-button.html' %}
+                            </div>
+                        </div>
+                    </span>
+                    {% if count %}
                         <span>
                             <span class="rsvp-count text-white bg-dark rsvp-female-count">
                                 <i class="fa fa-female"></i> {{female_count}}
@@ -110,13 +143,10 @@
                                 <i class="fa fa-male"></i> {{male_count}}
                             </span>
                         </span>
-                    </li>
-                {% endif %}
+                    {% endif %}
+                </li>
             </ul>
         </div>
     </div>
-    <hr/>
-    {% include 'event-splitwise.html' %}
-    {% include 'event-gdrive.html' %}
     {% include "zulip-comments.html" %}
 {% endblock %}

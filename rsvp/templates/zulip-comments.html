@@ -1,33 +1,28 @@
-{% with zurl = (event or post)|zulip_event_url %}
-    {% if zurl %}
-        <a class="btn btn-secondary" href="{{ zurl }}" target="_blank">Discuss on Zulip</a>
-    {% endif %}
-{% endwith %}
-
-<hr/>
 {% if current_user.is_authenticated %}
-    {% for comment in comments %}
-        <div class="media border p-3">
-            <img class="mr-3" src="{{ comment.avatar_url }}" alt="">
-            <div class="media-body">
-                <span class="float-right">
-                    {{ comment.timestamp }}
-                </span>
-                <h6><span class="font-weight-bold">{{ comment.sender_full_name }}</span></h6>
-                <div class="message_content">{{ comment.content | safe }}</div>
-                <div class="message_reactions">
-                    {% for emoji_code, reaction_group in comment.reactions|groupby('emoji_code') %}
-                        <div class="float-left border rounded p-1">
-                            <div class="float-left emoji emoji-{{ emoji_code }}">&#x{{emoji_code}}</div>
-                            <div class="px-1 float-right text-sm message_reaction_count">
-                                <small>{{ reaction_group | length }}</small>
+    <div class="zulip-comments mt-4">
+        {% for comment in comments %}
+            <div class="media border p-3">
+                <img class="mr-3" src="{{ comment.avatar_url }}" alt="">
+                <div class="media-body">
+                    <span class="float-right">
+                        {{ comment.timestamp }}
+                    </span>
+                    <h6><span class="font-weight-bold">{{ comment.sender_full_name }}</span></h6>
+                    <div class="message_content">{{ comment.content | safe }}</div>
+                    <div class="message_reactions">
+                        {% for emoji_code, reaction_group in comment.reactions|groupby('emoji_code') %}
+                            <div class="float-left border rounded p-1">
+                                <div class="float-left emoji emoji-{{ emoji_code }}">&#x{{emoji_code}}</div>
+                                <div class="px-1 float-right text-sm message_reaction_count">
+                                    <small>{{ reaction_group | length }}</small>
+                                </div>
                             </div>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
 {% endif %}
 
 <script type="text/javascript">

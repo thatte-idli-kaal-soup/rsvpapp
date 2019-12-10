@@ -115,4 +115,8 @@ share_event = function(title) {
 
 if (!navigator.share) {
     $('#share-event').hide();
+    $('#copy-event').show();
+} else {
+    $('#share-event').show();
+    $('#copy-event').hide();
 }

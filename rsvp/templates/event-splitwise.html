@@ -1,7 +1,17 @@
 {% if event.splitwise_group_id %}
-    <a class="btn btn-info" href="https://secure.splitwise.com/#/groups/{{event.splitwise_group_id}}" target="_blank" >View Splitwise Group</a>
+    <a class="btn btn-info dropdown-item" href="https://secure.splitwise.com/#/groups/{{event.splitwise_group_id}}" target="_blank">
+        <i class="fa fa-wallet"></i>
+        Open Splitwise Group
+    </a>
 {% endif %}
 <form action="{{ url_for('sync_splitwise_group', event_id=event.id) }}" method="POST">
-    <input type="submit" class="btn btn-info" value="{% if event.splitwise_group_id %}Sync RSVPs with Splitwise Group{% else %}Create Splitwise Group{% endif %}"/>
+    <button type="submit" class="btn dropdown-item">
+        {% if event.splitwise_group_id %}
+            <i class="fa fa-sync-alt"></i>
+            Sync RSVPs with Splitwise
+        {% else %}
+            <i class="fa fa-wallet"></i>
+            Create Splitwise Group
+        {% endif %}
+    </button>
 </form>
-<hr>
