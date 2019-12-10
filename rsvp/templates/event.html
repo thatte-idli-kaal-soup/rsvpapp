@@ -40,29 +40,29 @@
         </div>
     </span>
     {% if event.can_rsvp(current_user) %}
-        <div class="row-md-6 container-md-6">
-            <div class="card col-md-6" id="event-rsvp">
-                <div class="card-body">
-                    <p class="alert alert-info" style="display: none;"></p>
-                    <div class="form-inline">
-                        <div class="form-group required mr-2">
-                            <input type="text"
-                                   name="email"
-                                   class="form-control"
-                                   id="email"
-                                   value="{{current_user.email}}"
-                                   required autofocus>
-                        </div>
-                        <button type="Submit" onclick='submit_rsvp("{{event.id}}")' align="center" name="submit" class="btn btn-primary form-group">Submit</button>
-                        <input type="text" name="note" class="form-control" id="note" placeholder="Additional note (optional)">
+        <div class="card col-md-6" id="event-rsvp">
+            <div class="card-body">
+                <p class="alert alert-info" style="display: none;"></p>
+                <div class="form-inline">
+                    <div class="form-group required mr-2">
+                        <input type="text"
+                               name="email"
+                               class="form-control"
+                               id="email"
+                               value="{{current_user.email}}"
+                               required autofocus>
                     </div>
+                    <button type="Submit" onclick='submit_rsvp("{{event.id}}")' align="center" name="submit" class="btn btn-primary form-group">Submit</button>
+                    <input type="text" name="note" class="form-control" id="note" placeholder="Additional note (optional)">
                 </div>
             </div>
         </div>
     {% endif %}
     {% if event.html_description %}
-        <div id="event-description">
+        <div class="row-md container-md">
+        <div id="event-description" class="col-md-6">
             {{ (event.html_description or '') | safe }}
+        </div>
         </div>
     {% endif %}
     <div class="row">
