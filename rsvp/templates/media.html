@@ -3,14 +3,14 @@
 {% block content %}
 
     {% if youtube_playlist %}
-        <p class="h3">{{TEXT1}} Videos</p>
+        <p class="h5">{{TEXT1}} Videos</p>
         <div class="embed-responsive embed-responsive-16by9">
             <iframe width="800" height="450" src="https://www.youtube-nocookie.com/embed/videoseries?list={{youtube_playlist}}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
     {% endif %}
 
     {% if photos %}
-        <p class="h3">New GDrive Photos</p>
+        <p class="h5">New GDrive Photos</p>
         <ul>
             {% for group in photos|groupby('gdrive_path') %}
                 <li>
@@ -26,7 +26,7 @@
             {% endfor %}
         </ul>
     {% endif %}
-    <p class="h3">GDrive Directories</p>
+    <p class="h5">GDrive Directories</p>
     <p>You can view the pictures on a <a href="{{ url_for('photo_map') }}">map</a>, if you like</p>
     <p>You can share new pictures from <a href="{{ url_for('share_photos') }}">here</a></p>
     <ul>
@@ -37,7 +37,7 @@
         {% endfor %}
     </ul>
 
-    <p class="h3">Social media profiles</p>
+    <p class="h5">Social media profiles</p>
     {% for platform in social if platform.url %}
         <p>
             <a class="h2" href="{{platform.url}}" target="_blank" title="{{platform.name}}">
