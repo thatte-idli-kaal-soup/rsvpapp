@@ -620,6 +620,12 @@ def create_photo_dir():
     return jsonify({"drive_id": drive_id}), 201
 
 
+@app.route("/share", methods=["GET"])
+@login_required
+def share():
+    return redirect(url_for("share_photos"))
+
+
 @app.route("/share/photos/upload", methods=["GET", "POST"])
 @login_required
 def upload_photos():
