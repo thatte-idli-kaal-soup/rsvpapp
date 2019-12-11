@@ -1,17 +1,37 @@
 {% if photos %}
-    <p class="h5">New GDrive Photos</p>
-    <ul>
+    <p class="h5">Recently Uploaded Photos</p>
+    <div>
         {% for group in photos|groupby('gdrive_path') %}
-            <li>
-                <a href="https://drive.google.com/drive/folders/{{ group.list[0].gdrive_parent }}" target="_blank">
-                    {{ group.grouper }}
-                </a>
-                ({{ group.list|length }} new photos)
-            </li>
-            {% for photo in group.list %}
-                <a href="https://drive.google.com/file/d/{{ photo.gdrive_id }}/preview" target="_blank">{{ loop.index }}
-                </a>
-            {% endfor %}
+            {% with drive_id=group.list[0].gdrive_parent %}
+                <div id="carousel-{{ drive_id }}" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for photo in group.list %}
+                            <div class="carousel-item {% if loop.index == 1 %}active{% endif %}">
+                                <div class="w-100 d-block photo-container">
+                                    <span class="d-inline-block h-100 align-middle"></span>
+                                    <a href="https://drive.google.com/file/d/{{ photo.gdrive_id }}/preview" target="_blank">
+                                        <img src="{{ photo.gdrive_thumbnail }}" class="align-middle mx-auto">
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <span class="d-block mx-auto text-center">
+                        <a href="https://drive.google.com/drive/folders/{{ drive_id }}" target="_blank">
+                            {{ group.grouper }}
+                        </a>
+                        ({{ group.list|length }})
+                    </span>
+                    <a class="carousel-control-prev" href="#carousel-{{ drive_id }}" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carousel-{{ drive_id }}" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            {% endwith %}
         {% endfor %}
-    </ul>
+    </div>
 {% endif %}
