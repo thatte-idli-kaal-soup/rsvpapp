@@ -9,33 +9,8 @@
         </div>
     {% endif %}
 
-    {% if photos %}
-        <p class="h5">New GDrive Photos</p>
-        <ul>
-            {% for group in photos|groupby('gdrive_path') %}
-                <li>
-                    <a href="https://drive.google.com/drive/folders/{{ group.list[0].gdrive_parent }}" target="_blank">
-                        {{ group.grouper }}
-                    </a>
-                    ({{ group.list|length }} new photos)
-                </li>
-                {% for photo in group.list %}
-                    <a href="https://drive.google.com/file/d/{{ photo.gdrive_id }}/preview" target="_blank">{{ loop.index }}
-                    </a>
-                {% endfor %}
-            {% endfor %}
-        </ul>
-    {% endif %}
-    <p class="h5">GDrive Directories</p>
-    <p>You can view the pictures on a <a href="{{ url_for('photo_map') }}">map</a>, if you like</p>
-    <p>You can share new pictures from <a href="{{ url_for('share_photos') }}">here</a></p>
-    <ul>
-        {% for dir in gdrive_dirs %}
-            <li>
-                <a href="https://drive.google.com/drive/folders/{{ dir.id }}" target="_blank">{{ dir.name }}</a>
-            </li>
-        {% endfor %}
-    </ul>
+    {% include 'media-new-photos.html' %}
+    {% include 'media-gdrive.html' %}
 
     <p class="h5">Social media profiles</p>
     {% for platform in social if platform.url %}
