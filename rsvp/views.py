@@ -482,7 +482,7 @@ def media():
         list_sub_dirs(service, gdrive_root), key=lambda x: x["name"]
     )
     youtube_playlist = os.environ.get("YOUTUBE_PLAYLIST_ID")
-    photos = GDrivePhoto.new_photos()
+    photos = GDrivePhoto.new_photos(7)
     return render_template(
         "media.html",
         social=social,
