@@ -8,7 +8,7 @@
                         <div class="carousel-inner">
                             {% for photo in group.list %}
                                 <div class="carousel-item {% if loop.index == 1 %}active{% endif %}">
-                                    <div class="w-100 d-block photo-container">
+                                    <div class="w-100 d-block bg-dark photo-container">
                                         <span class="d-inline-block h-100 align-middle"></span>
                                         <a href="https://drive.google.com/file/d/{{ photo.gdrive_id }}/preview" target="_blank">
                                             <img src="{{ photo.gdrive_thumbnail }}" class="align-middle mx-auto">
