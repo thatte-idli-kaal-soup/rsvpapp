@@ -1,13 +1,18 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/tail.writer@0.4.1/css/tail.writer-white.min.css">
+{% endblock %}
+
 {% block scripts %}
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/editor/0.1.0/editor.css">
-    <script src="//cdn.jsdelivr.net/editor/0.1.0/editor.js"></script>
-    <script src="//cdn.jsdelivr.net/editor/0.1.0/marked.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/tail.writer@0.4.1/js/tail.writer-full.min.js"></script>
     <script>
-     var editor = new Editor({
-         element: document.getElementById("content"),
-         placeholder: "Post Content!",
+     document.addEventListener("DOMContentLoaded", function(){
+         tail.writer(document.getElementById("content"), {
+             height: ["340px", "340px"],
+             tooltip: "top",
+             toolbar: "minimal",
+         });
      });
     </script>
 
@@ -98,7 +103,7 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-12">
-                            <textarea class="form-control" id="content" name="content" rows="2" placeholder="Post content">{{post.content}}</textarea>
+                            <textarea id="content" name="content" placeholder="Post content">{{post.content}}</textarea>
 
                         </div>
                     </div>
