@@ -115,6 +115,14 @@ share_event = function(title) {
     }
 };
 
+show_autocomplete_ui = function(element) {
+    var autocomplete = $('#autocomplete');
+    var rsvp = $('#rsvp-self');
+    rsvp.hide();
+    $(element).hide();
+    autocomplete.show();
+};
+
 if (!navigator.share) {
     $('#share-event').hide();
     $('#copy-event').show();
@@ -122,3 +130,21 @@ if (!navigator.share) {
     $('#share-event').show();
     $('#copy-event').hide();
 }
+
+var options = {
+    search: function(searchTerm) {
+        var re = new RegExp(searchTerm, 'iu');
+        $('#email').val(searchTerm);
+        return window.users.filter(function(user) {
+            return re.exec(user.name) || re.exec(user.nick) || re.exec(user.email);
+        });
+    },
+    getResultValue: function(user) {
+        return user.nick || user.name;
+    },
+    onSubmit: function(user) {
+        console.log(user);
+        $('#email').val(user.email);
+    }
+};
+new Autocomplete('#autocomplete', options);

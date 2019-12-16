@@ -1,21 +1,19 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+    <link rel="stylesheet" href="https://unpkg.com/@trevoreyre/autocomplete-js/dist/style.css"/>
+{% endblock %}
+
 {% block scripts %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.2/awesomplete.min.css" integrity="sha256-TQcHzEz3/ZJ8MeAoO1SRE5sa5q68U57dwZO/tArtNqk=" crossorigin="anonymous" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.2/awesomplete.min.js" integrity="sha256-xA+USAVmEnBnz1FiLRSG8xglJflQVHmQvbx5+u4bslk=" crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='event.js')|versioned }}"></script>
-    <!-- Awesomeplete -->
+    <script src="https://unpkg.com/@trevoreyre/autocomplete-js"></script>
     <script>
-     var input = document.getElementById("email");
-     new Awesomplete(input, {
-         list: [
-             {% for nick, name, email in approved_users.values_list('nick', 'name', 'email') %}
-             { label: "{{nick or name}}", value: "{{email}}" },
-             {% endfor %}
-         ],
-         minChars: 0
-     });
+     window.users = [
+         {% for nick, name, email in approved_users.values_list('nick', 'name', 'email') %}
+         { name: "{{name}}", email: "{{email}}", nick: "{{nick}}" },
+         {% endfor %}
+     ]
     </script>
+    <script src="{{ url_for('static', filename='event.js')|versioned }}"></script>
 {% endblock %}
 
 {% block content %}
@@ -43,23 +41,32 @@
         <div class="card col-md-6" id="event-rsvp">
             <div class="card-body">
                 <p class="alert alert-info" style="display: none;"></p>
-                <form class="form-inline">
+                <form>
                     <input type="hidden"
                            name="email"
                            class="form-control"
                            id="email"
                            value="{{current_user.email}}"
                            required autofocus>
-                    <div class="form-group mb-2">
-                        <label for="going" class="sr-only">Attending?</label>
-                        <input type="text" readonly class="form-control-plaintext" id="staticEmail2" value="Attending?">
-
+                    <div id="autocomplete" class="form-group mb-1" style="display: none;">
+                        <input class="autocomplete-input form-control"
+                               name="email"
+                               type="text"
+                               id="email"
+                               required autofocus />
+                        <ul class="autocomplete-result-list"></ul>
+                    </div>
+                    <div class="form-group mb-2" id="rsvp-self">
+                        <label for="going">Are you attending?</label>
                     </div>
                     <div class="form-group">
                         <a href="#" onclick='submit_rsvp("{{event.id}}", true)' class="btn btn-primary">Yes</a>
                         <a href="#" onclick='submit_rsvp("{{event.id}}", false)' class="btn btn-light">No</a>
+                        <a href="#" onclick='show_autocomplete_ui(this)' class="btn btn-light"><i class="fa fa-user-plus"></i></a>
                     </div>
-                    <input type="text" name="note" class="form-control" id="note" placeholder="Additional note (optional)">
+                    <div class="form-group">
+                        <input type="text" name="note" class="form-control" id="note" placeholder="Additional note (optional)">
+                    </div>
                 </form>
             </div>
         </div>
