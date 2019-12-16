@@ -121,7 +121,7 @@ def api_rsvps(event_id):
         # notes to an existing RSVP should not change the timestamp.
         if rsvp.cancelled:
             rsvp.date = datetime.datetime.now()
-        rsvp.cancelled = False
+        rsvp.cancelled = doc.get("cancelled", False)
 
     event.save()
     event.update_waitlist()
