@@ -24,7 +24,9 @@ def api_events():
 
 
 def event_to_attendance(event, user):
-    attended = event.rsvps.filter(user=user).count()
+    attended = event.rsvps.filter(
+        user=user, cancelled=False, waitlisted=False
+    ).count()
     return {
         "year": event.date.year,
         "month": event.date.strftime("%m-%b"),
