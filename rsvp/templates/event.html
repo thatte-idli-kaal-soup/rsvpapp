@@ -91,7 +91,7 @@
                             {% endif %}
                         </div>
                         {% if item.note %}
-                            <div class="small text-muted">
+                            <div class="small {% if item.user.fetch().gender == 'female' and not item.cancelled -%}text-white-50{% else %}text-muted{% endif %}">
                                 {{ item.note }}
                             </div>
                         {% endif %}
