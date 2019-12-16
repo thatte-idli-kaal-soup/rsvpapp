@@ -1,4 +1,7 @@
-submit_rsvp = function(event_id) {
+submit_rsvp = function(event_id, going) {
+    if (going === undefined) {
+        going = true;
+    }
     $('.alert')
         .text('RSVPing...')
         .show();
@@ -6,9 +9,8 @@ submit_rsvp = function(event_id) {
     var email = $('#email').val();
     var note = $('#note').val();
     var useAnonymous = true;
-    var data = { user: email, note: note, use_anonymous: useAnonymous };
+    var data = { user: email, note: note, use_anonymous: useAnonymous, cancelled: !going };
     console.log(data);
-
     fetch(`/api/rsvps/${event_id}`, {
         credentials: 'same-origin',
         method: 'POST',
