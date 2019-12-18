@@ -533,7 +533,7 @@ def onesta(letters):
 
 @app.route("/secret-santa/<event_id>", methods=["GET", "POST"])
 @login_required
-@role_required("admin")
+@role_required("secret-santa-admin")
 def secret_santa(event_id):
     from rsvp.rudolph import get_people, main
 
