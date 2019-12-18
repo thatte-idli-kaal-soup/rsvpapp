@@ -96,6 +96,10 @@ def event(id):
     event = Event.objects(id=id).first()
     description = "RSVP for {}".format(event.title)
     approved_users = User.approved_users()
+    fields = ("name", "nick", "email")
+    approved_users = [
+        dict(zip(fields, user)) for user in approved_users.values_list(*fields)
+    ]
     rsvps = event.all_rsvps
     count = event.rsvp_count
     female_count = len(event.female_rsvps)

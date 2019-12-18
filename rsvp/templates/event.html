@@ -7,11 +7,7 @@
 {% block scripts %}
     <script src="https://unpkg.com/@trevoreyre/autocomplete-js"></script>
     <script>
-     window.users = [
-         {% for nick, name, email in approved_users.values_list('nick', 'name', 'email') %}
-         { name: "{{name}}", email: "{{email}}", nick: "{{nick}}" },
-         {% endfor %}
-     ]
+     window.users = {{ approved_users|tojson }}
     </script>
     <script src="{{ url_for('static', filename='event.js')|versioned }}"></script>
 {% endblock %}
