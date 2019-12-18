@@ -112,7 +112,8 @@ def api_rsvps(event_id):
             )
             data["user"] = user.email
         rsvp = RSVP(**data)
-        event.rsvps.append(rsvp)
+        if not (rsvp.user.fetch().email == ANONYMOUS_EMAIL and rsvp.cancelled):
+            event.rsvps.append(rsvp)
     else:
         rsvp = event.rsvps.get(user=user)
         if "note" in doc:
