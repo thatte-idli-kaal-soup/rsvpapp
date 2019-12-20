@@ -222,6 +222,7 @@ def user_profile():
         user = User.objects.get_or_404(email=email)
         user.gender = request.form["gender"].strip()
         user.upi_id = request.form["upi-id"].strip()
+        user.phone = request.form["phone"].strip()
         user.blood_group = request.form["blood-group"].strip()
         user.nick = request.form["nick"].strip()
         user.name = request.form["name"].strip()

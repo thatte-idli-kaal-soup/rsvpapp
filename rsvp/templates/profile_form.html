@@ -19,6 +19,7 @@
                         <label for="dob">Date of Birth</label>
                         <input type="date" class="" name="dob" id="dob" placeholder="Date of Birth" value="{% if user.dob %}{{user.dob.strftime('%Y-%m-%d')}}{% else %}{% endif %}">
                     </div>
+                    <input type="text" class="form-control my-2" name="phone" id="phone" placeholder="Phone Number" value="{{user.phone or ''}}">
                     <input type="text" class="form-control my-2" name="upi-id" id="upi-id" placeholder="UPI ID" value="{{user.upi_id or ''}}">
                     <input type="text" class="form-control my-2" name="blood-group" id="blood-group" placeholder="Blood Group" value="{{user.blood_group or ''}}">
                     <div class="input-group mb-3">
