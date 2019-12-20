@@ -127,6 +127,7 @@ class User(db.Document, UserMixin):
     blood_group = db.StringField()
     nick = db.StringField()
     dob = db.DateTimeField()
+    phone = db.StringField()
     hide_dob = db.BooleanField(default=False)
     roles = db.SortedListField(db.StringField())
 
