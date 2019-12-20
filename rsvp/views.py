@@ -224,6 +224,7 @@ def user_profile():
         user.upi_id = request.form["upi-id"].strip()
         user.blood_group = request.form["blood-group"].strip()
         user.nick = request.form["nick"].strip()
+        user.name = request.form["name"].strip()
         user.dob = request.form["dob"] or None
         user.hide_dob = request.form.get("hide_dob") is not None
         user.save()

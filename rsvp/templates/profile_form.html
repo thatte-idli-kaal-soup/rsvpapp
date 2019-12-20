@@ -4,7 +4,6 @@
     <div class="col-sm-4">
         <div class="card bg-dark text-white mb-3">
             <div class="card-header">
-                {{user.name}}
                 {% for role in user.roles %}
                     {% if not role.startswith('.') %}
                         <a class="badge badge-info" href="{{url_for('users', role=role)}}">{{role}}</a>
@@ -14,6 +13,7 @@
             <div class="card-body">
                 <form class="form" action="/profile" method="POST">
                     <input type="hidden" name="email" value={{user.email}}>
+                    <input type="text" class="form-control my-2" name="name" id="name" placeholder="Name" value="{{user.name}}">
                     <input type="text" class="form-control my-2" name="nick" id="nick" placeholder="Nick" value="{{user.nick or ''}}">
                     <div class="form-control">
                         <label for="dob">Date of Birth</label>
