@@ -28,7 +28,7 @@ def get_people(event_id):
 
     """
     event = Event.objects.get(id=event_id)
-    return [rsvp.user.fetch() for rsvp in event.rsvps]
+    return [rsvp.user.fetch() for rsvp in event.active_rsvps]
 
 
 def is_good_pairing(pairs):
