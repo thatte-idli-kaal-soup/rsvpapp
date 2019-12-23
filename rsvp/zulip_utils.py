@@ -111,7 +111,8 @@ def zulip_announce_new_photos(new_paths, new_photos):
             ]
             content += "\n".join(urls)
 
-    send_message_zulip(zulip_stream, title, content, "stream")
+    if content:
+        send_message_zulip(zulip_stream, title, content, "stream")
 
 
 def zulip_event_url(event):
