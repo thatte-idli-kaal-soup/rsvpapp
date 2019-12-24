@@ -10,96 +10,96 @@ from dropbox import Dropbox
 
 
 def upload_file(path):
-    dbx = Dropbox(os.environ['DROPBOX_ACCESS_TOKEN'])
-    print('Uploading file {} to Dropbox'.format(path))
-    with open(path, 'rb') as f:
-        dbx.files_upload(f.read(), '/{}'.format(os.path.basename(path)))
+    dbx = Dropbox(os.environ["DROPBOX_ACCESS_TOKEN"])
+    print("Uploading file {} to Dropbox".format(path))
+    with open(path, "rb") as f:
+        dbx.files_upload(f.read(), "/{}".format(os.path.basename(path)))
 
 
 @click.group()
 @click.pass_context
 def cli(ctx):
     """A CLI to manage DB related actions"""
-    mongodb_uri = os.environ.get('MONGODB_URI', '')
+    mongodb_uri = os.environ.get("MONGODB_URI", "")
     if not mongodb_uri:
         click.echo("You must set MONGODB_URI env var to use this script")
         sys.exit(1)
     parsed = urlparse(mongodb_uri)
-    db = parsed.path.lstrip('/')
-    if '@' in parsed.netloc:
-        auth, server = parsed.netloc.split('@')
-        username, password = auth.split(':')
+    db = parsed.path.lstrip("/")
+    if "@" in parsed.netloc:
+        auth, server = parsed.netloc.split("@")
+        username, password = auth.split(":")
     else:
         server = parsed.netloc
-        username = password = ''
-    host, port = server.split(':')
+        username = password = ""
+    host, port = server.split(":")
     ctx.obj.update(
         {
-            'username': username,
-            'password': password,
-            'host': host,
-            'port': port,
-            'db': db,
+            "username": username,
+            "password": password,
+            "host": host,
+            "port": port,
+            "db": db,
         }
     )
 
 
 @click.command()
 @click.pass_context
-@click.argument('path')
-@click.argument('command')
-@click.argument('extra', nargs=-1)
+@click.argument("path")
+@click.argument("command")
+@click.argument("extra", nargs=-1)
 def alley(ctx, path, command, extra=None):
-    CMD = ['alley']
-    if ctx.obj['db']:
-        CMD.extend(['-db', ctx.obj['db']])
-    if ctx.obj['host']:
-        CMD.extend(['-h', ctx.obj['host']])
-    if ctx.obj['port']:
-        CMD.extend(['-p', ctx.obj['port']])
-    if ctx.obj['username']:
-        CMD.extend(['-u', ctx.obj['username']])
-    if ctx.obj['password']:
-        CMD.extend(['-w', ctx.obj['password']])
+    CMD = ["alley"]
+    if ctx.obj["db"]:
+        CMD.extend(["-db", ctx.obj["db"]])
+    if ctx.obj["host"]:
+        CMD.extend(["-h", ctx.obj["host"]])
+    if ctx.obj["port"]:
+        CMD.extend(["-p", ctx.obj["port"]])
+    if ctx.obj["username"]:
+        CMD.extend(["-u", ctx.obj["username"]])
+    if ctx.obj["password"]:
+        CMD.extend(["-w", ctx.obj["password"]])
     print(path, command)
     CMD.extend([path, command])
     if extra:
         CMD.extend(extra)
-    click.echo('Running command:: {}'.format(' '.join(CMD)))
+    click.echo("Running command:: {}".format(" ".join(CMD)))
     try:
         subprocess.check_call(CMD)
     except subprocess.CalledProcessError:
-        click.echo('Failed to run alley!')
+        click.echo("Failed to run alley!")
 
 
 @click.command()
 @click.pass_context
 def backup(ctx):
     command = [
-        'mongodump' if 'DYNO' not in os.environ else './.apt/usr/bin/mongodump'
+        "mongodump" if "DYNO" not in os.environ else "./.apt/usr/bin/mongodump"
     ]
-    if ctx.obj['db']:
-        command.extend(['--db', ctx.obj['db']])
-    if ctx.obj['host']:
-        command.extend(['--host', ctx.obj['host']])
-    if ctx.obj['port']:
-        command.extend(['--port', ctx.obj['port']])
-    if ctx.obj['username']:
-        command.extend(['-u', ctx.obj['username']])
-    if ctx.obj['password']:
-        command.extend(['-p', ctx.obj['password']])
-    click.echo('Running command:: {}'.format(' '.join(command)))
-    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    tarball = '{}-dump-{}.tar.gz'.format(ctx.obj['db'], timestamp)
+    if ctx.obj["db"]:
+        command.extend(["--db", ctx.obj["db"]])
+    if ctx.obj["host"]:
+        command.extend(["--host", ctx.obj["host"]])
+    if ctx.obj["port"]:
+        command.extend(["--port", ctx.obj["port"]])
+    if ctx.obj["username"]:
+        command.extend(["-u", ctx.obj["username"]])
+    if ctx.obj["password"]:
+        command.extend(["-p", ctx.obj["password"]])
+    click.echo("Running command:: {}".format(" ".join(command)))
+    timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    tarball = "{}-dump-{}.tar.gz".format(ctx.obj["db"], timestamp)
     try:
         subprocess.check_call(command)
-        subprocess.check_call(['tar', 'czf', tarball, 'dump/'])
+        subprocess.check_call(["tar", "czf", tarball, "dump/"])
         upload_file(tarball)
     except subprocess.CalledProcessError:
-        click.echo('Failed to run backup!')
+        click.echo("Failed to run backup!")
 
 
 cli.add_command(alley)
 cli.add_command(backup)
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli(obj={})
