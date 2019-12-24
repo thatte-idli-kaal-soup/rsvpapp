@@ -99,7 +99,20 @@ def backup(ctx):
         click.echo("Failed to run backup!")
 
 
+@click.command()
+@click.argument("tarball")
+def restore_local(tarball):
+    path = os.path.abspath(tarball)
+    dump = os.path.join(os.path.dirname(path), "dump")
+    try:
+        subprocess.check_call(["tar", "xzf", path])
+        subprocess.check_call(["mongorestore", "--drop", dump])
+    except subprocess.CalledProcessError:
+        click.echo("Failed to restore from backup!")
+
+
 cli.add_command(alley)
 cli.add_command(backup)
+cli.add_command(restore_local)
 if __name__ == "__main__":
     cli(obj={})
