@@ -115,6 +115,12 @@ share_event = function(title) {
     }
 };
 
+show_note_ui = function(element) {
+    $('#note')
+        .parent()
+        .show();
+};
+
 show_autocomplete_ui = function(element) {
     var autocomplete = $('#autocomplete');
     var rsvp = $('#rsvp-self');
