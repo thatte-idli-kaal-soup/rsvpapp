@@ -119,6 +119,7 @@ show_note_ui = function(element) {
     $('#note')
         .parent()
         .show();
+    $(element).hide();
 };
 
 show_autocomplete_ui = function(element) {
