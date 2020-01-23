@@ -114,11 +114,7 @@ def event(id):
         cancelled = not rsvp_param == "yes"
         if filtered_rsvps.count() == 0:
             add_rsvp(event, current_user, cancelled)
-        else:
-            rsvp = filtered_rsvps.first()
-            rsvp.cancelled = cancelled
-            rsvp.save()
-        event.update_waitlist()
+            event.update_waitlist()
 
     description = "RSVP for {}".format(event.title)
     approved_users = User.approved_users()
