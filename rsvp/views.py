@@ -525,8 +525,7 @@ def photo_map():
 
 @app.route("/features", methods=["GET"])
 def features():
-    context = dict(TEXT1="Features")
-    return render_template("features.html", **context)
+    return render_template("features.html")
 
 
 @app.route("/onesta/<letters>")

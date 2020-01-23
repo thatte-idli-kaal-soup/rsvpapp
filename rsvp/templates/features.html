@@ -1,90 +1,99 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{{ TEXT1 }}</title>
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/tailwindcss@next/dist/tailwind.min.css"
+        />
+        <link href="https://fonts.googleapis.com/css?family=Ubuntu&display=swap" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body class="text-gray-700 bg-white"
+          style="font-family: 'Ubuntu', sans-serif">
+        <nav>
+            <div class="container mx-auto px-6 py-2 flex justify-between items-center">
+                <a class="font-bold text-2xl lg:text-4xl" href="/">
+                    RSVPlay
+                </a>
+            </div>
+        </nav>
+        <!--Hero-->
+        <div
+            class="py-20"
+            style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%)"
+        >
+            <div class="container mx-auto px-6">
+                <h3 class="text-2xl mb-8 text-gray-200">
+                    Organize and manage team events easily!
+                </h3>
+                <form class="w-full max-w-sm" action="/request-demo" method="POST">
+                    <div class="flex items-center border-b border-b-2 border-white-500 py-2">
+                        <input class="appearance-none bg-transparent border-none w-full text-gray-100 py-1 focus:outline-none" type="text" placeholder="Email Address" aria-label="Email Address" name="email" />
+                        <input class="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded" type="submit" value="Request Demo" />
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Features -->
+        <section class="container mx-auto px-6 p-10">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-8">
+                Features
+            </h2>
 
-{% block content %}
-    <div class="card-deck mb-3 text-center">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4 class="my-0 font-weight-normal">Events</h4>
+            <div class="flex items-center flex-wrap mb-20">
+                <div class="w-full md:w-1/2">
+                    <h4 class="text-3xl text-gray-800 font-bold mb-3">
+                        Simple RSVPs
+                    </h4>
+                    <ul class="text-gray-600 mb-8">
+                        <li>Call-in for an event simply by clicking on a link</li>
+                        <li>Easily manage RSVPs for multiple events concurrently</li>
+                        <li>Keep WhatsApp groups still usable for actual discussions and chat</li>
+                        <li>Easily see gender ratio for a practice</li>
+                        <li>Keep track of player attendance</li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-1/2">
+                    <img style="max-height: 480px;" class="mx-auto" src="{{ url_for('static', filename='images/rsvp.png')|versioned }}" alt="Simple RSVPs" />
+                </div>
             </div>
-            <div class="card-body">
-                <h3 class="card-title">Easy to use RSVP events</h3>
-                <ul class="list-unstyled mt-3 mb-4">
-                    <li>Add or cancel RSVPs</li>
-                    <li>Quickly copy RSVP list</li>
-                    <li>Avoid WhatsApp "spam"</li>
-                    <li>Easily see gender ratio</li>
-                    <li>Link to Split-wise groups</li>
-                </ul>
-            </div>
-        </div>
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4 class="my-0 font-weight-normal">Players</h4>
-            </div>
-            <div class="card-body">
-                <h3 class="card-title">Easily manage player information</h3>
-                <ul class="list-unstyled mt-3 mb-4">
-                    <li>Approve players to use the app</li>
-                    <li>Collect important player info</li>
-                    <li>Assign roles & permissions</li>
-                    <li>Track attendance</li>
-                </ul>
-            </div>
-        </div>
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4 class="my-0 font-weight-normal">Media</h4>
-            </div>
-            <div class="card-body">
-                <h3 class="card-title">Organize and share media and posts</h3>
-                <ul class="list-unstyled mt-3 mb-4">
-                    <li>Auto-share Google Drive & Calendar</li>
-                    <li>New upload notifications</li>
-                    <li>Sticky posts/announcements</li>
-                    <li>Make selected posts public</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="card-deck mb-3 text-center">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4 class="my-0 font-weight-normal">API</h4>
-            </div>
-            <div class="card-body">
-                <h3 class="card-title">Integrate with other services</h3>
-                <ul class="list-unstyled mt-3 mb-4">
-                    <li>Zulip support available</li>
-                    <li>Other bots can use the API - Slack/WhatsApp/etc.</li>
-                </ul>
-            </div>
-        </div>
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4 class="my-0 font-weight-normal">Coming Soon</h4>
-            </div>
-            <div class="card-body">
-                <h3 class="card-title">Potential new features</h3>
-                <ul class="list-unstyled mt-3 mb-4">
-                    <li>Import UPAI events</li>
-                    <li>Optional email notifications</li>
-                    <li><a href="https://github.com/thatte-idli-kaal-soup/rsvpapp/issues" target="_blank">Request yours...</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4 class="my-0 font-weight-normal">Free Software</h4>
-            </div>
-            <div class="card-body">
-                <h3 class="card-title">Software for the community</h3>
-                <ul class="list-unstyled mt-3 mb-4">
-                    <li>Contribute & make it better</li>
-                    <li>No lock-in</li>
-                    <li>Run your own version</li>
-                </ul>
-            </div>
-        </div>
-    </div>
 
-{% endblock %}
+            <div class="flex items-center flex-wrap mb-20">
+                <div class="w-full md:w-1/2">
+                    <img class="mx-auto" src="{{ url_for('static', filename='images/player-search.png')|versioned }}" alt="Player Information" />
+                </div>
+                <div class="w-full md:w-1/2 pl-10">
+                    <h4 class="text-3xl text-gray-800 font-bold mb-3">
+                        Player Information Management
+                    </h4>
+                    <ul class="text-gray-600 mb-8">
+                        <li>Single DB with all player information, past and present</li>
+                        <li>Easily search for a player's information</li>
+                        <li>Quickly share player information for an event. Useful for sharing info with venue management, insurance agents, etc.</li>
+                        <li>Create Splitwise groups from events with a single click</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flex items-center flex-wrap mb-20">
+                <div class="w-full md:w-1/2">
+                    <h4 class="text-3xl text-gray-800 font-bold mb-3">
+                        Organize Team Media
+                    </h4>
+                    <ul class="text-gray-600 mb-8">
+                        <li>Automatically shared Google Drive among all players</li>
+                        <li>Share photos to Google Drive with as much ease as
+                            sharing on WhatsApp</li>
+                        <li>Don't lose valuable videos and pictures in WhatsApp groups, etc.</li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-1/2">
+                    <img style="max-height: 480px" class="mx-auto" src="{{ url_for('static', filename='images/share-clean.jpg')|versioned }}" alt="Player Information" />
+                </div>
+            </div>
+        </section>
+
+    </body>
+    <!-- Based on https://scotch.io/tutorials/build-a-beautiful-landing-page-with-tailwind-css -->
+</html>
