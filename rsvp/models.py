@@ -222,3 +222,8 @@ class Bookmark(db.Document):
     title = db.StringField()
     description = db.StringField()
     image = db.URLField()
+
+
+class InterestedUser(db.Document):
+    created_at = db.DateTimeField(required=True, default=datetime.datetime.now)
+    email = db.EmailField()

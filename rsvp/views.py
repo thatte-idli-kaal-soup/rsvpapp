@@ -34,7 +34,7 @@ from .gdrive_utils import (
     list_sub_dirs,
     upload_photo,
 )
-from .models import Bookmark, Event, GDrivePhoto, Post, User
+from .models import Bookmark, Event, GDrivePhoto, InterestedUser, Post, User
 from .utils import (
     format_gphoto_time,
     generate_password,
@@ -526,6 +526,23 @@ def photo_map():
 @app.route("/features", methods=["GET"])
 def features():
     return render_template("features.html")
+
+
+@app.route("/request-demo", methods=["POST"])
+def request_demo():
+    email = request.form.get("email")
+    try:
+        InterestedUser.objects.create(email=email)
+        return render_template("demo-request-success.html")
+    except ValidationError:
+        return redirect(url_for("features"))
+
+
+@app.route("/demo-requests", methods=["GET"])
+@role_required("admin")
+def demo_requests():
+    demo_requests = InterestedUser.objects.filter()
+    return render_template("demo-requests.html", demo_requests=demo_requests)
 
 
 @app.route("/onesta/<letters>")
