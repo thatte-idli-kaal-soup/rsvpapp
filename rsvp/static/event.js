@@ -101,11 +101,13 @@ cancel_event = function(event_id) {
 };
 
 share_event = function(title) {
+    var description = $('#event-description');
     var data = {
         title: title,
-        text: document.getElementById('event-description').innerText + '\n\n',
+        text: description.length > 0 ? description[0].innerText + '\n\n' : '',
         url: location.href
     };
+
     console.log(data);
     if (navigator.share) {
         navigator
