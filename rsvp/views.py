@@ -34,7 +34,15 @@ from .gdrive_utils import (
     list_sub_dirs,
     upload_photo,
 )
-from .models import Bookmark, Event, GDrivePhoto, InterestedUser, Post, User
+from .models import (
+    Bookmark,
+    Event,
+    GDrivePhoto,
+    InterestedUser,
+    Post,
+    RSVP,
+    User,
+)
 from .utils import (
     format_gphoto_time,
     generate_password,
@@ -90,10 +98,28 @@ def calendar():
     return render_template("calendar.html")
 
 
+def add_rsvp(event, user, cancelled):
+    rsvp = RSVP(rsvp_by=user.email, user=user.email, cancelled=cancelled)
+    event.rsvps.append(rsvp)
+    event.save()
+
+
 @app.route("/event/<id>", methods=["GET"])
 @login_required
 def event(id):
     event = Event.objects(id=id).first()
+    rsvp_param = request.args.get("attending")
+    if rsvp_param is not None:
+        filtered_rsvps = event.rsvps.filter(user=current_user)
+        cancelled = not rsvp_param == "yes"
+        if filtered_rsvps.count() == 0:
+            add_rsvp(event, current_user, cancelled)
+        else:
+            rsvp = filtered_rsvps.first()
+            rsvp.cancelled = cancelled
+            rsvp.save()
+        event.update_waitlist()
+
     description = "RSVP for {}".format(event.title)
     approved_users = User.approved_users()
     fields = ("name", "nick", "email")
