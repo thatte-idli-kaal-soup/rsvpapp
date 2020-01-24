@@ -4,18 +4,7 @@ RSVP app for TIKS
 
 ## Developer help
 
-### Docker setup
-
-Running the app using Docker is the preferred way, especially if you don't have
-a mongodb setup locally, and are not keen on setting it up.
-
-1. Install `docker-compose` if you don't have it installed already
-
-2. Copy the `web-variables.env.template` to `web-variables.env`
-
-3. Run `docker-compose -up` to get the app running.
-
-### Installation & Running the app (without Docker)
+### Installation & Running the app (without Docker/Dokku)
 
 1. Setup MongoDB on your machine.
 
@@ -64,5 +53,4 @@ The app uses Google OAuth for authentication. But, to allow developers to work
 on the app without having the whole Google auth stuff setup, a `dev_login`
 method is available for developers.
 
-You need to set an environment variable, `NO_GOOGLE_AUTH=1`. This is set by
-default in the `web-variables.env.template` file.
+You need to set an environment variable, `NO_GOOGLE_AUTH=1`.
