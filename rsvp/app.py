@@ -21,8 +21,8 @@ from .zulip_utils import zulip_event_url
 
 app = Flask(__name__)
 app.config.from_envvar("SETTINGS")
-if "DYNO" in os.environ:
-    # only trigger SSLify if the app is running on Heroku
+if "DYNO" in os.environ and "DOKKU_APP_TYPE" not in os.environ:
+    # only trigger SSLify if the app is running on Heroku, not Dokku or local env
     sslify = SSLify(app)
 versioned = Versioned(app)
 db.init_app(app)
