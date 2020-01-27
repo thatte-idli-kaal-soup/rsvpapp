@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Script to create a new deployment of this app on Dokku
+set -euo pipefail
+IFS=$'\n\t'
+
+APP=$1
+
+function dokku {
+    ssh dokku@"${DOKKU_HOST}" $@
+}
+
+source .dokku-envrc
+
+# Create new Dokku app
+dokku apps:exists "${APP}" || dokku apps:create "${APP}"
+
+# Create and link new mongo service
+dokku mongo:create "${APP}" || true
+dokku mongo:link "${APP}" "${APP}" || true
+
+# Set MONGODB_URI env var
+MONGO_URL=$(dokku config:get "${APP}" MONGO_URL)
+dokku config:set --no-restart "${APP}" MONGODB_URI="${MONGO_URL}"
+
+# Set a bunch of other config env variables
+dokku config:set --no-restart "${APP}"\
+      SETTINGS="settings/conf.py" \
+      GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID}" \
+      GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}" \
+      DOKKU_LETSENCRYPT_EMAIL="${DOKKU_LETSENCRYPT_EMAIL}"
+
+# Add git remote
+git remote get-url dokku-"${APP}" || git remote add dokku-"${APP}" dokku@"${DOKKU_HOST}":"${APP}"
+
+# Push and Deploy
+git push -f dokku-"${APP}" master
+
+# Lets encrypt
+dokku letsencrypt:ls |grep -q "${APP}" || dokku letsencrypt "${APP}"
+
+# Reminder about adding URL to Authorized redirect URLs
+curl --fail "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=${GOOGLE_CLIENT_ID}&redirect_uri=https%3A%2F%2F${APP}.${DOKKU_HOST}%2Flogin%2Fgoogle%2Fauthorized&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+openid" > /dev/null 2>&1 || echo "Add ${APP} to authorized URLs at https://console.developers.google.com/apis/credentials/oauthclient/${GOOGLE_CLIENT_ID}"
+
+dokku mongo:restart "${APP}"
+dokku ps:restart "${APP}"
+
+dokku run "${APP}" ./scripts/manage_users create_admins "${APP_ADMIN}"
