@@ -350,6 +350,7 @@ def add_or_update_event(service, calendarId, iCalUID, body):
     matches = find_event_by_ical_uid(service, calendarId, iCalUID)
     if len(matches) == 1 and _event_needs_update(matches[0], body):
         event = matches[0]
+        print("Updating {}...".format(event["iCalUID"]))
         service.events().update(
             calendarId=calendarId, eventId=event["id"], body=body
         ).execute()
@@ -359,6 +360,7 @@ def add_or_update_event(service, calendarId, iCalUID, body):
         for event in matches:
             delete_calendar_event(service, calendarId, event["iCalUID"])
             print("Deleted {}".format(event["iCalUID"]))
+        print("Adding {}...".format(iCalUID))
         service.events().insert(calendarId=calendarId, body=body).execute()
         print("Added {}".format(iCalUID))
 
