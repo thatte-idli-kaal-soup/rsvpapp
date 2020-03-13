@@ -173,6 +173,9 @@ def create_event_gdrive(id):
 def event_editor(id=None):
     event = Event.objects(id=id).first() if id is not None else None
 
+    if not event and os.environ["NEW_EVENT_REDIRECT"]:
+        return redirect(os.environ["NEW_EVENT_REDIRECT"])
+
     # Verify that the user can edit the event
     if event and not event.can_edit(current_user):
         return redirect(url_for("index"))
