@@ -6,7 +6,7 @@ from flask import request, jsonify
 from flask_login import current_user, login_required
 from mongoengine.errors import DoesNotExist
 
-from .models import Event, RSVP, User, ANONYMOUS_EMAIL
+from .models import Event, Post, RSVP, User, ANONYMOUS_EMAIL
 from . import app
 
 
@@ -158,3 +158,14 @@ def api_rsvp(event_id, rsvp_id):
 @login_required
 def api_users():
     return User.approved_users().to_json()
+
+
+@app.route("/api/posts/", methods=["GET"])
+@login_required
+def api_posts():
+    all_posts = bool(request.values.get("all", False))
+    posts = (
+        Post.objects.all() if all_posts else Post.objects.filter(public=True)
+    )
+    data = json.loads(posts.to_json())
+    return jsonify(data)
