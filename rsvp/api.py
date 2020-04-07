@@ -36,6 +36,7 @@ def event_to_attendance(event, user):
 
 
 @app.route("/api/attendance", methods=["GET"])
+@login_required
 def api_attendance():
     events = Event.objects.filter(cancelled=False)
     data = [event_to_attendance(event, current_user) for event in events]
