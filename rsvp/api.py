@@ -161,9 +161,11 @@ def api_users():
 
 
 @app.route("/api/posts/", methods=["GET"])
-@login_required
 def api_posts():
     all_posts = bool(request.values.get("all", False))
-    posts = Post.published_posts() if all_posts else Post.public_posts()
+    if current_user.is_authenticated and all_posts:
+        posts = Post.published_posts()
+    else:
+        posts = Post.public_posts()
     data = json.loads(posts.to_json())
     return jsonify(data)
