@@ -198,6 +198,14 @@ class Post(db.Document):
         names = ", ".join(names)
         return " & ".join(names.rsplit(",", 1))
 
+    @classmethod
+    def published_posts(cls):
+        return Post.objects.filter(draft=False)
+
+    @classmethod
+    def public_posts(cls):
+        return cls.objects.filter(draft=False, public=True)
+
 
 signals.pre_save.connect(Post.pre_save, sender=Post)
 signals.post_save.connect(zulip_announce_post, sender=Post)

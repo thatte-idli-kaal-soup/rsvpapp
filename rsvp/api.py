@@ -164,8 +164,6 @@ def api_users():
 @login_required
 def api_posts():
     all_posts = bool(request.values.get("all", False))
-    posts = (
-        Post.objects.all() if all_posts else Post.objects.filter(public=True)
-    )
+    posts = Post.published_posts() if all_posts else Post.public_posts()
     data = json.loads(posts.to_json())
     return jsonify(data)
