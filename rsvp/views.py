@@ -498,20 +498,23 @@ def show_bookmarks_page(page=1):
 @app.route("/media", methods=["GET"])
 @fresh_login_required
 def media():
+    if "GDRIVE_REFRESH_TOKEN" not in os.environ:
+        flash(
+            "Media storage with Google Drive has not yet been configured for this instance",
+            "warning",
+        )
+        return redirect(url_for("index"))
+
     social = copy.deepcopy(app.config["SOCIAL"])
     if current_user.has_any_role("admin", "social-admin"):
         for platform in social:
             if not platform["type"] == "account":
                 continue
 
-            platform["password"] = generate_password(
-                platform["name"], app.secret_key
-            )
+            platform["password"] = generate_password(platform["name"], app.secret_key)
     service = create_oauth_service()
     gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
-    gdrive_dirs = sorted(
-        list_sub_dirs(service, gdrive_root), key=lambda x: x["name"]
-    )
+    gdrive_dirs = sorted(list_sub_dirs(service, gdrive_root), key=lambda x: x["name"])
     youtube_playlist = os.environ.get("YOUTUBE_PLAYLIST_ID")
     photos = GDrivePhoto.new_photos(7)
     return render_template(
