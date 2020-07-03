@@ -85,10 +85,7 @@ def index():
     photos = list(GDrivePhoto.objects)
     photos = get_random_photos(photos) if photos else []
     return render_template(
-        "index.html",
-        upcoming_events=upcoming_events,
-        posts=posts,
-        photos=photos,
+        "index.html", upcoming_events=upcoming_events, posts=posts, photos=photos,
     )
 
 
@@ -150,9 +147,7 @@ def create_event_gdrive(id):
             # FIXME: Redirect to the drive!
             return redirect(url_for("event", id=id))
         else:
-            flash(
-                "The event does not have a drive associated with it", "warning"
-            )
+            flash("The event does not have a drive associated with it", "warning")
             return redirect(url_for("event", id=id))
     gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
     service = create_oauth_service()
@@ -160,9 +155,7 @@ def create_event_gdrive(id):
     description = "Drive for {} - {}".format(
         event.title, url_for("event", id=event.id, _external=True)
     )
-    event.gdrive_id = create_folder(
-        service, gdrive_root, drive_name, description
-    )
+    event.gdrive_id = create_folder(service, gdrive_root, drive_name, description)
     event.save()
     return redirect(url_for("event", id=id))
 
@@ -193,9 +186,7 @@ def create_event():
         "name": request.form["event-name"],
         "rsvp_limit": int(request.form["event-rsvp-limit"]),
         "date": "{} {}".format(date, time),
-        "created_by": (
-            current_user.email if current_user.is_authenticated else None
-        ),
+        "created_by": (current_user.email if current_user.is_authenticated else None),
         "description": request.form.get("event-description", ""),
     }
     end_date = request.form.get("end_date", "")
@@ -276,9 +267,7 @@ def users():
             if not role.startswith(".")
         }
     )
-    genders = set(filter(None, User.objects.values_list("gender"))).union(
-        {"unknown"}
-    )
+    genders = set(filter(None, User.objects.values_list("gender"))).union({"unknown"})
     users = sorted(users, key=lambda u: u.name.lower())
     return render_template(
         "users.html",
@@ -312,8 +301,7 @@ def disapprove_user(email):
 @role_required("admin")
 def approve_users():
     users = sorted(
-        User.objects(roles__nin=[".approved-user"]),
-        key=lambda u: u.name.lower(),
+        User.objects(roles__nin=[".approved-user"]), key=lambda u: u.name.lower(),
     )
     return render_template("approve_users.html", users=users)
 
@@ -468,9 +456,7 @@ def add_post():
 @app.route("/images/")
 @login_required
 def images():
-    return render_template(
-        "images.html", images=list_images(), image_url=image_url
-    )
+    return render_template("images.html", images=list_images(), image_url=image_url)
 
 
 # Bookmark views #######################################################
@@ -589,9 +575,7 @@ def secret_santa(event_id):
 
     people = get_people(event_id)
     if request.method == "GET":
-        return render_template(
-            "secret-santa.html", people=people, event_id=event_id
-        )
+        return render_template("secret-santa.html", people=people, event_id=event_id)
 
     test_run = not request.form.get("live-run") == "on"
     pairs = main(people=people, test=test_run)
@@ -701,9 +685,7 @@ def upload_photos():
             if photo.content_type is not None
             else mimetypes.guess_type(filename)[0]
         )
-        upload_photo(
-            service, drive_id, filename, mimetype, photo.stream, description
-        )
+        upload_photo(service, drive_id, filename, mimetype, photo.stream, description)
 
     drive_url = "https://drive.google.com/drive/folders/{}".format(drive_id)
     return jsonify({"success": "true", "drive_url": drive_url})
