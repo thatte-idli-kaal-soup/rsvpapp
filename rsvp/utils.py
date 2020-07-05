@@ -188,7 +188,7 @@ def send_approved_email(user):
 
 def send_email(to_users, subject, body):
     sg = sendgrid.SendGridAPIClient(apikey=os.environ.get("SENDGRID_API_KEY"))
-    from_email = Email("noreply@thatteidlikaalsoup.team")
+    from_email = Email(os.environ.get("FROM_EMAIL", "noreply@thatteidlikaalsoup.team"))
     content = Content("text/plain", body)
     to_emails = [
         Email("{} <{}>".format(user.name, user.email)) for user in to_users
