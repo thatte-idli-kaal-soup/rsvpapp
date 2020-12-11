@@ -28,7 +28,7 @@ pip install -r requirements.txt
 3. Setup environment variables
 
 ```sh
-export LOGO=https://thatteidlikaalsoup.team/images/tiks-logo.ico
+export LOGO=https://thatteidlikaalsoup.team/icons/icon-144x144.png
 export TEXT1="Thatte Idli Kaal Soup"
 export TEXT2="Practice RSVP"
 export COMPANY="Thatte Idli Kaal Soup"
