@@ -15,6 +15,7 @@ cloudinary==1.15.0
 cryptography==2.3.1
 Cython==0.29.13
 decorator==4.2.1
+distro==1.5.0
 dnspython==2.0.0
 dropbox==9.4.0
 entrypoints==0.3
@@ -93,4 +94,4 @@ webpreview==1.5.0
 Werkzeug==0.15.5
 WTForms==2.1
 zipp==0.6.0
-zulip==0.5.8
+zulip==0.7.1
