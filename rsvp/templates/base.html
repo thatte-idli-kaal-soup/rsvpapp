@@ -63,7 +63,7 @@
                                     Welcome, {{current_user.nick or current_user.name}}
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ url_for('user_profile') }}"><span class="dropdown-item">Logged in as <br/>{{current_user.email}}</span></a>
+                                    <a class="dropdown-item" href="{{ url_for('user_profile') }}">Profile ({{current_user.email}})</a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="{{ url_for('users') }}">Users</a>
                                     <a class="dropdown-item" href="/logout">Logout</a>
