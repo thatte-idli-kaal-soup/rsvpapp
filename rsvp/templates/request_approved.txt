@@ -2,6 +2,6 @@ Hello {{user.name}},
 
 Your request to join "{{TEXT1}}" has been approved.
 
-{{url_for('index', _external=True)}}
+Please update your profile information here: {{url_for('user_profile', _external=True)}}
 
 Welcome!
