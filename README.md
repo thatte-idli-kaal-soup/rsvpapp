@@ -12,6 +12,13 @@ RSVP app for TIKS
    time and effort to setup MongoDB, ask @punchagan for access to a Test DB,
    against which you can develop.
 
+   You could run mongo using docker, without needing to have the full app run on
+   Docker, etc., too.
+
+   ```sh
+   docker run -d -p 27017:27017 -v <absolute-path-to-data-dir>:/data/db mongo
+   ```
+
 1. Setup a virtualenv and activate it
 
 ```sh
