@@ -128,6 +128,7 @@ class User(db.Document, UserMixin):
     nick = db.StringField()
     dob = db.DateTimeField()
     phone = db.StringField()
+    address = db.StringField()
     hide_dob = db.BooleanField(default=False)
     roles = db.SortedListField(db.StringField())
 
