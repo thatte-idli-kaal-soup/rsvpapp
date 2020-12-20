@@ -18,6 +18,8 @@ import mistune
 import sendgrid
 from sendgrid.helpers.mail import Email, Content, Mail, Personalization
 from werkzeug.security import pbkdf2_hex
+from dropbox import Dropbox
+
 
 ALLOWED_RATIOS = ((4, 3), (21, 9), (16, 9), (1, 1))
 
@@ -268,3 +270,10 @@ def get_attendance_chart(source):
     )
     chart = chart & (legend + text)
     return chart.to_json()
+
+
+def upload_file(path):
+    dbx = Dropbox(os.environ["DROPBOX_ACCESS_TOKEN"])
+    print("Uploading file {} to Dropbox".format(path))
+    with open(path, "rb") as f:
+        dbx.files_upload(f.read(), "/{}".format(os.path.basename(path)))

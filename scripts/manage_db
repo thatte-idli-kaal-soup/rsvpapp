@@ -6,15 +6,9 @@ import sys
 from urllib.parse import urlparse
 
 import click
-from dropbox import Dropbox
 
-
-def upload_file(path):
-    dbx = Dropbox(os.environ["DROPBOX_ACCESS_TOKEN"])
-    print("Uploading file {} to Dropbox".format(path))
-    with open(path, "rb") as f:
-        dbx.files_upload(f.read(), "/{}".format(os.path.basename(path)))
-
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from rsvp.utils import upload_file
 
 @click.group()
 @click.pass_context
