@@ -10,6 +10,7 @@ import click
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rsvp.utils import upload_file
 
+
 @click.group()
 @click.pass_context
 def cli(ctx):
@@ -26,9 +27,10 @@ def cli(ctx):
     else:
         server = parsed.netloc
         username = password = ""
-    host, port = server.split(":")
+    host, port = (server.split(":") + ["27017"])[:2]
     ctx.obj.update(
         {
+            "db_uri": mongodb_uri,
             "username": username,
             "password": password,
             "host": host,
@@ -69,19 +71,9 @@ def alley(ctx, path, command, extra=None):
 @click.command()
 @click.pass_context
 def backup(ctx):
-    command = [
-        "mongodump" if "DYNO" not in os.environ else "./.apt/usr/bin/mongodump"
-    ]
-    if ctx.obj["db"]:
-        command.extend(["--db", ctx.obj["db"]])
-    if ctx.obj["host"]:
-        command.extend(["--host", ctx.obj["host"]])
-    if ctx.obj["port"]:
-        command.extend(["--port", ctx.obj["port"]])
-    if ctx.obj["username"]:
-        command.extend(["-u", ctx.obj["username"]])
-    if ctx.obj["password"]:
-        command.extend(["-p", ctx.obj["password"]])
+    command = ["mongodump"]
+    if ctx.obj["db_uri"]:
+        command.extend(["--uri", ctx.obj["db_uri"]])
     click.echo("Running command:: {}".format(" ".join(command)))
     timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     tarball = "{}-dump-{}.tar.gz".format(ctx.obj["db"], timestamp)
