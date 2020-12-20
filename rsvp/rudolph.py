@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
+import codecs
 from datetime import datetime
 import random
 
 from flask import render_template
 
 from rsvp.models import Event, User
-from rsvp.utils import send_email
+from rsvp.utils import send_email, upload_file
 
-
-YEAR = datetime.now().year
+NOW = datetime.now()
+YEAR = NOW.year
 SENDER = "Fun Committee, TIKS"
 SUBJECT = "TIKS Secret Santa {}".format(YEAR)
 HEADERS = """\
@@ -63,10 +64,16 @@ def pick_pairs(people):
     return list(zip(santas_1, kiddos_1)) + list(zip(santas_2, kiddos_2))
 
 
-def persist_pairs(pairs):
+def persist_pairs(pairs, test=False):
     """Just print pairs to the terminal."""
-    for (santa, kiddo) in pairs:
-        print("{} -- {}".format(santa, kiddo))
+    env = "live" if not test else "demo"
+    persisted_file = f"secret-santa-{NOW.isoformat()}-{env}.txt"
+    with open(persisted_file, "w") as f:
+        for (santa, kiddo) in pairs:
+            line = codecs.encode(f"{santa} -- {kiddo}", "rot_13")
+            print(line)
+            print(line, file=f)
+    upload_file(f.name)
 
 
 def notify_santas(pairs, test=True):
@@ -91,6 +98,6 @@ def main(people, test=True):
     while not good_pairs:
         pairs = pick_pairs(people)
         good_pairs = is_good_pairing(pairs)
-    persist_pairs(pairs)
+    persist_pairs(pairs, test=test)
     notify_santas(pairs, test=test)
     return pairs
