@@ -69,17 +69,21 @@ def persist_pairs(pairs):
         print("{} -- {}".format(santa, kiddo))
 
 
-def notify_santas(pairs):
+def notify_santas(pairs, test=True):
     for santa, kiddo in pairs:
         santa = User.objects.get(email=santa)
         kiddo = User.objects.get(email=kiddo)
         content = render_template(
             "secret-santa.txt",
-            santa=(santa.nick or santa.name),
-            kiddo=(kiddo.nick or kiddo.name),
+            santa_name=(santa.nick or santa.name),
+            kiddo_name=(kiddo.nick or kiddo.name),
+            kiddo=kiddo,
             from_=SENDER,
         )
-        send_email([santa], SUBJECT, content)
+        if not test:
+            send_email([santa], SUBJECT, content)
+        else:
+            print(content)
 
 
 def main(people, test=True):
@@ -88,6 +92,5 @@ def main(people, test=True):
         pairs = pick_pairs(people)
         good_pairs = is_good_pairing(pairs)
     persist_pairs(pairs)
-    if not test:
-        notify_santas(pairs)
+    notify_santas(pairs, test=test)
     return pairs
