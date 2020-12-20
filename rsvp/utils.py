@@ -44,10 +44,7 @@ SLUG_RE = re.compile("[^A-Za-z]+")
 class BootstrapMarkdownRenderer(mistune.Renderer):
     def block_quote(self, text):
         """Rendering <blockquote> with the given text and bootstrap class."""
-        return (
-            "<blockquote class='blockquote'>%s\n</blockquote>\n"
-            % text.rstrip("\n")
-        )
+        return "<blockquote class='blockquote'>%s\n</blockquote>\n" % text.rstrip("\n")
 
     def image(self, src, title, text):
         """Rendering a image with title and text, and bootstrap class."""
@@ -127,9 +124,7 @@ def random_string(n=12):
 
 def read_app_config():
     settings = os.environ["SETTINGS"]
-    settings_path = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)), settings
-    )
+    settings_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), settings)
     config = {}
     with open(settings_path) as f:
         exec(f.read(), config)
@@ -192,9 +187,7 @@ def send_email(to_users, subject, body):
     sg = sendgrid.SendGridAPIClient(apikey=os.environ.get("SENDGRID_API_KEY"))
     from_email = Email(os.environ.get("FROM_EMAIL", "noreply@thatteidlikaalsoup.team"))
     content = Content("text/plain", body)
-    to_emails = [
-        Email("{} <{}>".format(user.name, user.email)) for user in to_users
-    ]
+    to_emails = [Email("{} <{}>".format(user.name, user.email)) for user in to_users]
     mail = Mail(from_email, subject, to_emails[0], content)
     for to_email in to_emails[1:]:
         personalization = Personalization()
@@ -227,23 +220,15 @@ def get_attendance_chart(source):
     color_scale = alt.Scale(
         domain=("attendance", "sessions"), range=["darkorange", "black"]
     )
-    select_weekday = alt.selection_multi(
-        name="weekday", fields=["weekday", "year"]
-    )
-    color = alt.condition(
-        select_weekday, alt.value("orange"), alt.value("lightgray")
-    )
+    select_weekday = alt.selection_multi(name="weekday", fields=["weekday", "year"])
+    color = alt.condition(select_weekday, alt.value("orange"), alt.value("lightgray"))
     base = alt.Chart(source).encode(x="weekday:N", y="year:O", color=color)
     legend = (
-        base.mark_rect()
-        .add_selection(select_weekday)
-        .properties(width=320, height=50)
+        base.mark_rect().add_selection(select_weekday).properties(width=320, height=50)
     )
     text = (
         base.mark_text(baseline="middle", fontSize=8, fontWeight=200)
-        .transform_joinaggregate(
-            count="sum(attended)", groupby=["year", "weekday"]
-        )
+        .transform_joinaggregate(count="sum(attended)", groupby=["year", "weekday"])
         .transform_joinaggregate(total="count()", groupby=["year", "weekday"])
         .encode(text="label:O", color=alt.value("black"))
         .transform_calculate(label='datum.count + " of " + datum.total')
@@ -253,9 +238,7 @@ def get_attendance_chart(source):
         .mark_bar()
         .transform_filter(select_weekday)
         .transform_joinaggregate(sessions="count()", groupby=["month", "year"])
-        .transform_joinaggregate(
-            attendance="sum(attended)", groupby=["month", "year"]
-        )
+        .transform_joinaggregate(attendance="sum(attended)", groupby=["month", "year"])
         .transform_fold(["sessions", "attendance"])
         .encode(
             y=alt.Y(
