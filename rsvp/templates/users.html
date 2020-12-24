@@ -38,6 +38,7 @@
                 <th>Nick</th>
                 <th>Email</th>
                 <th>Phone</th>
+                <th>Address</th>
                 <th>Date of Birth</th>
                 <th>UPI ID</th>
                 <th>Blood Group</th>
@@ -51,6 +52,7 @@
                     <td>{{ user.nick or '-' }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.phone or '-' }}</td>
+                    <td>{{ user.address or '-' }}</td>
                     <td>{% if not user.hide_dob and user.dob %}{{user.dob|format_date}}{% else %}-{% endif %}</td>
                     <td>{{(user.upi_id or '-')|safe}}</td>
                     <td>{{user.blood_group or '-'}}</td>
