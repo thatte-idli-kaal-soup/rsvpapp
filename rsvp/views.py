@@ -97,8 +97,7 @@ def calendar():
 
 def add_rsvp(event, user, cancelled):
     rsvp = RSVP(rsvp_by=user.email, user=user.email, cancelled=cancelled)
-    event.rsvps.append(rsvp)
-    event.save()
+    event.update(push__rsvps=rsvp)
 
 
 @app.route("/event/<id>", methods=["GET"])

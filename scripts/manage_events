@@ -109,8 +109,7 @@ def delete_rsvp(event_id, email):
 
     user = User.objects.get(email=email)
     rsvp = event.rsvps.get(user=user)
-    event.rsvps.remove(rsvp)
-    event.save()
+    event.update(pull__rsvps=rsvp)
 
 
 @click.command()

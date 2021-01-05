@@ -93,8 +93,8 @@ def api_rsvps(event_id):
         else:
             return '{"error": "user does not exist"}', 400
 
-    new_rsvp = (user.email == ANONYMOUS_EMAIL) or event.rsvps.filter(
-        user=user
+    new_rsvp = (user.email == ANONYMOUS_EMAIL) or Event.objects.filter(
+        id=event.id, rsvps__user=user
     ).count() == 0
 
     if new_rsvp:
@@ -114,7 +114,7 @@ def api_rsvps(event_id):
             data["user"] = user.email
         rsvp = RSVP(**data)
         if not (rsvp.user.fetch().email == ANONYMOUS_EMAIL and rsvp.cancelled):
-            event.rsvps.append(rsvp)
+            event.update(push__rsvps=rsvp)
     else:
         rsvp = event.rsvps.get(user=user)
         if "note" in doc:
@@ -146,7 +146,7 @@ def api_rsvp(event_id, rsvp_id):
         return json.dumps({"error": "cannot modify event"}), 404
 
     if rsvp.user.fetch().email == ANONYMOUS_EMAIL:
-        event.rsvps.remove(rsvp)
+        event.update(pull__rsvps=rsvp)
     else:
         rsvp.cancelled = True
     event.save()
