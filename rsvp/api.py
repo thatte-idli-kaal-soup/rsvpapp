@@ -24,9 +24,7 @@ def api_events():
 
 
 def event_to_attendance(event, user):
-    attended = event.rsvps.filter(
-        user=user, cancelled=False, waitlisted=False
-    ).count()
+    attended = event.rsvps.filter(user=user, cancelled=False, waitlisted=False).count()
     return {
         "year": event.date.year,
         "month": event.date.strftime("%m-%b"),
@@ -68,9 +66,7 @@ def api_rsvps(event_id):
     if request.method == "GET":
         event_json = json.loads(event.to_json(use_db_field=False))
         for i, rsvp in enumerate(event.rsvps):
-            event_json["rsvps"][i]["user"] = json.loads(
-                rsvp.user.fetch().to_json()
-            )
+            event_json["rsvps"][i]["user"] = json.loads(rsvp.user.fetch().to_json())
         return json.dumps(event_json)
 
     if not event.can_rsvp(current_user):
@@ -107,9 +103,7 @@ def api_rsvps(event_id):
         data.update(doc)
         if user.email == ANONYMOUS_EMAIL:
             data["note"] = (
-                "{user} ({note})".format(**data)
-                if data["note"]
-                else data["user"]
+                "{user} ({note})".format(**data) if data["note"] else data["user"]
             )
             data["user"] = user.email
         rsvp = RSVP(**data)
