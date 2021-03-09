@@ -20,6 +20,20 @@ def cli():
 
 
 @click.command()
+@click.option("--email", required=True)
+@click.option("--name", required=True)
+@click.option("--gender", required=True, type=click.Choice(['male', 'female']))
+def create_approved_user(email, name, gender):
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        user = User(email=email, name=name, gender=gender)
+        user.save()
+
+    user.update(push__roles='.approved-user')
+
+
+@click.command()
 @click.option("--format", default="tsv")
 @click.option("--display-roles", default=False, is_flag=True)
 @click.option("--display-gender", default=False, is_flag=True)
@@ -277,6 +291,7 @@ def notify_santas(emails):
         notify_santas(pairs)
 
 
+cli.add_command(create_approved_user)
 cli.add_command(create_admins)
 cli.add_command(list_users)
 cli.add_command(list_roles)
