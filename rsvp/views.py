@@ -58,11 +58,12 @@ from . import app
 
 @app.before_request
 def redirect_heroku():
-    """Redirect herokuapp requests to rsvp.thatteidlikaalsoup.team."""
+    """Redirect old URL/herokuapp requests to rsvp.tiks-ultimate.in."""
     urlparts = urlparse(request.url)
-    if urlparts.netloc == "thatte-idli-rsvp.herokuapp.com":
+    domain_name = "rsvp.tiks-ultimate.in"
+    if urlparts.netloc != domain_name:
         urlparts_list = list(urlparts)
-        urlparts_list[1] = "rsvp.thatteidlikaalsoup.team"
+        urlparts_list[1] = domain_name
         return redirect(urlunparse(urlparts_list), code=301)
 
 
@@ -85,7 +86,10 @@ def index():
     photos = list(GDrivePhoto.objects)
     photos = get_random_photos(photos) if photos else []
     return render_template(
-        "index.html", upcoming_events=upcoming_events, posts=posts, photos=photos,
+        "index.html",
+        upcoming_events=upcoming_events,
+        posts=posts,
+        photos=photos,
     )
 
 
@@ -115,9 +119,7 @@ def event(id):
     description = "RSVP for {}".format(event.title)
     approved_users = User.approved_users()
     fields = ("name", "nick", "email")
-    approved_users = [
-        dict(zip(fields, user)) for user in approved_users.values_list(*fields)
-    ]
+    approved_users = [dict(zip(fields, user)) for user in approved_users.values_list(*fields)]
     rsvps = event.all_rsvps
     count = event.rsvp_count
     female_count = len(event.female_rsvps)
@@ -260,12 +262,7 @@ def users():
     if gender:
         users = users.filter(gender=None if gender == "unknown" else gender)
     roles = sorted(
-        {
-            role
-            for user in User.objects.all()
-            for role in user.roles
-            if not role.startswith(".")
-        }
+        {role for user in User.objects.all() for role in user.roles if not role.startswith(".")}
     )
     genders = set(filter(None, User.objects.values_list("gender"))).union({"unknown"})
     users = sorted(users, key=lambda u: u.name.lower())
@@ -301,7 +298,8 @@ def disapprove_user(email):
 @role_required("admin")
 def approve_users():
     users = sorted(
-        User.objects(roles__nin=[".approved-user"]), key=lambda u: u.name.lower(),
+        User.objects(roles__nin=[".approved-user"]),
+        key=lambda u: u.name.lower(),
     )
     return render_template("approve_users.html", users=users)
 
@@ -380,9 +378,9 @@ def attendance():
     end = request.form.get("end-date")
     events = Event.objects.filter(date__gte=start, date__lte=end)
     response = make_response(get_attendance(events))
-    response.headers[
-        "Content-Disposition"
-    ] = "attachment; filename=attendance-{}--{}.csv".format(start, end)
+    response.headers["Content-Disposition"] = "attachment; filename=attendance-{}--{}.csv".format(
+        start, end
+    )
     response.headers["Content-type"] = "text/csv"
     return response
 
@@ -394,9 +392,7 @@ def attendance():
 @login_required
 def show_posts():
     posts = Post.objects.order_by("-created_at")
-    return render_template(
-        "posts.html", posts=posts, show_year=True, hide_all_link=True
-    )
+    return render_template("posts.html", posts=posts, show_year=True, hide_all_link=True)
 
 
 @app.route("/post/<id>")
@@ -406,9 +402,7 @@ def show_post(id):
         return current_app.login_manager.unauthorized()
     description = post.content[:100] if post.public else "Private post"
     comments = zulip_event_responses(post)
-    return render_template(
-        "post.html", post=post, description=description, comments=comments
-    )
+    return render_template("post.html", post=post, description=description, comments=comments)
 
 
 @app.route("/edit-post/<id>", methods=["GET"])
@@ -473,9 +467,7 @@ def show_bookmarks():
 def show_bookmarks_page(page=1):
     bookmarks = Bookmark.objects.order_by("-id")
     pagination = bookmarks.paginate(page=page, per_page=25)
-    return render_template(
-        "bookmarks.html", pagination=pagination, pages=pagination.iter_pages()
-    )
+    return render_template("bookmarks.html", pagination=pagination, pages=pagination.iter_pages())
 
 
 # Miscellaneous views ##################################################
@@ -580,8 +572,7 @@ def secret_santa(event_id):
     test_run = not request.form.get("live-run") == "on"
     pairs = main(people=people, test=test_run)
     pairs = [
-        (User.objects.get(email=santa), User.objects.get(email=kiddo))
-        for (santa, kiddo) in pairs
+        (User.objects.get(email=santa), User.objects.get(email=kiddo)) for (santa, kiddo) in pairs
     ]
     if test_run:
         return render_template(
@@ -638,9 +629,7 @@ def service_worker():
 def share_photos():
     service = create_oauth_service()
     gdrive_root = os.environ["GOOGLE_DRIVE_MEDIA_DRIVE_ID"]
-    existing_dirs = sorted(
-        list_sub_dirs(service, gdrive_root), key=lambda x: x["name"]
-    )[::-1]
+    existing_dirs = sorted(list_sub_dirs(service, gdrive_root), key=lambda x: x["name"])[::-1]
     return render_template("share-photos.html", existing_dirs=existing_dirs)
 
 
