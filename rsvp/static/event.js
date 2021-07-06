@@ -105,7 +105,7 @@ share_event = function(title) {
     var data = {
         title: title,
         text: description.length > 0 ? description[0].innerText + '\n\n' : '',
-        url: location.href.split('?')[0] + '?attending=yes'
+        url: location.href.split('?')[0]
     };
 
     console.log(data);
