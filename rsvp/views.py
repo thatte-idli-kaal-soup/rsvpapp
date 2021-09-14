@@ -108,14 +108,6 @@ def add_rsvp(event, user, cancelled):
 @login_required
 def event(id):
     event = Event.objects(id=id).first()
-    rsvp_param = request.args.get("attending")
-    if rsvp_param is not None:
-        filtered_rsvps = event.rsvps.filter(user=current_user)
-        cancelled = not rsvp_param == "yes"
-        if filtered_rsvps.count() == 0:
-            add_rsvp(event, current_user, cancelled)
-            event.update_waitlist()
-
     description = "RSVP for {}".format(event.title)
     approved_users = User.approved_users()
     fields = ("name", "nick", "email")
