@@ -9,6 +9,6 @@
 {% endfor %}
 
 {% if not event.archived -%}
-    RSVP here: {{request.base_url}}?attending=yes
+    RSVP here: {{request.base_url}}
 {% endif %}
 {% endautoescape %}
