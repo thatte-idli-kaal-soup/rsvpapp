@@ -27,6 +27,12 @@ SOCIAL = [
         "type": "account",
     },
     {
+        "name": "Heroku",
+        "icon": "heroku",
+        "url": "https://dashboard.heroku.com",
+        "type": "account",
+    },
+    {
         "name": "Facebook",
         "icon": "facebook",
         "url": os.environ.get("SOCIAL_FACEBOOK_URL", ""),
