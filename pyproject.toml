@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "rsvpapp"
+version = "0.9.0"
+description = "Google OAuth based RSVP application"
+authors = ["Puneeth Chaganti <punchagan@muse-amuse.in>"]
+license = "Apache-2.0 License"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+requests = "^2.26.0"
+beautifulsoup4 = "^4.10.0"
+alley = "^0.0.3"
+Flask-Dance = "0.14.0"
+Flask-Login = "0.4.1"
+Flask-SSLify = "^0.1.5"
+Flask-Versioned = { git = "https://github.com/pilt/flask-versioned.git", rev = "c6591bc9a5605242d5d82dd4e3bf30c11452748e" }
+flask-mongoengine = "0.9.5"
+mistune = "^0.8.4"
+altair = "^4.1.0"
+sendgrid = "5.3.0"
+dropbox = "^11.25.0"
+arrow = "^1.2.1"
+Werkzeug = "0.15.5"
+ipython = "^7.30.0"
+zulip = "0.7.1"
+blinker = "1.4"
+Flask = "1.0.2"
+cloudinary = "^1.28.0"
+google-api-python-client = "^2.31.0"
+gunicorn = "^20.1.0"
+pymongo = "3.11.2"
+dnspython = "^2.1.0"
+mongoengine = "0.17"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

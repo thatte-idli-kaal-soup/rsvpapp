@@ -1,97 +1,80 @@
-alley==0.0.3
-altair==3.3.0
-arrow==0.13.0
-asn1crypto==0.24.0
-attrs==17.4.0
-backcall==0.1.0
-beautifulsoup4==4.6.3
+alley==0.0.3; python_version >= "2.7"
+altair==4.1.0; python_version >= "3.6"
+appnope==0.1.2; sys_platform == "darwin" and python_version >= "3.7"
+arrow==1.2.1; python_version >= "3.6"
+attrs==21.2.0; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.7"
+backcall==0.2.0; python_version >= "3.7"
+beautifulsoup4==4.10.0; python_full_version > "3.0.0"
 blinker==1.4
-cachetools==2.0.1
-certifi==2018.1.18
-cffi==1.13.1
-chardet==3.0.4
-click==6.7
-cloudinary==1.15.0
-cryptography==3.3.2
-Cython==0.29.24
-decorator==4.2.1
-distro==1.5.0
-dnspython==2.0.0
-dropbox==9.4.0
-entrypoints==0.3
-flake8==3.5.0
-Flask==1.0.2
-Flask-Dance==0.14.0
-Flask-Login==0.4.1
+cachetools==4.2.4; python_version >= "3.5" and python_version < "4.0" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6")
+certifi==2021.10.8; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0"
+charset-normalizer==2.0.8; python_full_version >= "3.6.0" and python_version >= "3"
+click==8.0.3; python_version >= "3.6"
+cloudinary==1.28.0
+colorama==0.4.4; python_version >= "3.7" and python_full_version < "3.0.0" and sys_platform == "win32" and platform_system == "Windows" or sys_platform == "win32" and python_version >= "3.7" and python_full_version >= "3.5.0" and platform_system == "Windows"
+decorator==5.1.0; python_version >= "3.7"
+distro==1.6.0; python_version >= "3.5"
+dnspython==2.1.0; python_version >= "3.6"
+dropbox==11.25.0
+entrypoints==0.3; python_version >= "3.6"
+flask-dance==0.14.0
+flask-login==0.4.1
 flask-mongoengine==0.9.5
-Flask-SSLify==0.1.5
-Flask-Versioned @ https://github.com/pilt/flask-versioned/archive/c6591bc9a5605242d5d82dd4e3bf30c11452748e.zip
-Flask-WTF==0.14.2
-google-api-python-client==1.7.11
-google-auth==1.4.1
-google-auth-httplib2==0.0.3
-gunicorn==19.7.1
-httplib2==0.19.0
-idna==2.6
-importlib-metadata==1.2.0
-ipdb==0.11
-ipython==7.19.0
-ipython-genutils==0.2.0
-itsdangerous==0.24
-jedi==0.15.1
-Jinja2==2.11.3
-jsonschema==3.2.0
-lazy==1.3
-MarkupSafe==1.1.1
-matrix-client==0.3.2
-mccabe==0.6.1
-mistune==0.8.3
-mock==2.0.0
+flask-sslify==0.1.5
+flask-versioned @ git+https://github.com/pilt/flask-versioned.git@c6591bc9a5605242d5d82dd4e3bf30c11452748e
+flask-wtf==1.0.0; python_version >= "3.6"
+flask==1.0.2
+google-api-core==2.2.2; python_version >= "3.6"
+google-api-python-client==2.31.0; python_version >= "3.6"
+google-auth-httplib2==0.1.0; python_version >= "3.6"
+google-auth==2.3.3; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6"
+googleapis-common-protos==1.53.0; python_version >= "3.6"
+gunicorn==20.1.0; python_version >= "3.5"
+httplib2==0.20.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
+idna==3.3; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.5"
+ipython==7.30.0; python_version >= "3.7"
+itsdangerous==2.0.1; python_version >= "3.6"
+jedi==0.18.1; python_version >= "3.7"
+jinja2==3.0.3; python_version >= "3.6"
+jsonschema==4.2.1; python_version >= "3.7"
+lazy==1.4
+markupsafe==2.0.1; python_version >= "3.6"
+matplotlib-inline==0.1.3; python_version >= "3.7"
+matrix-client==0.4.0; python_version >= "3.5"
+mistune==0.8.4
 mongoengine==0.17.0
-mongomock==3.9.0
-more-itertools==4.1.0
-numpy==1.21.2
-oauth2client==4.1.2
-oauthlib==2.0.7
-pandas==1.3.3
-parso==0.5.1
-pbr==4.0.1
-pexpect==4.4.0
-pickleshare==0.7.4
-pluggy==0.6.0
-prompt-toolkit==3.0.8
-ptyprocess==0.5.2
-py==1.10.0
-pyasn1==0.4.2
-pyasn1-modules==0.2.1
-pycodestyle==2.3.1
-pycparser==2.19
-pyflakes==1.6.0
-Pygments==2.7.4
+numpy==1.21.1
+oauthlib==3.1.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
+pandas==1.3.4; python_full_version >= "3.7.1" and python_version >= "3.6"
+parso==0.8.3; python_version >= "3.7"
+pexpect==4.8.0; sys_platform != "win32" and python_version >= "3.7"
+pickleshare==0.7.5; python_version >= "3.7"
+ply==3.11
+prompt-toolkit==3.0.23; python_full_version >= "3.6.2" and python_version >= "3.7"
+protobuf==3.19.1; python_version >= "3.6"
+ptyprocess==0.7.0; sys_platform != "win32" and python_version >= "3.7"
+pyasn1-modules==0.2.8; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6"
+pyasn1==0.4.8; python_version >= "3.6" and python_full_version < "3.0.0" and python_version < "4" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6") or python_full_version >= "3.6.0" and python_version >= "3.6" and python_version < "4" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6")
+pygments==2.10.0; python_version >= "3.7"
 pymongo==3.11.2
-pyOpenSSL==18.0.0
-pyrsistent==0.15.6
-pytest==3.5.0
-pytest-env==0.6.2
-python-dateutil==2.7.2
-python-http-client==3.0.0
-pytz==2019.3
-requests==2.22.0
-requests-oauthlib==0.8.0
-rsa==4.7
+pyparsing==3.0.6; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
+pyrsistent==0.18.0; python_version >= "3.7"
+python-dateutil==2.8.2; python_full_version >= "3.7.1" and python_version >= "3.6"
+python-http-client==3.3.3; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.4.0"
+pytz==2021.3; python_full_version >= "3.7.1" and python_version >= "3.6"
+requests-oauthlib==1.3.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.4.0"
+requests==2.26.0; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.6.0")
+rsa==4.8; python_version >= "3.6" and python_version < "4" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6")
 sendgrid==5.3.0
-sentinels==1.0.0
-simplegeneric==0.8.1
-six==1.11.0
-toolz==0.10.0
-traitlets==4.3.2
-typing==3.6.6
-uritemplate==3.0.0
-urllib3==1.26.5
-URLObject==2.4.3
-wcwidth==0.1.7
-webpreview==1.5.0
-Werkzeug==0.15.5
-WTForms==2.1
-zipp==0.6.0
-zulip==0.7.1
+six==1.16.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6"
+soupsieve==2.3.1; python_version >= "3.6" and python_full_version > "3.0.0"
+stone==3.2.1
+toolz==0.11.2; python_version >= "3.6"
+traitlets==5.1.1; python_version >= "3.7"
+uritemplate==4.1.1; python_version >= "3.6"
+urllib3==1.26.7; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version < "4" and python_version >= "3.5"
+urlobject==2.4.3
+wcwidth==0.2.5; python_full_version >= "3.6.2" and python_version >= "3.7"
+werkzeug==0.15.5; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.4.0")
+wtforms==3.0.0; python_version >= "3.6"
+zulip==0.7.1; python_version >= "3.5"
