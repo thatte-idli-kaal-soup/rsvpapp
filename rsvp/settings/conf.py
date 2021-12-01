@@ -28,7 +28,7 @@ SOCIAL = [
     },
     {
         "name": "Heroku",
-        "icon": "heroku",
+        "icon": "server",
         "url": "https://dashboard.heroku.com",
         "type": "account",
     },
