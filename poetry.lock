@@ -122,14 +122,11 @@ unicode_backport = ["unicodedata2"]
 
 [[package]]
 name = "click"
-version = "8.0.3"
-description = "Composable command line interface toolkit"
+version = "6.7"
+description = "A simple wrapper around optparse for powerful command line utilities."
 category = "main"
 optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-colorama = {version = "*", markers = "platform_system == \"Windows\""}
+python-versions = "*"
 
 [[package]]
 name = "cloudinary"
@@ -957,7 +954,7 @@ requests = {version = ">=0.12.1", extras = ["security"]}
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "b4c6eae6f02e5196c15441fceda20a5183da8767ca49ce15754ae29f30040459"
+content-hash = "88b649ee9dca0458c04ac0a63d9e2e320d9d68c0f75ac2a875f7ae3476fda399"
 
 [metadata.files]
 alley = [
@@ -1003,8 +1000,8 @@ charset-normalizer = [
     {file = "charset_normalizer-2.0.8-py3-none-any.whl", hash = "sha256:83fcdeb225499d6344c8f7f34684c2981270beacc32ede2e669e94f7fa544405"},
 ]
 click = [
-    {file = "click-8.0.3-py3-none-any.whl", hash = "sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3"},
-    {file = "click-8.0.3.tar.gz", hash = "sha256:410e932b050f5eed773c4cda94de75971c89cdb3155a72a0831139a79e5ecb5b"},
+    {file = "click-6.7-py2.py3-none-any.whl", hash = "sha256:29f99fc6125fbc931b758dc053b3114e55c77a6e4c6c3a2674a2dc986016381d"},
+    {file = "click-6.7.tar.gz", hash = "sha256:f15516df478d5a56180fbf80e68f206010e6d160fc39fa508b65e035fd75130b"},
 ]
 cloudinary = [
     {file = "cloudinary-1.28.0.tar.gz", hash = "sha256:9848d197857ab21b8e1d39e23cccae335127d96297f7ea638e0e6898a7db73c8"},
