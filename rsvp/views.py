@@ -61,7 +61,8 @@ def redirect_heroku():
     """Redirect old URL/herokuapp requests to rsvp.tiks-ultimate.in."""
     urlparts = urlparse(request.url)
     domain_name = "rsvp.tiks-ultimate.in"
-    if urlparts.netloc != domain_name:
+    old_domain_name = "thatte-idli-rsvp.herokuapp.com"
+    if urlparts.netloc == old_domain_name:
         urlparts_list = list(urlparts)
         urlparts_list[1] = domain_name
         return redirect(urlunparse(urlparts_list), code=301)
