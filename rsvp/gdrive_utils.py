@@ -419,13 +419,16 @@ def add_rsvp_event(service, event, timezone):
     start_date = event.date
     end_date = event.end_date
     iCalUID = generate_calendar_event_id(event, "rsvp")
+    url = event_absolute_url(event)
+    description = f"RSVP here: {url}\n\n {event.description}"
     body = {
         "start": {"dateTime": start_date.isoformat(), "timeZone": timezone},
         "end": {"dateTime": end_date.isoformat(), "timeZone": timezone},
         "summary": title,
+        "description": description,
         "iCalUID": iCalUID,
         "source": {
-            "url": event_absolute_url(event),
+            "url": url,
             "title": "Go to RSVP app page",
         },
     }
