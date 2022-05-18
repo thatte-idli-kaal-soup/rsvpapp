@@ -117,6 +117,7 @@ def event(id):
     count = event.rsvp_count
     female_count = len(event.female_rsvps)
     male_count = count - female_count
+    pickup_team = pickup_teams(event)
     return render_template(
         "event.html",
         count=count,
@@ -124,12 +125,20 @@ def event(id):
         female_count=female_count,
         event=event,
         items=rsvps,
+        teams=pickup_team,
         active_rsvps=event.active_rsvps,
         approved_users=approved_users,
         TEXT2=event.title,
         description=description,
         comments=zulip_event_responses(event),
     )
+
+
+def pickup_teams(event):
+    return {
+        team.name: [rsvp for rsvp in event.rsvps if rsvp.id in team.rsvp_ids]
+        for team in event.pickup_teams
+    }
 
 
 @app.route("/event/<id>/gdrive", methods=["GET", "POST"])
@@ -199,6 +208,7 @@ def create_event():
         for key, value in item_doc.items():
             setattr(event, key, value)
     event.save()
+    event.form_pickup_teams()
     event.update_waitlist()
     return redirect(url_for("event", id=event.id))
 

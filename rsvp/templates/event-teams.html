@@ -1,0 +1,24 @@
+{% if count > 5 %}
+    <div class="h3" align="center">
+        Suggested pickup-teams
+    </div>
+    <hr/>
+    <div class="row">
+        {% for team, rsvps in teams.items() %}
+            <div class="table-responsive col-md-6">
+                <table class="table table-bordered table-condensed">
+                    <thead>
+                        <th class="{% if team == 'Black'%}bg-dark text-white{% endif %}"> {{team}} </th>
+                    </thead>
+                    <tbody>
+                        {% for rsvp in rsvps %}
+                            <tr>
+                                <td> {{rsvp|rsvp_name}} </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
