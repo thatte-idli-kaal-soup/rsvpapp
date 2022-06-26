@@ -6,6 +6,7 @@ from flask_dance.consumer import OAuth2ConsumerBlueprint, oauth_authorized
 from flask_login import current_user, login_required
 from flask.globals import LocalProxy, _lookup_app_object
 from oauthlib.oauth2 import WebApplicationClient, BackendApplicationClient
+import requests
 
 from .app import app
 from .models import Event, ANONYMOUS_EMAIL, User
@@ -91,68 +92,102 @@ def allow_splitwise():
 
 @app.route("/splitwise/sync_group/<event_id>", methods=["POST"])
 def sync_splitwise_group(event_id):
-    if not splitwise.authorized:
-        return redirect(url_for("splitwise.login"))
+    token = os.environ.get("SPLITWISE_TOKEN")
+    token_user = os.environ.get("SPLITWISE_TOKEN_USER_ID")
+    headers = {"Authorization": f"Bearer {token}"}
     event = Event.objects.get(id=event_id)
-    if not event.splitwise_group_id:
+    event_url = url_for("event", id=event.id)
+
+    users = [rsvp.user.fetch() for rsvp in event.active_rsvps]
+    if not all(user.splitwise_id for user in users):
+        missing_nicks = [
+            (user.nick or user.name) for user in users if not user.splitwise_id
+        ]
+        flash(
+            f"Cannot create Splitwise group since some users do not have Splitwise IDs: "
+            f"{', '.join(missing_nicks)}",
+            "danger",
+        )
+        return redirect(event_url)
+
+    group = None
+    # Try to get the Splitwise Group
+    if event.splitwise_group_id:
+        # NOTE: Ideally, we'd like to update group title/description but
+        # Splitwise API doesn't seem to have an end-point for that?!
+        get_url = f"{SPLITWISE_BASE_URL}/api/v3.0/get_group/{event.splitwise_group_id}"
+        data = requests.get(get_url, headers=headers).json()
+        group = data.get("group")
+        error = data.get("errors", {}).get("base", [""])[0]
+        deleted_error = "Invalid API Request: record not found"
+        if group is None and error != deleted_error:
+            flash(f"Could not sync with Splitwise. Failure: {data}", "danger")
+            return redirect(event_url)
+
+        elif group is None:
+            print(f"Group {event.splitwise_group_id} seems to be deleted")
+
+        else:
+            print(f"Found Splitwise group {event.splitwise_group_id}")
+
+    # Create a new Splitwise Group, if required
+    if group is None:
         data = {
             "name": event.name,
-            "whiteboard": event.description,
+            "whiteboard": f"{event.description}\n\n{event_url}",
             "group_type": "Event",
             "simplify_by_default": True,
         }
-        create_url = "/api/v3.0/create_group"
-        group = splitwise.post(create_url, data=data).json()["group"]
+        users_data = {
+            f"user__{i}__id": user.splitwise_id for i, user in enumerate(users)
+        }
+        data.update(users_data)
+        create_url = f"{SPLITWISE_BASE_URL}/api/v3.0/create_group"
+        data = requests.post(create_url, data=data, headers=headers).json()
+        group = data["group"]
         event.splitwise_group_id = str(group["id"])
         event.save()
-        created = True
-    else:
-        created = False
-        get_url = "/api/v3.0/get_group/{}".format(event.splitwise_group_id)
-        group = splitwise.post(get_url).json()["group"]
+        flash("Created Splitwise Group for event", "success")
 
-    for rsvp in event.active_rsvps:
-        user = rsvp.user.fetch()
-        if user.splitwise_id:
-            data = {
-                "group_id": event.splitwise_group_id,
-                "user_id": user.splitwise_id,
-            }
-        elif user.email == ANONYMOUS_EMAIL:
+    # Add all currently active RSVP users to the Splitwise group
+    members = {str(member["id"]) for member in group.get("members", [])}
+    for user in users:
+        if user.splitwise_id in members:
             continue
-        else:
-            first_name, last_name = user.name.rsplit(" ", 1)
-            data = {
-                "group_id": event.splitwise_group_id,
-                "first_name": first_name,
-                "last_name": last_name,
-                "email": user.email,
-            }
-        splitwise.post("/api/v3.0/add_user_to_group", data=data)
+        data = {
+            "group_id": event.splitwise_group_id,
+            "user_id": user.splitwise_id,
+        }
+        response = requests.post(
+            f"{SPLITWISE_BASE_URL}/api/v3.0/add_user_to_group",
+            data=data,
+            headers=headers,
+        )
+        failure_msg = f"Failed adding user {user.email} -- {user.splitwise_id}"
+        assert response.status_code == 200, f"{failure_msg}: {response}"
+        errors = response.json().get("errors")
+        assert not errors, f"{failure_msg}: {response.json()}"
 
-    # If a group already existed, remove users in the group who don't have an RSVP
-    if not created:
-        members = group["members"]
-        for member in members:
-            splitwise_id, email = str(member["id"]), member["email"]
-            try:
-                user = User.objects.get(splitwise_id=splitwise_id)
-            except User.DoesNotExist:
-                try:
-                    user = User.objects.get(email=email)
-                except User.DoesNotExist:
-                    user = None
+    # Remove all users who are don't have active RSVPs
+    user_splitwise_ids = {user.splitwise_id for user in users}
+    for member in members:
+        # Don't remove TOKEN admin user, since we use that account to
+        # manage groups. Also, don't remove active RSVP users
+        if member == token_user or member in user_splitwise_ids:
+            continue
+        data = {
+            "group_id": event.splitwise_group_id,
+            "user_id": member,
+        }
+        response = requests.post(
+            f"{SPLITWISE_BASE_URL}/api/v3.0/remove_user_from_group",
+            data=data,
+            headers=headers,
+        )
+        failure_msg = f"Failed to remove user {user.email} -- {user.splitwise_id}"
+        assert response.status_code == 200, f"{failure_msg}: {response}"
+        errors = response.json().get("errors")
+        assert not errors, f"{failure_msg}: {response.json()}"
 
-            if user is None:
-                continue
-
-            if event.active_rsvps.filter(user=user).count():
-                continue
-
-            data = {
-                "group_id": event.splitwise_group_id,
-                "user_id": splitwise_id,
-            }
-            splitwise.post("/api/v3.0/remove_user_from_group", data=data)
-
-    return redirect(url_for("event", id=event.id))
+    flash("Synced Splitwise Group for event", "success")
+    return redirect(event_url)
