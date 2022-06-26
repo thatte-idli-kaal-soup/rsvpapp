@@ -22,9 +22,7 @@ class RSVP(db.EmbeddedDocument):
     waitlisted = db.BooleanField(default=False)
 
     def can_cancel(self, user):
-        return (
-            user == self.rsvp_by or user == self.user or self.rsvp_by is None
-        )
+        return user == self.rsvp_by or user == self.user or self.rsvp_by is None
 
     @property
     def sort_attributes(self):
@@ -93,9 +91,7 @@ class Event(db.Document):
         return self.rsvps_with_gender("female")
 
     def rsvps_with_gender(self, gender):
-        return [
-            r for r in self.active_rsvps if r.user.fetch().gender == gender
-        ]
+        return [r for r in self.active_rsvps if r.user.fetch().gender == gender]
 
     def can_edit(self, user):
         return user.is_admin or (
@@ -107,9 +103,7 @@ class Event(db.Document):
 
     def update_waitlist(self):
         for i, rsvp in enumerate(self.non_cancelled_rsvps):
-            rsvp.waitlisted = (
-                i >= self.rsvp_limit if self.rsvp_limit > 0 else False
-            )
+            rsvp.waitlisted = i >= self.rsvp_limit if self.rsvp_limit > 0 else False
         self.save()
 
 
