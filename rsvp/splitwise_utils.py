@@ -59,3 +59,18 @@ def get_groups():
         groups = [group for group in groups if group["id"] != 0]
         CACHE.set(cache_key, groups)  # default_timeout = 5mins
     return groups
+
+
+def calculate_dues(user_id):
+    groups = get_groups()
+    balances = [
+        balance
+        for group in groups
+        for member in group["members"]
+        for balance in member["balance"]
+        if member["id"] == user_id
+    ]
+    currency = {balance["currency_code"] for balance in balances}
+    assert len(currency) <= 1, f"Cannot support multiple currencies: {currency}"
+    amounts = [float(balance["amount"]) for balance in balances]
+    return -1 * sum(amounts)

@@ -4,6 +4,7 @@ from flask_login import UserMixin, AnonymousUserMixin
 from flask_mongoengine import MongoEngine
 from mongoengine import signals
 
+from .splitwise_utils import calculate_dues
 from .utils import random_id, markdown_to_html, read_app_config, format_date
 from .zulip_utils import zulip_announce_event, zulip_announce_post
 
@@ -164,8 +165,10 @@ class User(db.Document, UserMixin):
 
     @property
     def dues(self):
-        # FIXME: Calculate the total dues for the user
-        return 300
+        if not self.splitwise_id:
+            return 0
+
+        return calculate_dues(int(self.splitwise_id))
 
     @property
     def acceptable_dues(self):
