@@ -85,7 +85,7 @@ def allow_splitwise():
     }
     resp = splitwise.post("/api/v3.0/create_friend", data=data)
     assert resp.status_code == 200, "Could not add TOKEN USER EMAIL as friend."
-    flash(f"Your Splitwise ID {current_user.splitwise_id} has been saved.")
+    flash(f"Your Splitwise ID {current_user.splitwise_id} has been saved.", "success")
     return redirect(next_url)
 
 
