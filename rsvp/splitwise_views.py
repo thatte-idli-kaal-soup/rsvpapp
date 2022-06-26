@@ -65,18 +65,26 @@ def splitwise_authorized(blueprint, token):
 @login_required
 def allow_splitwise():
     next_url = request.args.get("next", url_for("index"))
-    if current_user.splitwise_id:
-        return redirect(next_url)
-
     if not splitwise.authorized:
         session["next_url"] = next_url
         return redirect(url_for("splitwise.login"))
 
+    # Save splitwise_id for current_user
     resp = splitwise.get("/api/v3.0/get_current_user")
     data = resp.json()
     splitwise_id = str(data["user"]["id"])
     current_user.splitwise_id = splitwise_id
     current_user.save()
+
+    # Add TOKEN USER EMAIL as friend on Splitwise
+    token_user_email = os.environ.get("SPLITWISE_TOKEN_USER_EMAIL")
+    data = {
+        "user_email": token_user_email,
+        "user_first_name": "RSVP App",
+        "user_last_name": "Admin",
+    }
+    resp = splitwise.post("/api/v3.0/create_friend", data=data)
+    assert resp.status_code == 200, "Could not add TOKEN USER EMAIL as friend."
     flash(f"Your Splitwise ID {current_user.splitwise_id} has been saved.")
     return redirect(next_url)
 
