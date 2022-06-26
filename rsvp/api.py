@@ -84,10 +84,18 @@ def api_rsvps(event_id):
     try:
         user = User.objects.get(email=doc["user"])
     except User.DoesNotExist:
-        if use_anonymous:
+        if event.is_paid:
+            return ('{"error": "Only registered users can RSVP on paid events"}', 400)
+        elif use_anonymous:
             user = User.objects.get(email=ANONYMOUS_EMAIL)
         else:
             return '{"error": "user does not exist"}', 400
+
+    if event.is_paid and not (user.splitwise_id and user.acceptable_dues):
+        return (
+            '{"error": "Users without Splitwise linked or with dues above the limit cannot RSVP."}',
+            400,
+        )
 
     new_rsvp = (user.email == ANONYMOUS_EMAIL) or Event.objects.filter(
         id=event.id, rsvps__user=user
