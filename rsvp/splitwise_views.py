@@ -1,37 +1,75 @@
+from functools import partial
 import os
 
-from flask import redirect, url_for
-from flask_dance.consumer import OAuth2ConsumerBlueprint
+from flask import redirect, url_for, _app_ctx_stack as stack, flash
+from flask_dance.consumer import OAuth2ConsumerBlueprint, oauth_authorized
 from flask_login import current_user, login_required
+from flask.globals import LocalProxy, _lookup_app_object
+from oauthlib.oauth2 import WebApplicationClient, BackendApplicationClient
 
 from .app import app
 from .models import Event, ANONYMOUS_EMAIL, User
 
-splitwise_blueprint = OAuth2ConsumerBlueprint(
-    "splitwise",
-    __name__,
+
+class HybridClient(WebApplicationClient):
+    """Override grant type on WebApplicationClient.
+
+    Splitwise expects client_credentials grant_type, but WebApplicationClient
+    has application_code grant_type.
+
+    """
+
+    grant_type = BackendApplicationClient.grant_type
+
+
+def make_splitwise_blueprint(client_id=None, client_secret=None):
+    client = HybridClient(client_id, token=None)
+    splitwise_bp = OAuth2ConsumerBlueprint(
+        "splitwise",
+        __name__,
+        client_id=client_id,
+        client_secret=client_secret,
+        client=client,
+        base_url="https://secure.splitwise.com/",
+        token_url="https://secure.splitwise.com/oauth/token",
+        authorization_url="https://secure.splitwise.com/oauth/authorize",
+        # NOTE: Hack to include the argument to OAuth2Session().fetch_token
+        token_url_params={"include_client_id": True},
+    )
+
+    @splitwise_bp.before_app_request
+    def set_applocal_session():
+        ctx = stack.top
+        ctx.splitwise_oauth = splitwise_bp.session
+
+    return splitwise_bp
+
+
+splitwise = LocalProxy(partial(_lookup_app_object, "splitwise_oauth"))
+
+splitwise_blueprint = make_splitwise_blueprint(
     client_id=os.environ.get("SPLITWISE_KEY"),
     client_secret=os.environ.get("SPLITWISE_SECRET"),
-    base_url="https://secure.splitwise.com/",
-    token_url="https://secure.splitwise.com/oauth/token",
-    authorization_url="https://secure.splitwise.com/oauth/authorize",
 )
 app.register_blueprint(splitwise_blueprint)
-
-splitwise = splitwise_blueprint.session
 
 
 @app.route("/splitwise/allow")
 @login_required
 def allow_splitwise():
+    if current_user.splitwise_id:
+        return redirect(url_for("index"))
+
     if not splitwise.authorized:
         return redirect(url_for("splitwise.login"))
+
     resp = splitwise.get("/api/v3.0/get_current_user")
     data = resp.json()
     splitwise_id = str(data["user"]["id"])
     current_user.splitwise_id = splitwise_id
     current_user.save()
-    return "Successfully obtained your Splitwise ID ({})".format(splitwise_id)
+    flash(f"Your Splitwise ID {current_user.splitwise_id} has been saved.")
+    return redirect(url_for("index"))
 
 
 @app.route("/splitwise/sync_group/<event_id>", methods=["POST"])
