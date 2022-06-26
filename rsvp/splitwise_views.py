@@ -1,7 +1,7 @@
 from functools import partial
 import os
 
-from flask import redirect, url_for, _app_ctx_stack as stack, flash
+from flask import redirect, url_for, _app_ctx_stack as stack, flash, request, session
 from flask_dance.consumer import OAuth2ConsumerBlueprint, oauth_authorized
 from flask_login import current_user, login_required
 from flask.globals import LocalProxy, _lookup_app_object
@@ -54,13 +54,20 @@ splitwise_blueprint = make_splitwise_blueprint(
 app.register_blueprint(splitwise_blueprint)
 
 
+@oauth_authorized.connect_via(splitwise_blueprint)
+def splitwise_authorized(blueprint, token):
+    return redirect(session.get("next_url", url_for("index")))
+
+
 @app.route("/splitwise/allow")
 @login_required
 def allow_splitwise():
+    next_url = request.args.get("next", url_for("index"))
     if current_user.splitwise_id:
-        return redirect(url_for("index"))
+        return redirect(next_url)
 
     if not splitwise.authorized:
+        session["next_url"] = next_url
         return redirect(url_for("splitwise.login"))
 
     resp = splitwise.get("/api/v3.0/get_current_user")
@@ -69,7 +76,7 @@ def allow_splitwise():
     current_user.splitwise_id = splitwise_id
     current_user.save()
     flash(f"Your Splitwise ID {current_user.splitwise_id} has been saved.")
-    return redirect(url_for("index"))
+    return redirect(next_url)
 
 
 @app.route("/splitwise/sync_group/<event_id>", methods=["POST"])
