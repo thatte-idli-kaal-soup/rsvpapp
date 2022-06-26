@@ -10,6 +10,7 @@ from .zulip_utils import zulip_announce_event, zulip_announce_post
 
 db = MongoEngine()
 ANONYMOUS_EMAIL = "anonymous@example.com"
+DUES_LIMIT = 100
 
 
 class RSVP(db.EmbeddedDocument):
@@ -100,7 +101,16 @@ class Event(db.Document):
         )
 
     def can_rsvp(self, user):
-        return user.is_admin or not (self.archived or self.cancelled)
+        if user.is_admin:
+            return True
+
+        if self.is_paid:
+            return user.splitwise_id and user.acceptable_dues
+
+        if not self.is_paid:
+            return not (self.archived or self.cancelled)
+
+        return False
 
     def update_waitlist(self):
         for i, rsvp in enumerate(self.non_cancelled_rsvps):
@@ -151,6 +161,15 @@ class User(db.Document, UserMixin):
     @property
     def is_anonymous_user(self):
         return self.email == ANONYMOUS_EMAIL
+
+    @property
+    def dues(self):
+        # FIXME: Calculate the total dues for the user
+        return 300
+
+    @property
+    def acceptable_dues(self):
+        return self.dues <= DUES_LIMIT
 
 
 class AnonymousUser(AnonymousUserMixin):
