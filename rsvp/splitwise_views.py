@@ -10,6 +10,8 @@ from oauthlib.oauth2 import WebApplicationClient, BackendApplicationClient
 from .app import app
 from .models import Event, ANONYMOUS_EMAIL, User
 
+SPLITWISE_BASE_URL = "https://secure.splitwise.com/"
+
 
 class HybridClient(WebApplicationClient):
     """Override grant type on WebApplicationClient.
@@ -30,9 +32,9 @@ def make_splitwise_blueprint(client_id=None, client_secret=None):
         client_id=client_id,
         client_secret=client_secret,
         client=client,
-        base_url="https://secure.splitwise.com/",
-        token_url="https://secure.splitwise.com/oauth/token",
-        authorization_url="https://secure.splitwise.com/oauth/authorize",
+        base_url=SPLITWISE_BASE_URL,
+        token_url=f"{SPLITWISE_BASE_URL}/oauth/token",
+        authorization_url=f"{SPLITWISE_BASE_URL}/oauth/authorize",
         # NOTE: Hack to include the argument to OAuth2Session().fetch_token
         token_url_params={"include_client_id": True},
     )
