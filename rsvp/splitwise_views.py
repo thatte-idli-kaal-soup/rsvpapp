@@ -7,11 +7,15 @@ from flask_login import current_user, login_required
 from flask.globals import LocalProxy, _lookup_app_object
 from oauthlib.oauth2 import WebApplicationClient, BackendApplicationClient
 import requests
+from werkzeug.contrib.cache import SimpleCache
 
 from .app import app
 from .models import Event, ANONYMOUS_EMAIL, User
 
 SPLITWISE_BASE_URL = "https://secure.splitwise.com/"
+SPLITWISE_TOKEN = os.environ.get("SPLITWISE_TOKEN")
+AUTH_HEADERS = {"Authorization": f"Bearer {SPLITWISE_TOKEN}"}
+CACHE = SimpleCache()
 
 
 class HybridClient(WebApplicationClient):
@@ -46,6 +50,20 @@ def make_splitwise_blueprint(client_id=None, client_secret=None):
         ctx.splitwise_oauth = splitwise_bp.session
 
     return splitwise_bp
+
+
+def get_groups():
+    cache_key = "splitwise_groups"
+    groups = CACHE.get(cache_key)
+    if groups is None:
+        url = f"{SPLITWISE_BASE_URL}/api/v3.0/get_groups"
+        response = requests.get(url, headers=AUTH_HEADERS)
+        assert response.status_code == 200, "Could not fetch groups for user."
+        groups = response.json().get("groups", [])
+        # Ignore direct transactions group which has the ID 0
+        groups = [group for group in groups if group["id"] != 0]
+        CACHE.set(cache_key, groups)  # default_timeout = 5mins
+    return groups
 
 
 splitwise = LocalProxy(partial(_lookup_app_object, "splitwise_oauth"))
@@ -92,9 +110,7 @@ def allow_splitwise():
 
 @app.route("/splitwise/sync_group/<event_id>", methods=["POST"])
 def sync_splitwise_group(event_id):
-    token = os.environ.get("SPLITWISE_TOKEN")
     token_user = os.environ.get("SPLITWISE_TOKEN_USER_ID")
-    headers = {"Authorization": f"Bearer {token}"}
     event = Event.objects.get(id=event_id)
     event_url = url_for("event", id=event.id)
 
@@ -115,8 +131,11 @@ def sync_splitwise_group(event_id):
     if event.splitwise_group_id:
         # NOTE: Ideally, we'd like to update group title/description but
         # Splitwise API doesn't seem to have an end-point for that?!
+        # FIXME: Should we switch to using get_groups() with a force update on
+        # the cached group information? But, then we'd probably want to call
+        # the function even when a new group is created for predictability.
         get_url = f"{SPLITWISE_BASE_URL}/api/v3.0/get_group/{event.splitwise_group_id}"
-        data = requests.get(get_url, headers=headers).json()
+        data = requests.get(get_url, headers=AUTH_HEADERS).json()
         group = data.get("group")
         error = data.get("errors", {}).get("base", [""])[0]
         deleted_error = "Invalid API Request: record not found"
@@ -143,7 +162,7 @@ def sync_splitwise_group(event_id):
         }
         data.update(users_data)
         create_url = f"{SPLITWISE_BASE_URL}/api/v3.0/create_group"
-        data = requests.post(create_url, data=data, headers=headers).json()
+        data = requests.post(create_url, data=data, headers=AUTH_HEADERS).json()
         group = data["group"]
         event.splitwise_group_id = str(group["id"])
         event.save()
@@ -161,7 +180,7 @@ def sync_splitwise_group(event_id):
         response = requests.post(
             f"{SPLITWISE_BASE_URL}/api/v3.0/add_user_to_group",
             data=data,
-            headers=headers,
+            headers=AUTH_HEADERS,
         )
         failure_msg = f"Failed adding user {user.email} -- {user.splitwise_id}"
         assert response.status_code == 200, f"{failure_msg}: {response}"
@@ -182,7 +201,7 @@ def sync_splitwise_group(event_id):
         response = requests.post(
             f"{SPLITWISE_BASE_URL}/api/v3.0/remove_user_from_group",
             data=data,
-            headers=headers,
+            headers=AUTH_HEADERS,
         )
         failure_msg = f"Failed to remove user {user.email} -- {user.splitwise_id}"
         assert response.status_code == 200, f"{failure_msg}: {response}"
