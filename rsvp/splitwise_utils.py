@@ -77,3 +77,23 @@ def calculate_dues(user_id):
     assert len(currency) <= 1, f"Cannot support multiple currencies: {currency}"
     amounts = [float(balance["amount"]) for balance in balances]
     return -1 * sum(amounts)
+
+
+def get_simplified_debts(user_id):
+    groups = get_groups()
+    user_id = int(user_id)
+    debts = []
+    for group in groups:
+        members = {member["id"]: member for member in group["members"]}
+        for debt in group["simplified_debts"]:
+            if debt["from"] != user_id:
+                continue
+            member = members.get(debt["to"], {})
+            member["name"] = f"{member.get('first_name')} {member.get('last_name')}"
+            debt["to_member"] = member
+            debt["to"] = str(debt["to"])
+            debt["group_id"] = str(group["id"])
+            debt["group_name"] = group["name"]
+            debts.append(debt)
+
+    return debts

@@ -50,16 +50,7 @@
     </div>
     {% endif %}
     {% if event.is_paid and not current_user.acceptable_dues %}
-    <div class="card col-md-6" id="event-rsvp">
-      <div class="card-body">
-        <div class="form-group mb-2" id="rsvp-self">
-          This is a paid event and you have dues over the
-          limit: <span><i class="fa
-          fa-rupee-sign"></i>{{current_user.dues}}<span>. Please clear them to
-          be able to RSVP for this event.
-        </div>
-      </div>
-    </div>
+       {% include 'splitwise-dues.html' %}
     {% endif %}
     {% if event.can_rsvp(current_user) %}
         <div class="card col-md-6" id="event-rsvp">

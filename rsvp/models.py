@@ -4,7 +4,7 @@ from flask_login import UserMixin, AnonymousUserMixin
 from flask_mongoengine import MongoEngine
 from mongoengine import signals
 
-from .splitwise_utils import calculate_dues
+from .splitwise_utils import calculate_dues, get_simplified_debts
 from .utils import random_id, markdown_to_html, read_app_config, format_date
 from .zulip_utils import zulip_announce_event, zulip_announce_post
 
@@ -151,6 +151,10 @@ class User(db.Document, UserMixin):
 
         return False
 
+    @property
+    def nick_name(self):
+        return self.nick or self.name
+
     @staticmethod
     def approved_users():
         return User.objects.filter(roles__in=[".approved-user"]).all()
@@ -173,6 +177,26 @@ class User(db.Document, UserMixin):
     @property
     def acceptable_dues(self):
         return self.dues <= DUES_LIMIT
+
+    @property
+    def dues_details(self):
+        if not self.splitwise_id:
+            return []
+
+        debts = get_simplified_debts(self.splitwise_id)
+
+        owed_users = User.objects.filter(splitwise_id__in=[d["to"] for d in debts])
+        owed_users = {user.splitwise_id: user for user in owed_users}
+
+        group_ids = [d["group_id"] for d in debts]
+        events = Event.objects.filter(splitwise_group_id__in=group_ids)
+        events = {event.splitwise_group_id: event for event in events}
+
+        for debt in debts:
+            debt["to_user"] = owed_users.get(debt["to"])
+            debt["event"] = events.get(debt["group_id"])
+
+        return debts
 
 
 class AnonymousUser(AnonymousUserMixin):
