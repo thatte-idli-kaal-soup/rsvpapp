@@ -54,6 +54,8 @@ def get_groups():
         url = f"{SPLITWISE_BASE_URL}/api/v3.0/get_groups"
         response = requests.get(url, headers=AUTH_HEADERS)
         assert response.status_code == 200, "Could not fetch groups for user."
+        # NOTE: If this API call is being paginated or something, we could use
+        # the /api/v3.0/get_main_data end-point, which the web UI seems to use.
         groups = response.json().get("groups", [])
         # Ignore direct transactions group which has the ID 0
         groups = [group for group in groups if group["id"] != 0]
