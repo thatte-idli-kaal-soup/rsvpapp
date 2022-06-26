@@ -65,6 +65,7 @@ def get_groups():
 
 def calculate_dues(user_id):
     groups = get_groups()
+    user_id = int(user_id)
     balances = [
         balance
         for group in groups

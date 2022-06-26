@@ -168,7 +168,7 @@ class User(db.Document, UserMixin):
         if not self.splitwise_id:
             return 0
 
-        return calculate_dues(int(self.splitwise_id))
+        return calculate_dues(self.splitwise_id)
 
     @property
     def acceptable_dues(self):
