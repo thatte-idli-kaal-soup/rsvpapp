@@ -61,9 +61,7 @@ def sync_splitwise_group(event_id):
 
     users = [rsvp.user.fetch() for rsvp in event.active_rsvps]
     if not all(user.splitwise_id for user in users):
-        missing_nicks = [
-            (user.nick or user.name) for user in users if not user.splitwise_id
-        ]
+        missing_nicks = [user.nick_name for user in users if not user.splitwise_id]
         flash(
             f"Cannot create Splitwise group since some users do not have Splitwise IDs: "
             f"{', '.join(missing_nicks)}",

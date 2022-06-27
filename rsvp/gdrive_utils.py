@@ -392,7 +392,7 @@ def _event_needs_update(existing, new):
 
 def add_birthday(service, user):
     calendarId = get_calendar_id(service)
-    title = "{}'s Birthday".format(user.nick or user.name)
+    title = "{}'s Birthday".format(user.nick_name)
     date = user.dob.strftime("%Y-%m-%d")
     iCalUID = generate_calendar_event_id(user, "birthday")
     body = {

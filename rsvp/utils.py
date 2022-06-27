@@ -74,7 +74,7 @@ def get_attendance(events):
         for user in users
     }
     rows = [
-        [user.fetch().nick or user.fetch().name] + marked_attendance
+        [user.fetch().nick_name] + marked_attendance
         for user, marked_attendance in attendance.items()
     ]
     rows = sorted(rows, key=lambda x: x[0].lower())

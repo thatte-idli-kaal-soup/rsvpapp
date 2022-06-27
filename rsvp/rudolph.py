@@ -82,8 +82,8 @@ def notify_santas(pairs, test=True):
         kiddo = User.objects.get(email=kiddo)
         content = render_template(
             "secret-santa.txt",
-            santa_name=(santa.nick or santa.name),
-            kiddo_name=(kiddo.nick or kiddo.name),
+            santa_name=(santa.nick_name),
+            kiddo_name=(kiddo.nick_name),
             kiddo=kiddo,
             from_=SENDER,
         )

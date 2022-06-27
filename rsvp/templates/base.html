@@ -60,7 +60,7 @@
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Welcome, {{current_user.nick or current_user.name}}
+                                    Welcome, {{current_user.nick_name}}
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ url_for('user_profile') }}">Profile ({{current_user.email}})</a>

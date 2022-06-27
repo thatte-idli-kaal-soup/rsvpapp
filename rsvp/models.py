@@ -236,7 +236,7 @@ class Post(db.Document):
     def list_authors(self):
         names = []
         for author in self.authors:
-            names.append(author.nick or author.name)
+            names.append(author.nick_name)
         names = ", ".join(names)
         return " & ".join(names.rsplit(",", 1))
 
