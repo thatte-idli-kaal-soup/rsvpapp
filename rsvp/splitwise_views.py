@@ -38,12 +38,8 @@ def allow_splitwise():
         session["next_url"] = next_url
         return redirect(url_for("splitwise.login"))
 
-    # Save splitwise_id for current_user
-    resp = splitwise.get("/api/v3.0/get_current_user")
-    data = resp.json()
-    splitwise_id = data["user"]["id"]
-    current_user.splitwise_id = splitwise_id
-    current_user.save()
+    # Get current user info
+    resp1 = splitwise.get("/api/v3.0/get_current_user")
 
     # Add TOKEN USER EMAIL as friend on Splitwise
     token_user_email = os.environ.get("SPLITWISE_TOKEN_USER_EMAIL")
@@ -52,9 +48,19 @@ def allow_splitwise():
         "user_first_name": "RSVP App",
         "user_last_name": "Admin",
     }
-    resp = splitwise.post("/api/v3.0/create_friend", data=data)
-    assert resp.status_code == 200, "Could not add TOKEN USER EMAIL as friend."
-    flash(f"Your Splitwise ID {current_user.splitwise_id} has been saved.", "success")
+    resp2 = splitwise.post("/api/v3.0/create_friend", data=data)
+
+    if resp1.status_code == resp2.status_code == 200:
+        # Save splitwise_id for current_user
+        current_user.splitwise_id = resp1.json()["user"]["id"]
+        current_user.save()
+        flash(
+            f"Your Splitwise ID {current_user.splitwise_id} has been saved.", "success"
+        )
+    else:
+        print(f"Splitwise allow errors: \n{resp1.text}\n{resp2.text}")
+        flash(f"Could not configure Splitwise correctly for you.", "warning")
+
     return redirect(next_url)
 
 
