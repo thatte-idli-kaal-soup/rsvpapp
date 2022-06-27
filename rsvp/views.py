@@ -100,11 +100,6 @@ def calendar():
     return render_template("calendar.html")
 
 
-def add_rsvp(event, user, cancelled):
-    rsvp = RSVP(rsvp_by=user.email, user=user.email, cancelled=cancelled)
-    event.update(push__rsvps=rsvp)
-
-
 @app.route("/event/<id>", methods=["GET"])
 @login_required
 def event(id):
