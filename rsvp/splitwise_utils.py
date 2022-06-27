@@ -47,10 +47,10 @@ def make_splitwise_blueprint(client_id=None, client_secret=None):
     return splitwise_bp
 
 
-def get_groups():
+def get_groups(force_refresh=False):
     cache_key = "splitwise_groups"
     groups = CACHE.get(cache_key)
-    if groups is None:
+    if groups is None or force_refresh:
         url = f"{SPLITWISE_BASE_URL}/api/v3.0/get_groups"
         response = requests.get(url, headers=AUTH_HEADERS)
         assert response.status_code == 200, "Could not fetch groups for user."
