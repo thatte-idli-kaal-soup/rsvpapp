@@ -9,7 +9,12 @@ import requests
 
 from .app import app
 from .models import Event, ANONYMOUS_EMAIL, User
-from .splitwise_utils import make_splitwise_blueprint, SPLITWISE_BASE_URL, AUTH_HEADERS
+from .splitwise_utils import (
+    make_splitwise_blueprint,
+    SPLITWISE_BASE_URL,
+    AUTH_HEADERS,
+    sync_rsvps_with_splitwise_group,
+)
 
 
 splitwise = LocalProxy(partial(_lookup_app_object, "splitwise_oauth"))
@@ -55,7 +60,6 @@ def allow_splitwise():
 
 @app.route("/splitwise/sync_group/<event_id>", methods=["POST"])
 def sync_splitwise_group(event_id):
-    token_user = os.environ.get("SPLITWISE_TOKEN_USER_ID")
     event = Event.objects.get(id=event_id)
     event_url = url_for("event", id=event.id)
 
@@ -111,45 +115,7 @@ def sync_splitwise_group(event_id):
         event.save()
         flash("Created Splitwise Group for event", "success")
 
-    # Add all currently active RSVP users to the Splitwise group
-    members = {str(member["id"]) for member in group.get("members", [])}
-    for user in users:
-        if user.splitwise_id in members:
-            continue
-        data = {
-            "group_id": event.splitwise_group_id,
-            "user_id": user.splitwise_id,
-        }
-        response = requests.post(
-            f"{SPLITWISE_BASE_URL}/api/v3.0/add_user_to_group",
-            data=data,
-            headers=AUTH_HEADERS,
-        )
-        failure_msg = f"Failed adding user {user.email} -- {user.splitwise_id}"
-        assert response.status_code == 200, f"{failure_msg}: {response}"
-        errors = response.json().get("errors")
-        assert not errors, f"{failure_msg}: {response.json()}"
-
-    # Remove all users who are don't have active RSVPs
-    user_splitwise_ids = {user.splitwise_id for user in users}
-    for member in members:
-        # Don't remove TOKEN admin user, since we use that account to
-        # manage groups. Also, don't remove active RSVP users
-        if member == token_user or member in user_splitwise_ids:
-            continue
-        data = {
-            "group_id": event.splitwise_group_id,
-            "user_id": member,
-        }
-        response = requests.post(
-            f"{SPLITWISE_BASE_URL}/api/v3.0/remove_user_from_group",
-            data=data,
-            headers=AUTH_HEADERS,
-        )
-        failure_msg = f"Failed to remove user {user.email} -- {user.splitwise_id}"
-        assert response.status_code == 200, f"{failure_msg}: {response}"
-        errors = response.json().get("errors")
-        assert not errors, f"{failure_msg}: {response.json()}"
+    sync_rsvps_with_splitwise_group(group, users)
 
     flash("Synced Splitwise Group for event", "success")
     return redirect(event_url)

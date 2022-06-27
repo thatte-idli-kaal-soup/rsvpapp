@@ -1,6 +1,6 @@
 import os
 
-from flask import _app_ctx_stack as stack
+from flask import _app_ctx_stack as stack, flash
 from flask_dance.consumer import OAuth2ConsumerBlueprint
 from oauthlib.oauth2 import WebApplicationClient, BackendApplicationClient
 import requests
@@ -9,6 +9,7 @@ from werkzeug.contrib.cache import SimpleCache
 
 SPLITWISE_BASE_URL = "https://secure.splitwise.com/"
 SPLITWISE_TOKEN = os.environ.get("SPLITWISE_TOKEN")
+SPLITWISE_TOKEN_USER = os.environ.get("SPLITWISE_TOKEN_USER_ID")
 AUTH_HEADERS = {"Authorization": f"Bearer {SPLITWISE_TOKEN}"}
 CACHE = SimpleCache()
 
@@ -97,3 +98,47 @@ def get_simplified_debts(user_id):
             debts.append(debt)
 
     return debts
+
+
+def sync_rsvps_with_splitwise_group(group, users):
+    # Add all currently active RSVP users to the Splitwise group
+    members = {str(member["id"]) for member in group.get("members", [])}
+    for user in users:
+        if user.splitwise_id in members:
+            continue
+        data = {
+            "group_id": group["id"],
+            "user_id": user.splitwise_id,
+        }
+        response = requests.post(
+            f"{SPLITWISE_BASE_URL}/api/v3.0/add_user_to_group",
+            data=data,
+            headers=AUTH_HEADERS,
+        )
+        success = response.json().get("success", False)
+        if response.status_code != 200 or not success:
+            failure_message = (
+                f"Could not add {user.nick_name} to Splitwise group: {response.text}"
+            )
+            flash(failure_message, "danger")
+
+    # Remove all users who are don't have active RSVPs
+    user_splitwise_ids = {user.splitwise_id for user in users}
+    for member in members:
+        # Don't remove SPLITWISE_TOKEN_USER, since we use that account to
+        # manage groups. Also, don't remove active RSVP users
+        if member == SPLITWISE_TOKEN_USER or member in user_splitwise_ids:
+            continue
+        data = {
+            "group_id": group["id"],
+            "user_id": member,
+        }
+        response = requests.post(
+            f"{SPLITWISE_BASE_URL}/api/v3.0/remove_user_from_group",
+            data=data,
+            headers=AUTH_HEADERS,
+        )
+        success = response.json().get("success", False)
+        if response.status_code != 200 or not success:
+            failure_message = f"Could not remove {user.nick_name} from Splitwise group: {response.text}"
+            flash(failure_message, "danger")
