@@ -44,7 +44,7 @@ class Event(db.Document):
     created_by = db.LazyReferenceField("User")
     cancelled = db.BooleanField(required=True, default=False)
     is_paid = db.BooleanField(required=True, default=False)
-    splitwise_group_id = db.StringField()
+    splitwise_group_id = db.IntField()
     gdrive_id = db.StringField()
     meta = {"indexes": [{"fields": ["$name", "$description"]}]}  # text index
 
@@ -129,7 +129,7 @@ class User(db.Document, UserMixin):
     gender = db.StringField()
     active = db.BooleanField(default=True)
     upi_id = db.StringField()
-    splitwise_id = db.StringField()
+    splitwise_id = db.IntField()
     blood_group = db.StringField()
     nick = db.StringField()
     dob = db.DateTimeField()

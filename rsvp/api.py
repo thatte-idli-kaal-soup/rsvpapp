@@ -133,7 +133,7 @@ def api_rsvps(event_id):
     if event.splitwise_group_id:
         groups = get_groups(force_refresh=True)
         filtered_groups = [
-            group for group in groups if str(group["id"]) == event.splitwise_group_id
+            group for group in groups if group["id"] == event.splitwise_group_id
         ]
         if len(filtered_groups) == 1:
             users = [rsvp.user.fetch() for rsvp in event.active_rsvps]

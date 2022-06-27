@@ -9,7 +9,7 @@ from werkzeug.contrib.cache import SimpleCache
 
 SPLITWISE_BASE_URL = "https://secure.splitwise.com/"
 SPLITWISE_TOKEN = os.environ.get("SPLITWISE_TOKEN")
-SPLITWISE_TOKEN_USER = os.environ.get("SPLITWISE_TOKEN_USER_ID")
+SPLITWISE_TOKEN_USER = int(os.environ.get("SPLITWISE_TOKEN_USER_ID", "0"))
 AUTH_HEADERS = {"Authorization": f"Bearer {SPLITWISE_TOKEN}"}
 CACHE = SimpleCache()
 
@@ -66,7 +66,6 @@ def get_groups(force_refresh=False):
 
 def calculate_dues(user_id):
     groups = get_groups()
-    user_id = int(user_id)
     balances = [
         balance
         for group in groups
@@ -82,7 +81,6 @@ def calculate_dues(user_id):
 
 def get_simplified_debts(user_id):
     groups = get_groups()
-    user_id = int(user_id)
     debts = []
     for group in groups:
         members = {member["id"]: member for member in group["members"]}
@@ -92,8 +90,8 @@ def get_simplified_debts(user_id):
             member = members.get(debt["to"], {})
             member["name"] = f"{member.get('first_name')} {member.get('last_name')}"
             debt["to_member"] = member
-            debt["to"] = str(debt["to"])
-            debt["group_id"] = str(group["id"])
+            debt["to"] = debt["to"]
+            debt["group_id"] = group["id"]
             debt["group_name"] = group["name"]
             debts.append(debt)
 
@@ -102,7 +100,7 @@ def get_simplified_debts(user_id):
 
 def sync_rsvps_with_splitwise_group(group, users):
     # Add all currently active RSVP users to the Splitwise group
-    members = {str(member["id"]) for member in group.get("members", [])}
+    members = {member["id"] for member in group.get("members", [])}
     for user in users:
         if user.splitwise_id in members:
             continue

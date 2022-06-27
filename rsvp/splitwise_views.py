@@ -41,7 +41,7 @@ def allow_splitwise():
     # Save splitwise_id for current_user
     resp = splitwise.get("/api/v3.0/get_current_user")
     data = resp.json()
-    splitwise_id = str(data["user"]["id"])
+    splitwise_id = data["user"]["id"]
     current_user.splitwise_id = splitwise_id
     current_user.save()
 
@@ -111,7 +111,7 @@ def sync_splitwise_group(event_id):
         create_url = f"{SPLITWISE_BASE_URL}/api/v3.0/create_group"
         data = requests.post(create_url, data=data, headers=AUTH_HEADERS).json()
         group = data["group"]
-        event.splitwise_group_id = str(group["id"])
+        event.splitwise_group_id = group["id"]
         event.save()
         flash("Created Splitwise Group for event", "success")
 
