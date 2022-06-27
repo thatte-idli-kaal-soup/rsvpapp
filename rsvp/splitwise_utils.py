@@ -122,14 +122,14 @@ def sync_rsvps_with_splitwise_group(group, users):
 
     # Remove all users who are don't have active RSVPs
     user_splitwise_ids = {user.splitwise_id for user in users}
-    for member in members:
+    for member_id in members:
         # Don't remove SPLITWISE_TOKEN_USER, since we use that account to
         # manage groups. Also, don't remove active RSVP users
-        if member == SPLITWISE_TOKEN_USER or member in user_splitwise_ids:
+        if member_id == SPLITWISE_TOKEN_USER or member_id in user_splitwise_ids:
             continue
         data = {
             "group_id": group["id"],
-            "user_id": member,
+            "user_id": member_id,
         }
         response = requests.post(
             f"{SPLITWISE_BASE_URL}/api/v3.0/remove_user_from_group",
@@ -138,5 +138,9 @@ def sync_rsvps_with_splitwise_group(group, users):
         )
         success = response.json().get("success", False)
         if response.status_code != 200 or not success:
-            failure_message = f"Could not remove {user.nick_name} from Splitwise group: {response.text}"
+            member = [m for m in group.get("members", []) if m["id"] == member_id][0]
+            member_name = f"{member['first_name']} {member['last_name']}"
+            failure_message = (
+                f"Could not remove {member_name} from Splitwise group: {response.text}"
+            )
             flash(failure_message, "danger")
