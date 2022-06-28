@@ -28,9 +28,11 @@
                     {% endif %}
                 </span>
             </p>
+            {% if event.created_by %}
             <p class="text-muted my-0">
                 <small>Created by {{ event.created_by.fetch().name }}</small>
             </p>
+            {% endif %}
         </div>
     </span>
     {% if event.is_paid and not current_user.splitwise_id %}
