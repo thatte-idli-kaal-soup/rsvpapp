@@ -27,17 +27,6 @@ app.register_blueprint(splitwise_blueprint)
 
 @oauth_authorized.connect_via(splitwise_blueprint)
 def splitwise_authorized(blueprint, token):
-    return redirect(session.get("next_url", url_for("index")))
-
-
-@app.route("/splitwise/allow")
-@login_required
-def allow_splitwise():
-    next_url = request.args.get("next", url_for("index"))
-    if not splitwise.authorized:
-        session["next_url"] = next_url
-        return redirect(url_for("splitwise.login"))
-
     # Get current user info
     resp1 = splitwise.get("/api/v3.0/get_current_user")
 
@@ -61,7 +50,14 @@ def allow_splitwise():
         print(f"Splitwise allow errors: \n{resp1.text}\n{resp2.text}")
         flash(f"Could not configure Splitwise correctly for you.", "warning")
 
-    return redirect(next_url)
+    return redirect(session.get("next_url", url_for("index")))
+
+
+@app.route("/splitwise/allow")
+@login_required
+def allow_splitwise():
+    session["next_url"] = request.args.get("next", url_for("index"))
+    return redirect(url_for("splitwise.login"))
 
 
 @app.route("/splitwise/sync_group/<event_id>", methods=["POST"])

@@ -2,7 +2,6 @@ import os
 
 from flask import _app_ctx_stack as stack, flash
 from flask_dance.consumer import OAuth2ConsumerBlueprint
-from oauthlib.oauth2 import WebApplicationClient, BackendApplicationClient
 import requests
 from werkzeug.contrib.cache import SimpleCache
 
@@ -14,25 +13,12 @@ AUTH_HEADERS = {"Authorization": f"Bearer {SPLITWISE_TOKEN}"}
 CACHE = SimpleCache()
 
 
-class HybridClient(WebApplicationClient):
-    """Override grant type on WebApplicationClient.
-
-    Splitwise expects client_credentials grant_type, but WebApplicationClient
-    has application_code grant_type.
-
-    """
-
-    grant_type = BackendApplicationClient.grant_type
-
-
 def make_splitwise_blueprint(client_id=None, client_secret=None):
-    client = HybridClient(client_id, token=None)
     splitwise_bp = OAuth2ConsumerBlueprint(
         "splitwise",
         __name__,
         client_id=client_id,
         client_secret=client_secret,
-        client=client,
         base_url=SPLITWISE_BASE_URL,
         token_url=f"{SPLITWISE_BASE_URL}/oauth/token",
         authorization_url=f"{SPLITWISE_BASE_URL}/oauth/authorize",
