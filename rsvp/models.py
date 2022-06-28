@@ -4,7 +4,12 @@ from flask_login import UserMixin, AnonymousUserMixin
 from flask_mongoengine import MongoEngine
 from mongoengine import signals
 
-from .splitwise_utils import calculate_dues, get_simplified_debts
+from .splitwise_utils import (
+    calculate_dues,
+    get_simplified_debts,
+    get_groups,
+    sync_rsvps_with_splitwise_group,
+)
 from .utils import random_id, markdown_to_html, read_app_config, format_date
 from .zulip_utils import zulip_announce_event, zulip_announce_post
 
@@ -117,6 +122,19 @@ class Event(db.Document):
         for i, rsvp in enumerate(self.non_cancelled_rsvps):
             rsvp.waitlisted = i >= self.rsvp_limit if self.rsvp_limit > 0 else False
         self.save()
+
+    def sync_rsvps_with_splitwise(self):
+        group_id = self.splitwise_group_id
+        if not group_id:
+            return True
+
+        groups = get_groups(force_refresh=True)
+        filtered_groups = [group for group in groups if group["id"] == group_id]
+        if not len(filtered_groups) == 1:
+            return False
+        users = [rsvp.user.fetch() for rsvp in self.active_rsvps]
+        sync_rsvps_with_splitwise_group(filtered_groups[0], users)
+        return True
 
 
 signals.pre_save.connect(Event.pre_save, sender=Event)

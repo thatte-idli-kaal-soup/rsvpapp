@@ -7,7 +7,6 @@ from flask_login import current_user, login_required
 from mongoengine.errors import DoesNotExist
 
 from .models import Event, Post, RSVP, User, ANONYMOUS_EMAIL
-from .splitwise_utils import get_groups, sync_rsvps_with_splitwise_group
 from . import app
 
 
@@ -130,16 +129,8 @@ def api_rsvps(event_id):
 
     event.save()
     event.update_waitlist()
-    if event.splitwise_group_id:
-        groups = get_groups(force_refresh=True)
-        filtered_groups = [
-            group for group in groups if group["id"] == event.splitwise_group_id
-        ]
-        if len(filtered_groups) == 1:
-            users = [rsvp.user.fetch() for rsvp in event.active_rsvps]
-            sync_rsvps_with_splitwise_group(filtered_groups[0], users)
-        else:
-            flash("Could not find Splitwise group to sync RSVPs with.", "warning")
+    if not event.sync_rsvps_with_splitwise():
+        flash("Could not find Splitwise group to sync RSVPs with.", "warning")
     return rsvp.to_json()
 
 
@@ -164,6 +155,8 @@ def api_rsvp(event_id, rsvp_id):
         rsvp.cancelled = True
     event.save()
     event.update_waitlist()
+    if not event.sync_rsvps_with_splitwise():
+        flash("Could not find Splitwise group to sync RSVPs with.", "warning")
     return json.dumps({"deleted": "true"})
 
 
