@@ -16,7 +16,7 @@ DUES_LIMIT = 100
 
 class RSVP(db.EmbeddedDocument):
     id = db.ObjectIdField(default=random_id, primary_key=True)
-    user = db.LazyReferenceField("User", unique=True)
+    user = db.LazyReferenceField("User", unique=False)
     note = db.StringField()
     date = db.DateTimeField(required=True, default=datetime.datetime.now)
     rsvp_by = db.LazyReferenceField("User")
