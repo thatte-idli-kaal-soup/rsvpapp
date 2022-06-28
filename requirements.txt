@@ -1,9 +1,10 @@
 alley==0.0.3; python_version >= "2.7"
 altair==4.1.0; python_version >= "3.6"
-appnope==0.1.2; sys_platform == "darwin" and python_version >= "3.7"
+appnope==0.1.2; sys_platform == "darwin" and python_version >= "3.8"
 arrow==1.2.1; python_version >= "3.6"
+asttokens==2.0.5; python_version >= "3.8"
 attrs==21.2.0; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.7"
-backcall==0.2.0; python_version >= "3.7"
+backcall==0.2.0; python_version >= "3.8"
 beautifulsoup4==4.10.0; python_full_version > "3.0.0"
 blinker==1.4
 cachetools==4.2.4; python_version >= "3.5" and python_version < "4.0" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6")
@@ -11,12 +12,13 @@ certifi==2021.10.8; python_version >= "3.5" and python_full_version < "3.0.0" or
 charset-normalizer==2.0.8; python_full_version >= "3.6.0" and python_version >= "3.5"
 click==6.7
 cloudinary==1.28.0
-colorama==0.4.4; python_version >= "3.7" and python_full_version < "3.0.0" and sys_platform == "win32" or sys_platform == "win32" and python_version >= "3.7" and python_full_version >= "3.5.0"
-decorator==5.1.0; python_version >= "3.7"
+colorama==0.4.4; python_version >= "3.8" and python_full_version < "3.0.0" and sys_platform == "win32" or sys_platform == "win32" and python_version >= "3.8" and python_full_version >= "3.5.0"
+decorator==5.1.0; python_version >= "3.8"
 distro==1.6.0; python_version >= "3.5"
 dnspython==2.1.0; python_version >= "3.6"
 dropbox==11.25.0
 entrypoints==0.3; python_version >= "3.6"
+executing==0.8.3; python_version >= "3.8"
 flask-dance==0.14.0
 flask-login==0.4.1
 flask-mongoengine==0.9.5
@@ -32,30 +34,31 @@ googleapis-common-protos==1.53.0; python_version >= "3.6"
 gunicorn==20.1.0; python_version >= "3.5"
 httplib2==0.20.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
 idna==3.3; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.5"
-ipython==7.30.0; python_version >= "3.7"
+ipython==8.4.0; python_version >= "3.8"
 itsdangerous==2.0.1; python_version >= "3.6"
-jedi==0.18.1; python_version >= "3.7"
+jedi==0.18.1; python_version >= "3.8"
 jinja2==3.0.3; python_version >= "3.6"
 jsonschema==4.2.1; python_version >= "3.7"
 lazy==1.4
 markupsafe==2.0.1; python_version >= "3.6"
-matplotlib-inline==0.1.3; python_version >= "3.7"
+matplotlib-inline==0.1.3; python_version >= "3.8"
 matrix-client==0.4.0; python_version >= "3.5"
 mistune==0.8.4
 mongoengine==0.24.1; python_version >= "3.6"
 numpy==1.22.0
 oauthlib==3.1.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
 pandas==1.3.4; python_full_version >= "3.7.1" and python_version >= "3.6"
-parso==0.8.3; python_version >= "3.7"
-pexpect==4.8.0; sys_platform != "win32" and python_version >= "3.7"
-pickleshare==0.7.5; python_version >= "3.7"
+parso==0.8.3; python_version >= "3.8"
+pexpect==4.8.0; sys_platform != "win32" and python_version >= "3.8"
+pickleshare==0.7.5; python_version >= "3.8"
 ply==3.11
-prompt-toolkit==3.0.23; python_full_version >= "3.6.2" and python_version >= "3.7"
+prompt-toolkit==3.0.23; python_full_version >= "3.6.2" and python_version >= "3.8"
 protobuf==3.19.1; python_version >= "3.6"
-ptyprocess==0.7.0; sys_platform != "win32" and python_version >= "3.7"
+ptyprocess==0.7.0; sys_platform != "win32" and python_version >= "3.8"
+pure-eval==0.2.2; python_version >= "3.8"
 pyasn1-modules==0.2.8; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6"
 pyasn1==0.4.8; python_version >= "3.6" and python_full_version < "3.0.0" and python_version < "4" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6") or python_full_version >= "3.6.0" and python_version >= "3.6" and python_version < "4" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6")
-pygments==2.10.0; python_version >= "3.7"
+pygments==2.10.0; python_version >= "3.8"
 pymongo==3.11.2
 pyparsing==3.0.6; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
 pyrsistent==0.18.0; python_version >= "3.7"
@@ -66,15 +69,16 @@ requests-oauthlib==1.3.0; python_version >= "2.7" and python_full_version < "3.0
 requests==2.26.0; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.6.0")
 rsa==4.8; python_version >= "3.6" and python_version < "4" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6")
 sendgrid==5.3.0
-six==1.16.0; python_full_version >= "3.7.1" and python_version >= "3.6" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6") and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.6")
+six==1.16.0; python_full_version >= "3.7.1" and python_version >= "3.6" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6") and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.6") and (python_version >= "3.8" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.8")
 soupsieve==2.3.1; python_version >= "3.6" and python_full_version > "3.0.0"
+stack-data==0.3.0; python_version >= "3.8"
 stone==3.2.1
 toolz==0.11.2; python_version >= "3.6"
-traitlets==5.1.1; python_version >= "3.7"
+traitlets==5.1.1; python_version >= "3.8"
 uritemplate==4.1.1; python_version >= "3.6"
 urllib3==1.26.7; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version < "4" and python_version >= "3.5"
 urlobject==2.4.3
-wcwidth==0.2.5; python_full_version >= "3.6.2" and python_version >= "3.7"
+wcwidth==0.2.5; python_full_version >= "3.6.2" and python_version >= "3.8"
 werkzeug==0.15.5; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.4.0")
 wtforms==3.0.0; python_version >= "3.6"
 zulip==0.7.1; python_version >= "3.5"
