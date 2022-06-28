@@ -103,7 +103,7 @@ def sync_splitwise_group(event_id):
         data = {
             "name": event.name,
             "whiteboard": f"{event.description}\n\n{event_url}",
-            "group_type": "Event",
+            "group_type": "other",
             "simplify_by_default": True,
         }
         users_data = {
