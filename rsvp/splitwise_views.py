@@ -100,8 +100,9 @@ def sync_splitwise_group(event_id):
 
     # Create a new Splitwise Group, if required
     if group is None:
+        date = event.date.strftime("%Y-%m-%d")
         data = {
-            "name": event.name,
+            "name": f"RSVP: {event.name} ({date})",
             "whiteboard": f"{event.description}\n\n{event_url}",
             "group_type": "other",
             "simplify_by_default": True,
