@@ -11,6 +11,7 @@ from .app import app
 from .models import Event, ANONYMOUS_EMAIL, User
 from .splitwise_utils import (
     get_friends,
+    get_groups,
     make_splitwise_blueprint,
     SPLITWISE_BASE_URL,
     AUTH_HEADERS,
@@ -71,5 +72,7 @@ def sync_splitwise_group(event_id):
     group = get_or_create_splitwise_group(event, users)
     if group is not None:
         sync_rsvps_with_splitwise_group(group, users)
+    get_groups(force_refresh=True)
+    get_friends(force_refresh=True)
     flash("Synced Splitwise Group for event", "success")
     return redirect(event.url)

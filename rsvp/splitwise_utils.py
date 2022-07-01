@@ -156,9 +156,9 @@ def get_or_create_splitwise_group(event, users):
     if event.splitwise_group_id:
         # NOTE: Ideally, we'd like to update group title/description but
         # Splitwise API doesn't seem to have an end-point for that?!
-        # FIXME: Should we switch to using get_groups() with a force update on
-        # the cached group information? But, then we'd probably want to call
-        # the function even when a new group is created for predictability.
+
+        # NOTE: We don't use data from get_groups(force_refresh=True), since we
+        # want to get an error message if the group was deleted.
         get_url = f"{SPLITWISE_BASE_URL}/api/v3.0/get_group/{event.splitwise_group_id}"
         data = requests.get(get_url, headers=AUTH_HEADERS).json()
         group = data.get("group")
