@@ -134,13 +134,7 @@ def sync_rsvps_with_splitwise_group(group, users):
 
 
 def get_or_create_splitwise_group(event, users):
-    if not all(user.splitwise_id for user in users):
-        missing_nicks = [user.nick_name for user in users if not user.splitwise_id]
-        flash(
-            f"Cannot create Splitwise group since some users do not have Splitwise IDs: "
-            f"{', '.join(missing_nicks)}",
-            "danger",
-        )
+    if not ensure_users_splitwise_ids(event, users):
         return
 
     group = None
@@ -188,3 +182,33 @@ def get_or_create_splitwise_group(event, users):
         flash("Created Splitwise Group for event", "success")
 
     return group
+
+
+def splitwise_create_group_hook(sender, document, **kwargs):
+    if document.is_paid and (
+        kwargs.get("created") or "is_paid" in document._changed_fields
+    ):
+        # Fetch object from DB to be able to use validated/cleaned values
+        event = sender.objects.get(id=document.id)
+        users = [rsvp.user.fetch() for rsvp in event.active_rsvps]
+        get_or_create_splitwise_group(event, users)
+
+
+def ensure_users_splitwise_ids(event, users):
+    if not all(user.splitwise_id for user in users):
+        missing_nicks = [user.nick_name for user in users if not user.splitwise_id]
+        flash(
+            f"Cannot create Splitwise group since some users do not have Splitwise IDs: "
+            f"{', '.join(missing_nicks)}",
+            "danger",
+        )
+        return False
+
+
+def ensure_splitwise_ids_hook(sender, document, **kwargs):
+    if document.is_paid and (
+        kwargs.get("created") or "is_paid" in document._changed_fields
+    ):
+        users = [rsvp.user.fetch() for rsvp in document.active_rsvps]
+        if not ensure_users_splitwise_ids(document, users):
+            document.is_paid = False

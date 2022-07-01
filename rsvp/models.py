@@ -10,6 +10,8 @@ from .splitwise_utils import (
     get_simplified_debts,
     get_groups,
     sync_rsvps_with_splitwise_group,
+    ensure_splitwise_ids_hook,
+    splitwise_create_group_hook,
     SPLITWISE_DUES_LIMIT,
 )
 from .utils import random_id, markdown_to_html, read_app_config, format_date
@@ -144,6 +146,8 @@ class Event(db.Document):
 
 signals.pre_save.connect(Event.pre_save, sender=Event)
 signals.post_save.connect(zulip_announce_event, sender=Event)
+signals.pre_save.connect(ensure_splitwise_ids_hook, sender=Event)
+signals.post_save.connect(splitwise_create_group_hook, sender=Event)
 
 
 class User(db.Document, UserMixin):
