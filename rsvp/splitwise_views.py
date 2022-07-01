@@ -63,7 +63,6 @@ def allow_splitwise():
 @app.route("/splitwise/sync_group/<event_id>", methods=["POST"])
 def sync_splitwise_group(event_id):
     event = Event.objects.get(id=event_id)
-    event_url = url_for("event", id=event.id)
 
     users = [rsvp.user.fetch() for rsvp in event.active_rsvps]
     if not all(user.splitwise_id for user in users):
@@ -73,7 +72,7 @@ def sync_splitwise_group(event_id):
             f"{', '.join(missing_nicks)}",
             "danger",
         )
-        return redirect(event_url)
+        return redirect(event.url)
 
     group = None
     # Try to get the Splitwise Group
@@ -90,7 +89,7 @@ def sync_splitwise_group(event_id):
         deleted_error = "Invalid API Request: record not found"
         if group is None and error != deleted_error:
             flash(f"Could not sync with Splitwise. Failure: {data}", "danger")
-            return redirect(event_url)
+            return redirect(event.url)
 
         elif group is None:
             print(f"Group {event.splitwise_group_id} seems to be deleted")
@@ -122,4 +121,4 @@ def sync_splitwise_group(event_id):
     sync_rsvps_with_splitwise_group(group, users)
 
     flash("Synced Splitwise Group for event", "success")
-    return redirect(event_url)
+    return redirect(event.url)
