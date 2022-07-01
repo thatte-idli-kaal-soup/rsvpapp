@@ -1,5 +1,6 @@
 import datetime
 
+from flask import url_for
 from flask_login import UserMixin, AnonymousUserMixin
 from flask_mongoengine import MongoEngine
 from mongoengine import signals
@@ -97,6 +98,10 @@ class Event(db.Document):
     @property
     def female_rsvps(self):
         return self.rsvps_with_gender("female")
+
+    @property
+    def url(self):
+        return url_for("event", id=self.id)
 
     def rsvps_with_gender(self, gender):
         return [r for r in self.active_rsvps if r.user.fetch().gender == gender]
