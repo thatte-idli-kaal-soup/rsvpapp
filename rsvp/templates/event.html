@@ -35,22 +35,11 @@
             {% endif %}
         </div>
     </span>
-    {% if event.is_paid and not current_user.splitwise_id %}
-    <div class="card col-md-6" id="event-rsvp">
-      <div class="card-body">
-        <div class="form-group mb-2" id="rsvp-self">
-          This is a paid event and you need to link your profile with a
-          Splitwise account to be able to RSVP.
-          <a href="{{ url_for("allow_splitwise", next=url_for("event", id=event.id)) }}">
-            <button class="btn btn-primary">
-              <i class="fa fa-rupee-sign"></i>
-              Connect Splitwise
-            </button>
-          </a>
-        </div>
-      </div>
-    </div>
-    {% endif %}
+    {% with next_url = event.url %}
+      {% if event.is_paid and not current_user.splitwise_id %}
+        {% include 'splitwise-connect.html' %}
+      {% endif %}
+    {% endwith %}
     {% if event.is_paid and not current_user.acceptable_dues %}
        {% include 'splitwise-dues.html' %}
     {% endif %}

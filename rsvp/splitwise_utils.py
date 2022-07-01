@@ -1,6 +1,6 @@
 import os
 
-from flask import _app_ctx_stack as stack, flash, url_for
+from flask import _app_ctx_stack as stack, flash, url_for, redirect
 from flask_dance.consumer import OAuth2ConsumerBlueprint
 import requests
 from werkzeug.contrib.cache import SimpleCache

@@ -1,0 +1,18 @@
+<div class="card col-md-6" id="event-rsvp">
+  <div class="card-body">
+    <div class="form-group mb-2" id="rsvp-self">
+      {% if event %}
+      <p>
+        This is a paid event and you need to link your profile with a
+        Splitwise account to be able to RSVP.
+      </p>
+      {% endif %}
+      <a href="{{ url_for("allow_splitwise", next=next_url) }}">
+        <button class="btn btn-primary">
+          <i class="fa fa-rupee-sign"></i>
+          Connect Splitwise
+        </button>
+      </a>
+    </div>
+  </div>
+</div>

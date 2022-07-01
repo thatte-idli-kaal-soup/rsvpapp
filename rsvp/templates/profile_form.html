@@ -1,15 +1,8 @@
 {% set user = current_user %}
 <p class="h3">Update your details here</p>
-<div class="row">
-  <div class="col-sm-4">
-    <a href="{{ url_for('allow_splitwise', next=url_for('user_profile')) }}">
-      <button class="btn btn-primary">
-        <i class="fa fa-rupee-sign"></i>
-        Connect Splitwise
-      </button>
-    </a>
-  </div>
-</div>
+{% with next_url = url_for('user_profile') %}
+  {% include 'splitwise-connect.html' %}
+{% endwith %}
 <div class="row">
     <div class="col-sm-4">
         <div class="card bg-dark text-white mb-3">
