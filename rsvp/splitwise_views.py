@@ -10,6 +10,7 @@ import requests
 from .app import app
 from .models import Event, ANONYMOUS_EMAIL, User
 from .splitwise_utils import (
+    get_friends,
     make_splitwise_blueprint,
     SPLITWISE_BASE_URL,
     AUTH_HEADERS,
@@ -50,6 +51,8 @@ def splitwise_authorized(blueprint, token):
     else:
         print(f"Splitwise allow errors: \n{resp1.text}\n{resp2.text}")
         flash(f"Could not configure Splitwise correctly for you.", "warning")
+
+    get_friends(force_refresh=True)
 
     return redirect(session.get("next_url", url_for("index")))
 

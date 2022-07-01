@@ -36,7 +36,7 @@
         </div>
     </span>
     {% with next_url = event.url %}
-      {% if event.is_paid and not current_user.splitwise_id %}
+      {% if event.is_paid and not current_user.splitwise_connected %}
         {% include 'splitwise-connect.html' %}
       {% endif %}
     {% endwith %}

@@ -91,7 +91,7 @@ def api_rsvps(event_id):
         else:
             return '{"error": "user does not exist"}', 400
 
-    if event.is_paid and not (user.splitwise_id and user.acceptable_dues):
+    if event.is_paid and not (user.splitwise_connected and user.acceptable_dues):
         return (
             '{"error": "Users without Splitwise linked or with dues above the limit cannot RSVP."}',
             400,

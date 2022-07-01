@@ -51,6 +51,20 @@ def get_groups(force_refresh=False):
     return groups
 
 
+def get_friends(force_refresh=False):
+    cache_key = "splitwise_friends"
+    friends = CACHE.get(cache_key)
+    if friends is None or force_refresh:
+        url = f"{SPLITWISE_BASE_URL}/api/v3.0/get_friends"
+        response = requests.get(url, headers=AUTH_HEADERS)
+        assert response.status_code == 200, "Could not fetch friends for user."
+        # NOTE: If this API call is being paginated or something, we could use
+        # the /api/v3.0/get_main_data end-point, which the web UI seems to use.
+        friends = response.json().get("friends", [])
+        CACHE.set(cache_key, friends)  # default_timeout = 5mins
+    return friends
+
+
 def calculate_dues(user_id):
     groups = get_groups()
     balances = [
@@ -195,10 +209,10 @@ def splitwise_create_group_hook(sender, document, **kwargs):
 
 
 def ensure_users_splitwise_ids(event, users):
-    if not all(user.splitwise_id for user in users):
+    if not all(user.splitwise_connected for user in users):
         missing_nicks = [user.nick_name for user in users if not user.splitwise_id]
         flash(
-            f"Cannot create Splitwise group since some users do not have Splitwise IDs: "
+            f"Cannot create Splitwise group since some users have not connected Splitwise: "
             f"{', '.join(missing_nicks)}",
             "danger",
         )

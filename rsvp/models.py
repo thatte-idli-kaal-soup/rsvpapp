@@ -9,6 +9,7 @@ from .splitwise_utils import (
     calculate_dues,
     get_simplified_debts,
     get_groups,
+    get_friends,
     sync_rsvps_with_splitwise_group,
     ensure_splitwise_ids_hook,
     splitwise_create_group_hook,
@@ -118,7 +119,7 @@ class Event(db.Document):
             return True
 
         if self.is_paid:
-            return user.splitwise_id and user.acceptable_dues
+            return user.splitwise_connected and user.acceptable_dues
 
         if not self.is_paid:
             return not (self.archived or self.cancelled)
@@ -193,6 +194,14 @@ class User(db.Document, UserMixin):
     @property
     def is_anonymous_user(self):
         return self.email == ANONYMOUS_EMAIL
+
+    @property
+    def splitwise_connected(self):
+        if not self.splitwise_id:
+            return False
+
+        friend_ids = {f["id"] for f in get_friends()}
+        return self.splitwise_id in friend_ids
 
     @property
     def dues(self):
