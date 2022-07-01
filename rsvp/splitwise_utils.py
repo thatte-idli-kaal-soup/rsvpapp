@@ -1,6 +1,6 @@
 import os
 
-from flask import _app_ctx_stack as stack, flash
+from flask import _app_ctx_stack as stack, flash, url_for
 from flask_dance.consumer import OAuth2ConsumerBlueprint
 import requests
 from werkzeug.contrib.cache import SimpleCache
@@ -131,3 +131,60 @@ def sync_rsvps_with_splitwise_group(group, users):
                 f"Could not remove {member_name} from Splitwise group: {response.text}"
             )
             flash(failure_message, "danger")
+
+
+def get_or_create_splitwise_group(event, users):
+    if not all(user.splitwise_id for user in users):
+        missing_nicks = [user.nick_name for user in users if not user.splitwise_id]
+        flash(
+            f"Cannot create Splitwise group since some users do not have Splitwise IDs: "
+            f"{', '.join(missing_nicks)}",
+            "danger",
+        )
+        return
+
+    group = None
+    # Try to get the Splitwise Group
+    if event.splitwise_group_id:
+        # NOTE: Ideally, we'd like to update group title/description but
+        # Splitwise API doesn't seem to have an end-point for that?!
+        # FIXME: Should we switch to using get_groups() with a force update on
+        # the cached group information? But, then we'd probably want to call
+        # the function even when a new group is created for predictability.
+        get_url = f"{SPLITWISE_BASE_URL}/api/v3.0/get_group/{event.splitwise_group_id}"
+        data = requests.get(get_url, headers=AUTH_HEADERS).json()
+        group = data.get("group")
+        error = data.get("errors", {}).get("base", [""])[0]
+        deleted_error = "Invalid API Request: record not found"
+        if group is None and error != deleted_error:
+            flash(f"Could not sync with Splitwise. Failure: {data}", "danger")
+            return
+
+        elif group is None:
+            print(f"Group {event.splitwise_group_id} seems to be deleted")
+
+        else:
+            print(f"Found Splitwise group {event.splitwise_group_id}")
+
+    # Create a new Splitwise Group, if required
+    if group is None:
+        date = event.date.strftime("%Y-%m-%d")
+        url = url_for("event", id=event.id, _external=True)
+        data = {
+            "name": f"RSVP: {event.name} ({date})",
+            "whiteboard": f"{event.description}\n\n{url}",
+            "group_type": "other",
+            "simplify_by_default": True,
+        }
+        users_data = {
+            f"user__{i}__id": user.splitwise_id for i, user in enumerate(users)
+        }
+        data.update(users_data)
+        create_url = f"{SPLITWISE_BASE_URL}/api/v3.0/create_group"
+        data = requests.post(create_url, data=data, headers=AUTH_HEADERS).json()
+        group = data["group"]
+        event.splitwise_group_id = group["id"]
+        event.save()
+        flash("Created Splitwise Group for event", "success")
+
+    return group
