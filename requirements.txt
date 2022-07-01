@@ -17,15 +17,16 @@ decorator==5.1.0; python_version >= "3.8"
 distro==1.6.0; python_version >= "3.5"
 dnspython==2.1.0; python_version >= "3.6"
 dropbox==11.25.0
+email-validator==1.2.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_version >= "3.6" and python_full_version >= "3.5.0"
 entrypoints==0.3; python_version >= "3.6"
 executing==0.8.3; python_version >= "3.8"
 flask-dance==0.14.0
 flask-login==0.4.1
-flask-mongoengine==0.9.5
+flask-mongoengine==1.0.0
 flask-sslify==0.1.5
 flask-versioned @ git+https://github.com/pilt/flask-versioned.git@c6591bc9a5605242d5d82dd4e3bf30c11452748e
 flask-wtf==1.0.0; python_version >= "3.6"
-flask==1.0.2
+flask==1.1.2; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
 google-api-core==2.2.2; python_version >= "3.6"
 google-api-python-client==2.31.0; python_version >= "3.6"
 google-auth-httplib2==0.1.0; python_version >= "3.6"
@@ -33,14 +34,14 @@ google-auth==2.3.3; python_version >= "3.6" and python_full_version < "3.0.0" or
 googleapis-common-protos==1.53.0; python_version >= "3.6"
 gunicorn==20.1.0; python_version >= "3.5"
 httplib2==0.20.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
-idna==3.3; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.5"
+idna==3.3; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6"
 ipython==8.4.0; python_version >= "3.8"
-itsdangerous==2.0.1; python_version >= "3.6"
+itsdangerous==2.0.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 jedi==0.18.1; python_version >= "3.8"
-jinja2==3.0.3; python_version >= "3.6"
+jinja2==3.0.3; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 jsonschema==4.2.1; python_version >= "3.7"
 lazy==1.4
-markupsafe==2.0.1; python_version >= "3.6"
+markupsafe==2.0.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 matplotlib-inline==0.1.3; python_version >= "3.8"
 matrix-client==0.4.0; python_version >= "3.5"
 mistune==0.8.4
