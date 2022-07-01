@@ -1,16 +1,22 @@
+{% with dues = current_user.dues %}
+{% if dues > 0 %}
 <div class="card col-md-6" id="event-rsvp">
   <div class="card-body">
     <div class="form-group mb-2" id="rsvp-self">
-      You have dues of <span>₹ {{current_user.dues}}<span>.
-      Please clear them to be able to RSVP to paid events.
+      You have dues of <span>₹ {{dues}}<span>.
+      {% if not current_user.acceptable_dues %}
+          Please clear them to be able to RSVP to paid events.
+      {% endif %}
     </div>
     <div>
       You owe:
       <ul>
         {% for due in current_user.dues_details %}
         <li> ₹ {{ due.amount }} to {{due.to_user.nick_name or due.to_member.name}}
-        {% if due.to_user.upi_id %} (UPI: {{ due.to_user.upi_id }}){% endif %} for
-          <a href="{{ url_for('event', id=due.event.id) }}"> {{due.event.name}}</a>
+          {% if due.to_user.upi_id %} (UPI: {{ due.to_user.upi_id }}){% endif %}
+
+          {% if due.event %}for <a href="{{ url_for('event', id=due.event.id) }}">{{due.event.name}}</a>{% endif %}
+
            (<a href="https://secure.splitwise.com/#/groups/{{due.group_id}}">Splitwise group</a>)
         </li>
         {% endfor %}
@@ -18,3 +24,5 @@
     </div>
   </div>
 </div>
+{% endif %}
+{% endwith %}

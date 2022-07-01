@@ -40,9 +40,7 @@
         {% include 'splitwise-connect.html' %}
       {% endif %}
     {% endwith %}
-    {% if event.is_paid and not current_user.acceptable_dues %}
-       {% include 'splitwise-dues.html' %}
-    {% endif %}
+    {% include 'splitwise-dues.html' %}
     {% if event.can_rsvp(current_user) %}
         <div class="card col-md-6" id="event-rsvp">
             <div class="card-body">
