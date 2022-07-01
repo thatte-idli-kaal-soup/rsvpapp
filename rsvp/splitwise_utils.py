@@ -67,17 +67,16 @@ def get_friends(force_refresh=False):
 
 def calculate_dues(user_id):
     groups = get_groups()
-    balances = [
-        balance
+    debts = [
+        debt
         for group in groups
-        for member in group["members"]
-        for balance in member["balance"]
-        if member["id"] == user_id
+        for debt in group["simplified_debts"]
+        if debt["from"] == user_id
     ]
-    currency = {balance["currency_code"] for balance in balances}
+    currency = {debt["currency_code"] for debt in debts}
     assert len(currency) <= 1, f"Cannot support multiple currencies: {currency}"
-    amounts = [float(balance["amount"]) for balance in balances]
-    return -1 * sum(amounts)
+    amounts = [float(debt["amount"]) for debt in debts]
+    return sum(amounts)
 
 
 def get_simplified_debts(user_id):
