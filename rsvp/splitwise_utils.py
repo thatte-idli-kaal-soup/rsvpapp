@@ -9,6 +9,7 @@ from werkzeug.contrib.cache import SimpleCache
 SPLITWISE_BASE_URL = "https://secure.splitwise.com/"
 SPLITWISE_TOKEN = os.environ.get("SPLITWISE_TOKEN")
 SPLITWISE_TOKEN_USER = int(os.environ.get("SPLITWISE_TOKEN_USER_ID", "0"))
+SPLITWISE_DUES_LIMIT = int(os.environ.get("SPLITWISE_DUES_LIMIT", "100"))
 AUTH_HEADERS = {"Authorization": f"Bearer {SPLITWISE_TOKEN}"}
 CACHE = SimpleCache()
 

@@ -9,6 +9,7 @@ from .splitwise_utils import (
     get_simplified_debts,
     get_groups,
     sync_rsvps_with_splitwise_group,
+    SPLITWISE_DUES_LIMIT,
 )
 from .utils import random_id, markdown_to_html, read_app_config, format_date
 from .zulip_utils import zulip_announce_event, zulip_announce_post
@@ -16,7 +17,6 @@ from .zulip_utils import zulip_announce_event, zulip_announce_post
 
 db = MongoEngine()
 ANONYMOUS_EMAIL = "anonymous@example.com"
-DUES_LIMIT = 100
 
 
 class RSVP(db.EmbeddedDocument):
@@ -194,7 +194,7 @@ class User(db.Document, UserMixin):
 
     @property
     def acceptable_dues(self):
-        return self.dues <= DUES_LIMIT
+        return self.dues <= SPLITWISE_DUES_LIMIT
 
     @property
     def dues_details(self):
