@@ -88,9 +88,10 @@ def get_simplified_debts(user_id):
             if debt["from"] != user_id:
                 continue
             member = members.get(debt["to"], {})
-            member["name"] = f"{member.get('first_name')} {member.get('last_name')}"
+            member[
+                "name"
+            ] = f"{member.get('first_name') or ''} {member.get('last_name') or ''}".strip()
             debt["to_member"] = member
-            debt["to"] = debt["to"]
             debt["group_id"] = group["id"]
             debt["group_name"] = group["name"]
             debts.append(debt)
