@@ -179,6 +179,11 @@ class User(db.Document, UserMixin):
 
         return False
 
+    def payment_link(self, amount="", currency="", remark=""):
+        if not self.upi_id:
+            return
+        return f'<a href="upi://pay?pa={self.upi_id}&am={amount}&cu={currency}&tn={remark}"> Pay {self.upi_id} </a>'
+
     @property
     def nick_name(self):
         return self.nick or self.name
