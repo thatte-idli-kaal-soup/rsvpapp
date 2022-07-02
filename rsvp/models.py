@@ -212,7 +212,8 @@ class User(db.Document, UserMixin):
 
     @property
     def acceptable_dues(self):
-        return self.dues <= SPLITWISE_DUES_LIMIT
+        dues, _ = self.dues
+        return dues <= SPLITWISE_DUES_LIMIT
 
     @property
     def dues_details(self):

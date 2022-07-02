@@ -76,7 +76,7 @@ def calculate_dues(user_id):
     currency = {debt["currency_code"] for debt in debts}
     assert len(currency) <= 1, f"Cannot support multiple currencies: {currency}"
     amounts = [float(debt["amount"]) for debt in debts]
-    return sum(amounts)
+    return sum(amounts), list(currency)[0] if currency else ""
 
 
 def get_simplified_debts(user_id):
