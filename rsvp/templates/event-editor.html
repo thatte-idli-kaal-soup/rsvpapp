@@ -101,11 +101,20 @@
                         {% endwith %}
                     </div>
                     {% if current_user.has_role("tester") %}
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" name="is_paid" id="is-paid" {% if event.is_paid %}checked{% endif %}>
-                      <label class="form-check-label" for="is-paid">
-                        Paid Event
-                      </label>
+                    <div class="form-group">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_paid" id="is-paid" {% if event.is_paid %}checked{% endif %}>
+                        <label class="form-check-label" for="is-paid">
+                          Paid Event
+                        </label>
+                        <small id="paid-event-help" class="form-text text-muted">
+                          Paid events prevent people without a Splitwise
+                          Account from RSVP-ing. Make sure the event really
+                          needs to be restrictive. Splitwise groups can be
+                          created with all RSVP members with a single click
+                          even for unpaid events.
+                        </small>
+                      </div>
                     </div>
                     {% endif %}
                     <div class="form-group row">
