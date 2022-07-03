@@ -1,4 +1,5 @@
 import datetime
+from urllib.parse import quote, urlencode
 
 from flask import url_for
 from flask_login import UserMixin, AnonymousUserMixin
@@ -182,7 +183,15 @@ class User(db.Document, UserMixin):
     def payment_link(self, amount="", currency="", remark=""):
         if not self.upi_id:
             return
-        return f'<a href="upi://pay?pa={self.upi_id}&am={amount}&cu={currency}&tn={remark}"> Pay {self.upi_id} </a>'
+        query = {
+            "pa": self.upi_id,
+            "am": amount,
+            "pn": self.name,
+            "cu": currency,
+            "tn": remark,
+        }
+        params = urlencode(query, quote_via=quote, safe="@")
+        return f'<a href="upi://pay?{params}"> Pay {self.upi_id} </a>'
 
     @property
     def nick_name(self):
