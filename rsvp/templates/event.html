@@ -26,6 +26,9 @@
                     {% if event.archived %}
                         <i class="fa fa-archive text-secondary" title="Archived"></i>
                     {% endif %}
+                    {% if event.is_paid %}
+                        <i class="fa fa-rupee-sign text-secondary" title="Paid"></i>
+                    {% endif %}
                 </span>
             </p>
             {% if event.created_by %}

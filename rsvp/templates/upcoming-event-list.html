@@ -7,9 +7,12 @@
                     <span class="day">{{ item.date.strftime("%d %b") }}</span>
                 </div>
                 <span class="mr-auto event-title {% if item.cancelled %}cancelled-event{% endif %}">
-                    <a href="/event/{{item.id}}">{{ item.name }}</a>
+                  <a href="/event/{{item.id}}">{{ item.name }}</a>
                 </span>
                 <div class="rsvp-count">
+                    {% if item.is_paid %}
+                        <i class="fa fa-rupee-sign text-secondary" title="Paid"></i>
+                    {% endif %}
                     {% if item.rsvps %}
                         <i class="fa fa-user"></i> {{item.rsvp_count}}
                     {% endif %}
