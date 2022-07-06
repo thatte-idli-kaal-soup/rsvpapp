@@ -4,28 +4,89 @@
   <div class="card-body">
     <div class="form-group mb-2" id="rsvp-self">
       You have dues of <span>{{currency}} {{dues}}<span>.
-      {% if not current_user.acceptable_dues %}
+          {% if not current_user.acceptable_dues %}
           Please clear them to be able to RSVP to paid events.
-      {% endif %}
+          {% endif %}
     </div>
     <div>
-      You owe:
-      <ul>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Amount</th>
+            <th scope="col">To</th>
+            <th scope="col">UPI ID</th>
+            <th scope="col">Event</th>
+            <th scope="col">Splitwise</th>
+          </tr>
+        </thead>
         {% for due in current_user.dues_details %}
-        <li>{{ due.currency_code }} {{ due.amount }} to {{due.to_user.nick_name or due.to_member.name}}
-          {% if due.to_user.upi_id %} ({{ due.to_user.payment_link(due.amount, due.currency_code, due.group_name) | safe }}) {% endif %}
-
-          {% if due.event %}for <a href="{{ url_for('event', id=due.event.id) }}">{{due.event.name}}</a>{% endif %}
-          <a title="Splitwise Group - {{due.group_name}}"
-             href="https://secure.splitwise.com/#/groups/{{due.group_id}}">
-            <i class="fa fa-wallet"></i>
-          </a>
-        </li>
+        <tr>
+          <td>{{ due.currency_code }} {{ due.amount }}</td>
+          <td>{{due.to_user.nick_name or due.to_member.name}}</td>
+          <td>
+            {% if due.to_user.upi_id %}
+            {% with url=due.to_user.payment_link(due.amount, due.currency_code, due.group_name) %}
+            <span class="payments" id="android-payments">
+              <a href="{{url}}" title="Pay using UPI">
+                <img src="{{ url_for('static', filename='images/bhim.svg')|versioned }}"/>
+              </a>
+            </span>
+            <span class="payments" id="iphone-payments">
+              {% with phone_pe=url.replace("upi:", "phonepe:"),
+              paytm=url.replace("upi:", "paytmmp:"),
+              gpay=url.replace("upi://", "gpay://upi/")
+              %}
+              <a href="{{phone_pe}}" title="Pay using UPI">
+                <img src="{{ url_for('static', filename='images/phone-pe.svg')|versioned }}"/>
+              </a>
+              <a href="{{paytm}}" title="Pay using PayTM">
+                <img src="{{ url_for('static', filename='images/paytm.svg')|versioned }}"/>
+              </a>
+              <!-- <a href="{{gpay}}" title="Pay using GPay"> -->
+              <!--   <img src="{{ url_for('static', filename='images/gpay.svg')|versioned }}"/> -->
+              <!-- </a> -->
+              {% endwith %}
+            </span>
+            {% endwith %}
+            <button class="btn btn-sm copy-button"
+                    id="copy-upi-id"
+                    type="button"
+                    title="Copy UPI ID"
+                    data-placement="bottom"
+                    data-clipboard-action="copy"
+                    data-clipboard-text="{{ due.to_user.upi_id }}">
+              <i class="fa fa-copy"></i>
+            </button>
+            {% else %}
+            <span class="btn btn-sm"><i class="fa fa-question-circle"></i></span>
+            {% endif %}
+          </td>
+          <td>
+            {% if due.event %}
+            <a title="{{due.event.name}}" href="{{ url_for('event', id=due.event.id) }}">
+              <i class="fa fa-calendar-alt"></i>
+            </a>
+            {% endif %}
+          </td>
+          <td>
+            <a title="Splitwise Group - {{due.group_name}}"
+               href="https://secure.splitwise.com/#/groups/{{due.group_id}}">
+              <i class="fa fa-wallet"></i>
+            </a>
+          </td>
+        </tr>
         {% endfor %}
-      </ul>
+      </table>
+      <small class="form-text text-muted">
+        Google Pay requires the UPI ID be a Merchant UPI ID, and the
+        transaction fails. Copying the UPI ID and doing a manual transaction
+        seems the most reliable way.
+      </small>
     </div>
-    <small>If you just cleared dues wait for about 5 minutes for them to update in
-  the RSVP app, or "Sync RSVPs with Splitwise" for a paid event.</small>
+    <hr/>
+    <small class="form-text text-muted">If you just cleared dues wait for about
+      5 minutes for them to update in the RSVP app, or "Sync RSVPs with
+      Splitwise" for a paid event.</small>
   </div>
 </div>
 {% endif %}
