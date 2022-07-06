@@ -13,12 +13,13 @@
       <ul>
         {% for due in current_user.dues_details %}
         <li>{{ due.currency_code }} {{ due.amount }} to {{due.to_user.nick_name or due.to_member.name}}
-
           {% if due.to_user.upi_id %} ({{ due.to_user.payment_link(due.amount, due.currency_code, due.group_name) | safe }}) {% endif %}
 
           {% if due.event %}for <a href="{{ url_for('event', id=due.event.id) }}">{{due.event.name}}</a>{% endif %}
-
-           (<a href="https://secure.splitwise.com/#/groups/{{due.group_id}}">Splitwise group</a>)
+          <a title="Splitwise Group - {{due.group_name}}"
+             href="https://secure.splitwise.com/#/groups/{{due.group_id}}">
+            <i class="fa fa-wallet"></i>
+          </a>
         </li>
         {% endfor %}
       </ul>
