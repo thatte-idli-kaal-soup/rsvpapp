@@ -190,8 +190,8 @@ class User(db.Document, UserMixin):
             "cu": currency,
             "tn": remark,
         }
-        params = urlencode(query, quote_via=quote, safe="@")
-        return f'<a href="upi://pay?{params}"> Pay {self.upi_id} </a>'
+        params = urlencode(query, quote_via=quote)
+        return f"upi://pay?{params}"
 
     @property
     def nick_name(self):
