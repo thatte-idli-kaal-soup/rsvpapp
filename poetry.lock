@@ -188,11 +188,11 @@ optional = false
 python-versions = ">=3.6"
 
 [package.extras]
-dnssec = ["cryptography (>=2.6)"]
-doh = ["requests", "requests-toolbelt"]
+trio = ["sniffio (>=1.1)", "trio (>=0.14.0)"]
+curio = ["sniffio (>=1.1)", "curio (>=1.2)"]
 idna = ["idna (>=2.1)"]
-curio = ["curio (>=1.2)", "sniffio (>=1.1)"]
-trio = ["trio (>=0.14.0)", "sniffio (>=1.1)"]
+doh = ["requests-toolbelt", "requests"]
+dnssec = ["cryptography (>=2.6)"]
 
 [[package]]
 name = "dropbox"
@@ -250,9 +250,9 @@ Jinja2 = ">=2.10.1"
 Werkzeug = ">=0.15"
 
 [package.extras]
-dev = ["pytest", "coverage", "tox", "sphinx", "pallets-sphinx-themes", "sphinxcontrib-log-cabinet", "sphinx-issues"]
-docs = ["sphinx", "pallets-sphinx-themes", "sphinxcontrib-log-cabinet", "sphinx-issues"]
 dotenv = ["python-dotenv"]
+docs = ["sphinx-issues", "sphinxcontrib-log-cabinet", "pallets-sphinx-themes", "sphinx"]
+dev = ["sphinx-issues", "sphinxcontrib-log-cabinet", "pallets-sphinx-themes", "sphinx", "tox", "coverage", "pytest"]
 
 [[package]]
 name = "flask-dance"
@@ -586,14 +586,14 @@ requests = ">=2.22,<3.0"
 urllib3 = ">=1.21,<2.0"
 
 [package.extras]
-doc = ["Sphinx (>=1.7.6,<2.0.0)", "sphinx-rtd-theme (>=0.1.9,<0.2.0)", "sphinxcontrib-napoleon (>=0.5.3,<0.6.0)"]
-e2e = ["python-olm (>=3.1,<4.0)", "canonicaljson (>=1.1,<2.0)"]
-test = ["pytest (>=4.6,<6.0.0)", "responses (>=0.10.6,<0.11.0)"]
+test = ["responses (>=0.10.6,<0.11.0)", "pytest (>=4.6,<6.0.0)"]
+e2e = ["canonicaljson (>=1.1,<2.0)", "python-olm (>=3.1,<4.0)"]
+doc = ["sphinxcontrib-napoleon (>=0.5.3,<0.6.0)", "sphinx-rtd-theme (>=0.1.9,<0.2.0)", "Sphinx (>=1.7.6,<2.0.0)"]
 
 [[package]]
 name = "mistune"
-version = "0.8.4"
-description = "The fastest markdown parser in pure Python"
+version = "2.0.3"
+description = "A sane Markdown parser with useful plugins and renderers"
 category = "main"
 optional = false
 python-versions = "*"
@@ -904,7 +904,7 @@ executing = "*"
 pure-eval = "*"
 
 [package.extras]
-tests = ["pytest", "typeguard", "pygments", "littleutils", "cython"]
+tests = ["cython", "littleutils", "pygments", "typeguard", "pytest"]
 
 [[package]]
 name = "stone"
@@ -1018,7 +1018,7 @@ requests = {version = ">=0.12.1", extras = ["security"]}
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "df1e49498b13c2ab393f40f4ce856fc74a21bec37d00ac9183c62556d607c1fe"
+content-hash = "2023e911fc323daf2c5be14c73547b3a817c3b3a5a2c5a409a86c6234c2a54ad"
 
 [metadata.files]
 alley = [
@@ -1267,8 +1267,8 @@ matrix-client = [
     {file = "matrix_client-0.4.0.tar.gz", hash = "sha256:0678af40f2cb2f0928a908a410c029747d40cb961ac5a3f1bd05aa35563c3156"},
 ]
 mistune = [
-    {file = "mistune-0.8.4-py2.py3-none-any.whl", hash = "sha256:88a1051873018da288eee8538d476dffe1262495144b33ecb586c4ab266bb8d4"},
-    {file = "mistune-0.8.4.tar.gz", hash = "sha256:59a3429db53c50b5c6bcc8a07f8848cb00d7dc8bdb431a4ab41920d201d4756e"},
+    {file = "mistune-2.0.3-py2.py3-none-any.whl", hash = "sha256:e3964140c0775535fba50bd616fe180920044a64bc21850253267b07bff89924"},
+    {file = "mistune-2.0.3.tar.gz", hash = "sha256:d7605b46b6156b53b7d52a465202b29a6f00f4ea4130ad5d25e9d5547d6b7e50"},
 ]
 mongoengine = [
     {file = "mongoengine-0.24.1-py3-none-any.whl", hash = "sha256:68878b65bcb3751debcba4342180a180161cdb5f46525027e622ad081dd44fac"},
