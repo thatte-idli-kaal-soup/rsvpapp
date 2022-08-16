@@ -34,6 +34,21 @@ def create_approved_user(email, name, gender):
 
 
 @click.command()
+def approve_all_users():
+    """Command to approve all unapproved users on the app
+
+    The command is useful when running a demo app, and this command could be
+    run as a cron job.
+
+    """
+    unapproved_users = User.objects.filter(roles__nin=[".approved-user"])
+    count = unapproved_users.count()
+    unapproved_users.update(push__roles=".approved-user")
+    print(f"Approved {count} users:\n  ")
+    print("\n  ".join(unapproved_users.values_list("email")))
+
+
+@click.command()
 @click.option("--format", default="tsv")
 @click.option("--display-roles", default=False, is_flag=True)
 @click.option("--display-gender", default=False, is_flag=True)
@@ -291,6 +306,7 @@ def notify_santas(emails):
         notify_santas(pairs)
 
 
+cli.add_command(approve_all_users)
 cli.add_command(create_approved_user)
 cli.add_command(create_admins)
 cli.add_command(list_users)
