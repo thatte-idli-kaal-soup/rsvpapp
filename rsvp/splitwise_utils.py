@@ -199,9 +199,7 @@ def get_or_create_splitwise_group(event, users):
 
 
 def splitwise_create_group_hook(sender, document, **kwargs):
-    if document.is_paid and (
-        kwargs.get("created") or "is_paid" in document._changed_fields
-    ):
+    if document.is_paid:
         # Fetch object from DB to be able to use validated/cleaned values
         event = sender.objects.get(id=document.id)
         users = [rsvp.user.fetch() for rsvp in event.active_rsvps]
@@ -217,12 +215,11 @@ def ensure_users_splitwise_ids(event, users):
             "danger",
         )
         return False
+    return True
 
 
 def ensure_splitwise_ids_hook(sender, document, **kwargs):
-    if document.is_paid and (
-        kwargs.get("created") or "is_paid" in document._changed_fields
-    ):
+    if document.is_paid:
         users = [rsvp.user.fetch() for rsvp in document.active_rsvps]
         if not ensure_users_splitwise_ids(document, users):
             document.is_paid = False
