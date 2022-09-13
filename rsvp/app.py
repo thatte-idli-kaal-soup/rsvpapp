@@ -96,6 +96,8 @@ def google_logged_in(blueprint, token):
         user = User(email=email, name=info["name"], gender=info.get("gender"))
         user.save()
         created = True
+        if not app.config["PRIVATE_APP"]:
+            user.update(push__roles=".approved-user")
     if not app.config["PRIVATE_APP"] or user.has_role(".approved-user"):
         # FIXME: May not be ideal, but we are trying not to annoy people!
         login_user(user, remember=True)
