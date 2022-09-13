@@ -98,8 +98,7 @@ def google_logged_in(blueprint, token):
         created = True
         if not app.config["PRIVATE_APP"]:
             user.update(push__roles=".approved-user")
-    if not app.config["PRIVATE_APP"] or user.has_role(".approved-user"):
-        # FIXME: May not be ideal, but we are trying not to annoy people!
+    if user.has_role(".approved-user"):
         login_user(user, remember=True)
         next_ = redirect(session.get("next_url", url_for("index")))
     else:
