@@ -14,7 +14,11 @@ zulip_email = os.environ.get("ZULIP_EMAIL", "")
 zulip_key = os.environ.get("ZULIP_KEY", "")
 zulip_site = zulip_email.split("@")[-1]
 zulip_stream = os.environ.get("ZULIP_ANNOUNCE_STREAM", "")
-zulip_client = zulip.Client(email=zulip_email, api_key=zulip_key, site=zulip_site)
+try:
+    zulip_client = zulip.Client(email=zulip_email, api_key=zulip_key, site=zulip_site)
+except Exception:
+    # FIXME: Ugly!
+    zulip_client = None
 cache = SimpleCache()
 
 
