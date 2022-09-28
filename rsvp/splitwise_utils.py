@@ -1,10 +1,9 @@
 import os
 
-from flask import _app_ctx_stack as stack, flash, url_for, redirect
+from cachelib import SimpleCache
+from flask import flash, url_for, redirect, g
 from flask_dance.consumer import OAuth2ConsumerBlueprint
 import requests
-from werkzeug.contrib.cache import SimpleCache
-
 
 SPLITWISE_BASE_URL = "https://secure.splitwise.com/"
 SPLITWISE_TOKEN = os.environ.get("SPLITWISE_TOKEN")
@@ -29,8 +28,7 @@ def make_splitwise_blueprint(client_id=None, client_secret=None):
 
     @splitwise_bp.before_app_request
     def set_applocal_session():
-        ctx = stack.top
-        ctx.splitwise_oauth = splitwise_bp.session
+        g.flask_dance_splitwise = splitwise_bp.session
 
     return splitwise_bp
 

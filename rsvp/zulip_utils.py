@@ -4,8 +4,8 @@ from urllib.request import quote
 from urllib.parse import urlparse
 
 import arrow
+from cachelib import SimpleCache
 from flask import render_template
-from werkzeug.contrib.cache import SimpleCache
 import zulip
 
 from .utils import event_absolute_url, post_absolute_url
@@ -14,9 +14,7 @@ zulip_email = os.environ.get("ZULIP_EMAIL", "")
 zulip_key = os.environ.get("ZULIP_KEY", "")
 zulip_site = zulip_email.split("@")[-1]
 zulip_stream = os.environ.get("ZULIP_ANNOUNCE_STREAM", "")
-zulip_client = zulip.Client(
-    email=zulip_email, api_key=zulip_key, site=zulip_site
-)
+zulip_client = zulip.Client(email=zulip_email, api_key=zulip_key, site=zulip_site)
 cache = SimpleCache()
 
 
@@ -24,9 +22,9 @@ def send_message_zulip(to, subject, content, type_="private"):
     """Send a message to Zulip."""
     data = {"type": type_, "to": to, "subject": subject, "content": content}
     try:
-        print(u'Sending message "%s" to %s (%s)' % (content, to, type_))
+        print('Sending message "%s" to %s (%s)' % (content, to, type_))
         response = zulip_client.send_message(data)
-        print(u"Post returned with {}".format(response))
+        print("Post returned with {}".format(response))
         return response["result"] == "success"
 
     except Exception as e:
@@ -65,9 +63,7 @@ def zulip_announce_event(sender, document, **kwargs):
 
 def zulip_announce_post(sender, document, **kwargs):
     created = kwargs.get("created", False)
-    announce = not document.draft and (
-        created or "draft" in document._changed_fields
-    )
+    announce = not document.draft and (created or "draft" in document._changed_fields)
     if not announce:
         return
 
@@ -116,7 +112,7 @@ def zulip_announce_new_photos(new_paths, new_photos):
 
 
 def zulip_event_url(event):
-    """Return the Zulip url given the title. """
+    """Return the Zulip url given the title."""
     zulip_api_url = os.environ.get("ZULIP_API_URL")
     if not zulip_api_url:
         return ""
@@ -126,11 +122,7 @@ def zulip_event_url(event):
     # Some browsers zealously URI-decode the contents of window.location.hash.
     # So Zulip hides the URI-encoding by replacing '%' with '.'
     def replace(x):
-        return (
-            quote(x.encode("utf-8"), safe="")
-            .replace(".", "%2E")
-            .replace("%", ".")
-        )
+        return quote(x.encode("utf-8"), safe="").replace(".", "%2E").replace("%", ".")
 
     title = zulip_title(event, truncate=True)
     title = replace(title)

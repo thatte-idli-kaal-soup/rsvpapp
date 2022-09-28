@@ -3,6 +3,7 @@ import base64
 import csv
 from datetime import datetime
 from functools import wraps
+from hashlib import pbkdf2_hmac
 import io
 import os
 from random import choice, shuffle
@@ -17,7 +18,6 @@ from flask import current_app, render_template
 import mistune
 import sendgrid
 from sendgrid.helpers.mail import Email, Content, Mail, Personalization
-from werkzeug.security import pbkdf2_hex
 from dropbox import Dropbox
 
 
@@ -41,7 +41,7 @@ def get_aspect_ratio(width, height, rotation):
 SLUG_RE = re.compile("[^A-Za-z]+")
 
 
-class BootstrapMarkdownRenderer(mistune.Renderer):
+class BootstrapMarkdownRenderer(mistune.HTMLRenderer):
     def block_quote(self, text):
         """Rendering <blockquote> with the given text and bootstrap class."""
         return "<blockquote class='blockquote'>%s\n</blockquote>\n" % text.rstrip("\n")
@@ -109,9 +109,7 @@ def markdown_to_html(md):
     """Convert markdown to html."""
     if not md:
         md = ""
-    return mistune.markdown(
-        md, escape=False, hard_wrap=True, use_xhtml=True, renderer=renderer
-    )
+    return mistune.markdown(md, escape=False, renderer=renderer)
 
 
 def random_id():
@@ -165,7 +163,11 @@ def role_required(role="ALL"):
 
 
 def generate_password(tag, salt, n=32):
-    tag_hash = pbkdf2_hex("{}-password".format(tag), salt)
+    hash_name = "sha256"
+    iterations = 150000
+    tag_hash = pbkdf2_hmac(
+        hash_name, f"{tag}-password".encode(), salt.encode(), iterations
+    ).hex()
     return base64.b85encode(bytes(tag_hash, "ascii"))[:n].decode("ascii")
 
 
