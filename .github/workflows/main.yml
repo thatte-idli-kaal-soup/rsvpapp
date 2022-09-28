@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SETTINGS: settings/conf.py
     steps:
       - uses: actions/checkout@v2
       - name: Install Python 3
