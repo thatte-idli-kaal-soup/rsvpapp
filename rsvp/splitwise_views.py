@@ -1,9 +1,9 @@
 from functools import partial
 import os
 
-from flask import redirect, url_for, _app_ctx_stack as stack, flash, request, session
+from flask import redirect, url_for, flash, request, session, g
 from flask_dance.consumer import oauth_authorized
-from flask.globals import LocalProxy, _lookup_app_object
+from werkzeug.local import LocalProxy
 from flask_login import current_user, login_required
 import requests
 
@@ -20,12 +20,12 @@ from .splitwise_utils import (
 )
 
 
-splitwise = LocalProxy(partial(_lookup_app_object, "splitwise_oauth"))
 splitwise_blueprint = make_splitwise_blueprint(
     client_id=os.environ.get("SPLITWISE_KEY"),
     client_secret=os.environ.get("SPLITWISE_SECRET"),
 )
 app.register_blueprint(splitwise_blueprint)
+splitwise = LocalProxy(lambda: g.flask_dance_splitwise)
 
 
 @oauth_authorized.connect_via(splitwise_blueprint)
