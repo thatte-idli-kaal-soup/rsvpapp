@@ -10,7 +10,6 @@ python = "^3.9"
 requests = "^2.26.0"
 beautifulsoup4 = "^4.10.0"
 alley = "^0.0.3"
-Flask-SSLify = "^0.1.5"
 Flask-Versioned = { git = "https://github.com/pilt/flask-versioned.git", rev = "c6591bc9a5605242d5d82dd4e3bf30c11452748e" }
 altair = "^4.1.0"
 sendgrid = "5.3.0"

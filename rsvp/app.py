@@ -5,8 +5,8 @@ from flask import Flask, redirect, session, url_for
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized
 from flask_login import current_user, LoginManager, login_user
-from flask_sslify import SSLify
 from flaskext.versioned import Versioned
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from .models import db, GDrivePhoto, Post, User, AnonymousUser, ANONYMOUS_EMAIL
 from .utils import (
@@ -18,12 +18,9 @@ from .utils import (
 )
 from .zulip_utils import zulip_event_url
 
-
 app = Flask(__name__)
 app.config.from_envvar("SETTINGS")
-if "DYNO" in os.environ and "DOKKU_APP_TYPE" not in os.environ:
-    # only trigger SSLify if the app is running on Heroku, not Dokku or local env
-    sslify = SSLify(app)
+app.wsgi_app = ProxyFix(app.wsgi_app)
 versioned = Versioned(app)
 db.init_app(app)
 
