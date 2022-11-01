@@ -21,6 +21,11 @@ def daily():
     subprocess.check_call([str(script)], cwd=HERE.parent)
 
 
+def heartbeat():
+    print(f"Heartbeat: {time.ctime()}", flush=True)
+
+
+schedule.every().minute.do(heartbeat)
 schedule.every().hour.do(hourly)
 schedule.every().day.at("10:30").do(daily)
 
