@@ -1,25 +1,24 @@
 # Standard library
 import base64
 import csv
+import io
+import os
+import re
+import string
 from datetime import datetime
 from functools import wraps
 from hashlib import pbkdf2_hmac
-import io
-import os
 from random import choice, shuffle
-import re
-import string
 
-# 3rd party
-import altair as alt
-from bson.objectid import ObjectId
-from flask_login import current_user
-from flask import current_app, render_template
 import mistune
 import sendgrid
-from sendgrid.helpers.mail import Email, Content, Mail, Personalization
-from dropbox import Dropbox
 
+# 3rd party
+from bson.objectid import ObjectId
+from dropbox import Dropbox
+from flask import current_app, render_template
+from flask_login import current_user
+from sendgrid.helpers.mail import Content, Email, Mail, Personalization
 
 ALLOWED_RATIOS = ((4, 3), (21, 9), (16, 9), (1, 1))
 
@@ -219,6 +218,8 @@ def get_random_photos(photos, n=20):
 
 
 def get_attendance_chart(source):
+    import altair as alt
+
     color_scale = alt.Scale(
         domain=("attendance", "sessions"), range=["darkorange", "black"]
     )
