@@ -1,0 +1,23 @@
+# flyctl launch added from .gitignore
+**/__pycache__
+**/.pytest_cache
+service_account_file.json
+.envrc
+.config
+**/*.pyc
+web-variables.env
+**/bin
+**/lib
+**/lib64
+**/pyvenv.cfg
+**/share
+**/data
+**/*.gz
+client_secret.json
+credentials.json
+.ipynb_checkpoints
+.dokku-envrc
+
+# flyctl launch added from .mypy_cache/.gitignore
+# Automatically created by mypy
+.mypy_cache/**/*
