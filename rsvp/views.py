@@ -47,7 +47,6 @@ from .utils import (
     format_gphoto_time,
     generate_password,
     get_attendance,
-    get_attendance_chart,
     get_random_photos,
     role_required,
     send_approved_email,
@@ -220,8 +219,7 @@ def search():
 def user_profile():
     if request.method == "GET":
         source = url_for("api_attendance")
-        chart = get_attendance_chart(source)
-        return render_template("profile.html", chart=chart)
+        return render_template("profile.html")
 
     email = request.form["email"]
     if email != current_user.email:
