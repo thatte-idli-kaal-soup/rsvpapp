@@ -11,3 +11,6 @@ lib64
 pyvenv.cfg
 share/
 data/
+*.gz
+/client_secret.json
+/credentials.json
