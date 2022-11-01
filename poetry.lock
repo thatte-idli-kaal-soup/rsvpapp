@@ -943,6 +943,14 @@ python-versions = ">=3.6,<4"
 pyasn1 = ">=0.1.3"
 
 [[package]]
+name = "schedule"
+version = "1.1.0"
+description = "Job scheduling for humans."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "sendgrid"
 version = "5.3.0"
 description = "SendGrid library for Python"
@@ -1129,7 +1137,7 @@ typing-extensions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "e20f4bb4eecf8811d2c5575cf5a36c69e457df48395deabf7e88da3a05e7a493"
+content-hash = "e13f37433478d4e634bf00fb9fc5edbe92f79edd000970d7ccd31cdb7d6a4042"
 
 [metadata.files]
 alley = []
@@ -1208,6 +1216,7 @@ pytz = []
 requests = []
 requests-oauthlib = []
 rsa = []
+schedule = []
 sendgrid = []
 six = []
 soupsieve = []

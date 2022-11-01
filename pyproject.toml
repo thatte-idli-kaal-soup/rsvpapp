@@ -28,6 +28,7 @@ mistune = "^2.0.4"
 flask-mongoengine = "^1.0.0"
 blinker = "^1.5"
 zulip = "^0.8.2"
+schedule = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
 ipython = "^8.4.0"
