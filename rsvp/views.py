@@ -8,25 +8,26 @@ from urllib.parse import urlparse, urlunparse
 from flask import (
     current_app,
     flash,
-    render_template,
+    jsonify,
+    make_response,
     redirect,
-    url_for,
+    render_template,
     request,
     send_file,
-    session,
-    make_response,
-    jsonify,
     send_from_directory,
+    session,
+    url_for,
 )
 from flask_login import (
     current_user,
     fresh_login_required,
     login_required,
-    logout_user,
     login_user,
+    logout_user,
 )
 from mongoengine.errors import DoesNotExist, ValidationError
 
+from . import app
 from .cloudinary_utils import image_url, list_images
 from .gdrive_utils import (
     create_folder,
@@ -34,15 +35,7 @@ from .gdrive_utils import (
     list_sub_dirs,
     upload_photo,
 )
-from .models import (
-    Bookmark,
-    Event,
-    GDrivePhoto,
-    InterestedUser,
-    Post,
-    RSVP,
-    User,
-)
+from .models import Bookmark, Event, GDrivePhoto, InterestedUser, Post, User
 from .utils import (
     format_gphoto_time,
     generate_password,
@@ -52,7 +45,6 @@ from .utils import (
     send_approved_email,
 )
 from .zulip_utils import zulip_event_responses
-from . import app
 
 
 @app.before_request

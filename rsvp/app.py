@@ -2,13 +2,13 @@ import datetime
 import os
 
 from flask import Flask, redirect, session, url_for
-from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized
-from flask_login import current_user, LoginManager, login_user
+from flask_dance.contrib.google import google, make_google_blueprint
+from flask_login import LoginManager, current_user, login_user
 from flaskext.versioned import Versioned
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from .models import db, GDrivePhoto, Post, User, AnonymousUser, ANONYMOUS_EMAIL
+from .models import ANONYMOUS_EMAIL, AnonymousUser, GDrivePhoto, Post, User, db
 from .utils import (
     format_date,
     format_gphoto_time,
@@ -62,9 +62,7 @@ def inject_notifications():
 
     # Unapproved users
     if current_user and current_user.is_admin:
-        approval_awaited_count = User.objects(
-            roles__nin=[".approved-user"]
-        ).count()
+        approval_awaited_count = User.objects(roles__nin=[".approved-user"]).count()
         extra_context["approval_awaited_count"] = approval_awaited_count
 
     # New posts
