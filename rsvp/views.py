@@ -53,7 +53,8 @@ def redirect_heroku():
     urlparts = urlparse(request.url)
     domain_name = "rsvp.tiks-ultimate.in"
     old_domain_name = "thatte-idli-rsvp.herokuapp.com"
-    if urlparts.netloc == old_domain_name:
+    fly_domain_name = "tiks-ultimate-rsvp.fly.dev"
+    if urlparts.netloc in {old_domain_name, fly_domain_name}:
         urlparts_list = list(urlparts)
         urlparts_list[1] = domain_name
         return redirect(urlunparse(urlparts_list), code=301)
