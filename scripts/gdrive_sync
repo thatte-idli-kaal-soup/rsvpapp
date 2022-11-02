@@ -21,7 +21,6 @@ service account is being used from.
 import datetime
 import os
 import sys
-from itertools import chain
 
 import click
 
@@ -31,9 +30,12 @@ from rsvp.gdrive_utils import (
     add_rsvp_event,
     create_root_folder,
     create_service,
-    delete_birthday,
+    delete_event,
     delete_rsvp_event,
+    get_calendar_id,
+    list_events,
     photos,
+    update_birthday_event,
     update_calendar_sharing,
     update_permissions,
 )
@@ -109,14 +111,35 @@ def sync_calendar_permissions(ctx):
 @click.pass_context
 def sync_calendar_birthdays(ctx):
     service = ctx.obj["calendar_service"]
-    users = User.approved_users().filter(dob__ne=None, hide_dob=False)
-    for user in users:
-        add_birthday(service, user)
+    users = User.approved_users().filter(dob__ne=None, hide_dob__in=[None, False])
+    calendarId = get_calendar_id(service)
+    events = list_events(service, calendarId)
 
-    no_dob = User.approved_users().filter(dob=None)
-    hide_dob = User.approved_users().filter(hide_dob=True)
-    for user in chain(no_dob, hide_dob):
-        delete_birthday(service, user)
+    def event_email(event):
+        return event["iCalUID"].split(":", 2)[1]
+
+    birthdays = {
+        event_email(event): event
+        for event in events
+        if event["iCalUID"].startswith("birthday:")
+    }
+    calendar_emails = set(birthdays.keys())
+    users_by_email = {user.email: user for user in users}
+    user_emails = set(users_by_email.keys())
+    to_add_emails = user_emails - calendar_emails
+    to_remove_emails = calendar_emails - user_emails
+    to_update_emails = user_emails.intersection(calendar_emails)
+
+    for email in to_add_emails:
+        add_birthday(service, calendarId, users_by_email[email])
+
+    for email in to_remove_emails:
+        delete_event(service, calendarId, birthdays[email])
+
+    for email in to_update_emails:
+        update_birthday_event(
+            service, calendarId, users_by_email[email], birthdays[email]
+        )
 
 
 @click.command()

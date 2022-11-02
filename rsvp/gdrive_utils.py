@@ -1,4 +1,5 @@
 # Standard library
+import datetime
 import json
 import os
 from itertools import cycle
@@ -352,32 +353,49 @@ def list_events(service, calendarId):
 
 def _event_needs_update(existing, new):
     for key, value in new.items():
+        if key == "iCalUID":
+            continue
         if key not in existing or existing[key] != value:
             return True
     return False
 
 
-def add_birthday(service, user):
-    calendarId = get_calendar_id(service)
+def add_birthday(service, calendarId, user):
+    body = make_birthday_body(user)
+    print(f"Adding {body['summary']}...")
+    service.events().insert(calendarId=calendarId, body=body).execute()
+
+
+def update_birthday_event(service, calendarId, user, event):
+    body = make_birthday_body(user)
+    title = body["summary"]
+    if not _event_needs_update(event, body):
+        print(f"No update for {title}")
+    else:
+        print(f"Updating {title}")
+        service.events().update(
+            calendarId=calendarId, eventId=event["id"], body=body
+        ).execute()
+
+
+def delete_event(service, calendarId, event):
+    print(f"Deleting {event['summary']}...")
+    delete_calendar_event(service, calendarId, event["iCalUID"])
+
+
+def make_birthday_body(user):
     title = "{}'s Birthday".format(user.nick_name)
-    date = user.dob.strftime("%Y-%m-%d")
+    start_date = user.dob.strftime("%Y-%m-%d")
+    end_date = (user.dob + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
     iCalUID = generate_calendar_event_id(user, "birthday")
     body = {
-        "start": {"date": date},
-        "end": {"date": date},
+        "start": {"date": start_date},
+        "end": {"date": end_date},
         "recurrence": ["RRULE:FREQ=YEARLY"],
         "summary": title,
         "iCalUID": iCalUID,
     }
-    add_or_update_event(service, calendarId, iCalUID, body)
-
-
-def delete_birthday(service, user):
-    calendarId = get_calendar_id(service)
-    iCalUID = generate_calendar_event_id(user, "birthday")
-    events = find_event_by_ical_uid(service, calendarId, iCalUID)
-    for event in events:
-        delete_calendar_event(service, calendarId, event["iCalUID"])
+    return body
 
 
 def add_rsvp_event(service, event, timezone):
