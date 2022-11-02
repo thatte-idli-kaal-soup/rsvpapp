@@ -27,17 +27,18 @@ import click
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rsvp.gdrive_utils import (
     add_birthday,
-    add_rsvp_event,
+    add_rsvp,
+    cal_event_to_model_id,
     create_root_folder,
     create_service,
     delete_event,
-    delete_rsvp_event,
     get_calendar_id,
     list_events,
     photos,
-    update_birthday_event,
+    update_birthday,
     update_calendar_sharing,
     update_permissions,
+    update_rsvp,
 )
 from rsvp.models import Event, GDrivePhoto, User
 from rsvp.utils import read_app_config
@@ -113,14 +114,9 @@ def sync_calendar_birthdays(ctx):
     service = ctx.obj["calendar_service"]
     users = User.approved_users().filter(dob__ne=None, hide_dob__in=[None, False])
     calendarId = get_calendar_id(service)
-    events = list_events(service, calendarId)
-
-    def event_email(event):
-        return event["iCalUID"].split(":", 2)[1]
-
     birthdays = {
-        event_email(event): event
-        for event in events
+        cal_event_to_model_id(event): event
+        for event in list_events(service, calendarId)
         if event["iCalUID"].startswith("birthday:")
     }
     calendar_emails = set(birthdays.keys())
@@ -137,9 +133,7 @@ def sync_calendar_birthdays(ctx):
         delete_event(service, calendarId, birthdays[email])
 
     for email in to_update_emails:
-        update_birthday_event(
-            service, calendarId, users_by_email[email], birthdays[email]
-        )
+        update_birthday(service, calendarId, users_by_email[email], birthdays[email])
 
 
 @click.command()
@@ -147,14 +141,35 @@ def sync_calendar_birthdays(ctx):
 def sync_calendar_rsvp_events(ctx):
     service = ctx.obj["calendar_service"]
     today = datetime.datetime.now()
-    upcoming_events = Event.objects.filter(date__gte=today).order_by("date")
     app_config = read_app_config()
     timezone = app_config["TIMEZONE"]
-    for event in upcoming_events:
-        if event.cancelled:
-            delete_rsvp_event(service, event)
-        else:
-            add_rsvp_event(service, event, timezone)
+    calendarId = get_calendar_id(service)
+    upcoming_rsvps = Event.objects.filter(date__gte=today).order_by("date")
+
+    def in_future(date_string):
+        return datetime.datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%SZ") > today
+
+    events = {
+        cal_event_to_model_id(event): event
+        for event in list_events(service, calendarId)
+        if event["iCalUID"].startswith("rsvp:")
+        and in_future(event["start"]["dateTime"])
+    }
+    calendar_rsvps = set(events.keys())
+    rsvps_by_id = {str(rsvp.id): rsvp for rsvp in upcoming_rsvps}
+    rsvp_ids = set(rsvps_by_id.keys())
+    to_add_ids = rsvp_ids - calendar_rsvps
+    to_remove_ids = calendar_rsvps - rsvp_ids
+    to_update_ids = rsvp_ids.intersection(calendar_rsvps)
+
+    for id_ in to_add_ids:
+        add_rsvp(service, calendarId, rsvps_by_id[id_], timezone)
+
+    for id_ in to_remove_ids:
+        delete_event(service, calendarId, events[id_])
+
+    for id_ in to_update_ids:
+        update_rsvp(service, calendarId, rsvps_by_id[id_], events[id_], timezone)
 
 
 cli.add_command(create_drive_root_dir)

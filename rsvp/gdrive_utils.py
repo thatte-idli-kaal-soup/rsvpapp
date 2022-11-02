@@ -294,11 +294,6 @@ def generate_calendar_event_id(obj, type_):
     return "{prefix}:{key}:{suffix}".format(prefix=type_, key=key, suffix=suffix)
 
 
-def ical_uid_to_search_uid(iCalUID):
-    # rsvp:xyz:abc -> rsvp:xyz
-    return ":".join(iCalUID.split(":")[:2])
-
-
 def delete_calendar_event(service, calendarId, iCalUID):
     events = (
         service.events().list(calendarId=calendarId, iCalUID=iCalUID).execute()["items"]
@@ -310,36 +305,13 @@ def delete_calendar_event(service, calendarId, iCalUID):
         print("Event not found: {}".format(iCalUID))
 
 
-def find_event_by_ical_uid(service, calendarId, iCalUID):
-    events = list_events(service, calendarId)
-    search_uid = ical_uid_to_search_uid(iCalUID)
-    return [
-        event
-        for event in events
-        if ical_uid_to_search_uid(event["iCalUID"]) == search_uid
-    ]
-
-
-def add_or_update_event(service, calendarId, iCalUID, body):
-    matches = find_event_by_ical_uid(service, calendarId, iCalUID)
-    if len(matches) == 1 and _event_needs_update(matches[0], body):
-        event = matches[0]
-        print("Updating {}...".format(event["iCalUID"]))
-        service.events().update(
-            calendarId=calendarId, eventId=event["id"], body=body
-        ).execute()
-        print("Updated {}".format(event["iCalUID"]))
-
-    elif len(matches) != 1:
-        for event in matches:
-            delete_calendar_event(service, calendarId, event["iCalUID"])
-            print("Deleted {}".format(event["iCalUID"]))
-        print("Adding {}...".format(iCalUID))
-        service.events().insert(calendarId=calendarId, body=body).execute()
-        print("Added {}".format(iCalUID))
-
-    else:
-        print("No updates to {}".format(iCalUID))
+def _event_needs_update(existing, new):
+    for key, value in new.items():
+        if key == "iCalUID":
+            continue
+        if key not in existing or existing[key] != value:
+            return True
+    return False
 
 
 def list_events(service, calendarId):
@@ -351,13 +323,8 @@ def list_events(service, calendarId):
     return event_items
 
 
-def _event_needs_update(existing, new):
-    for key, value in new.items():
-        if key == "iCalUID":
-            continue
-        if key not in existing or existing[key] != value:
-            return True
-    return False
+def cal_event_to_model_id(event):
+    return event["iCalUID"].split(":", 2)[1]
 
 
 def add_birthday(service, calendarId, user):
@@ -366,7 +333,7 @@ def add_birthday(service, calendarId, user):
     service.events().insert(calendarId=calendarId, body=body).execute()
 
 
-def update_birthday_event(service, calendarId, user, event):
+def update_birthday(service, calendarId, user, event):
     body = make_birthday_body(user)
     title = body["summary"]
     if not _event_needs_update(event, body):
@@ -376,11 +343,6 @@ def update_birthday_event(service, calendarId, user, event):
         service.events().update(
             calendarId=calendarId, eventId=event["id"], body=body
         ).execute()
-
-
-def delete_event(service, calendarId, event):
-    print(f"Deleting {event['summary']}...")
-    delete_calendar_event(service, calendarId, event["iCalUID"])
 
 
 def make_birthday_body(user):
@@ -398,14 +360,18 @@ def make_birthday_body(user):
     return body
 
 
-def add_rsvp_event(service, event, timezone):
-    calendarId = get_calendar_id(service)
-    title = event.name
-    start_date = event.date
-    end_date = event.end_date
-    iCalUID = generate_calendar_event_id(event, "rsvp")
-    url = event_absolute_url(event)
-    description = f"RSVP here: {url}\n\n {event.description}"
+def delete_event(service, calendarId, event):
+    print(f"Deleting {event['summary']}...")
+    delete_calendar_event(service, calendarId, event["iCalUID"])
+
+
+def make_rsvp_body(rsvp, timezone):
+    title = rsvp.name
+    start_date = rsvp.date
+    end_date = rsvp.end_date
+    iCalUID = generate_calendar_event_id(rsvp, "rsvp")
+    url = event_absolute_url(rsvp)
+    description = f"RSVP here: {url}\n\n {rsvp.description}"
     body = {
         "start": {"dateTime": start_date.isoformat(), "timeZone": timezone},
         "end": {"dateTime": end_date.isoformat(), "timeZone": timezone},
@@ -417,12 +383,22 @@ def add_rsvp_event(service, event, timezone):
             "title": "Go to RSVP app page",
         },
     }
-    add_or_update_event(service, calendarId, iCalUID, body)
+    return body
 
 
-def delete_rsvp_event(service, event):
-    calendarId = get_calendar_id(service)
-    iCalUID = generate_calendar_event_id(event, "rsvp")
-    events = find_event_by_ical_uid(service, calendarId, iCalUID)
-    for event in events:
-        delete_calendar_event(service, calendarId, event["iCalUID"])
+def add_rsvp(service, calendarId, rsvp, timezone):
+    body = make_rsvp_body(rsvp, timezone)
+    print(f"Adding {body['summary']}...")
+    service.events().insert(calendarId=calendarId, body=body).execute()
+
+
+def update_rsvp(service, calendarId, rsvp, event, timezone):
+    body = make_rsvp_body(rsvp, timezone)
+    title = body["summary"]
+    if not _event_needs_update(event, body):
+        print(f"No update for {title}")
+    else:
+        print(f"Updating {title}")
+        service.events().update(
+            calendarId=calendarId, eventId=event["id"], body=body
+        ).execute()
