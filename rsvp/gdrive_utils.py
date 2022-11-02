@@ -1,14 +1,15 @@
 # Standard library
-from itertools import cycle
 import json
 import os
+from itertools import cycle
+
+import requests
 
 # 3rd party
 from apiclient.discovery import build
 from apiclient.http import MediaIoBaseUpload
-from google.oauth2 import credentials as gcredentials, service_account
-
-import requests
+from google.oauth2 import credentials as gcredentials
+from google.oauth2 import service_account
 
 # Local library
 from .utils import event_absolute_url, random_string
@@ -79,9 +80,7 @@ def create_root_folder(service, name="Media"):
 def rename_folder(service, folder_id, name):
     metadata = {"name": name}
     folder = (
-        service.files()
-        .update(fileId=folder_id, body=metadata, fields="id")
-        .execute()
+        service.files().update(fileId=folder_id, body=metadata, fields="id").execute()
     )
     return folder.get("id")
 
@@ -104,9 +103,7 @@ def upload_photo(service, parent, name, mimetype, fd, description=""):
     metadata = {"name": name, "parents": [parent], "description": description}
     media = MediaIoBaseUpload(fd, mimetype=mimetype)
     photo = (
-        service.files()
-        .create(body=metadata, media_body=media, fields="id")
-        .execute()
+        service.files().create(body=metadata, media_body=media, fields="id").execute()
     )
     photo_id = photo.get("id")
     print("File ID: %s" % photo_id)
@@ -150,11 +147,7 @@ def update_permissions(service, file_id, emails):
         }
         service.permissions().create(fileId=file_id, body=body).execute()
     print("Deleting {} permissions".format(len(delete_permissions)))
-    print(
-        "\n".join(
-            permission["emailAddress"] for permission in delete_permissions
-        )
-    )
+    print("\n".join(permission["emailAddress"] for permission in delete_permissions))
     for permission in delete_permissions:
         service.permissions().delete(
             fileId=file_id, permissionId=permission["id"]
@@ -164,9 +157,7 @@ def update_permissions(service, file_id, emails):
 def photos(service, root):
     q = "'{}' in parents and mimeType contains 'image/'"
     for sub_dir in walk_dir(service, root):
-        parent_id = (
-            sub_dir[-1]["id"] if isinstance(sub_dir, tuple) else sub_dir["id"]
-        )
+        parent_id = sub_dir[-1]["id"] if isinstance(sub_dir, tuple) else sub_dir["id"]
         path = (
             " > ".join(s["name"] for s in sub_dir)
             if isinstance(sub_dir, tuple)
@@ -227,9 +218,7 @@ def walk_dir(service, root):
     yield from sub_dirs
 
     for sub_dir in sub_dirs:
-        yield from map(
-            flat_zip, cycle([sub_dir]), walk_dir(service, sub_dir["id"])
-        )
+        yield from map(flat_zip, cycle([sub_dir]), walk_dir(service, sub_dir["id"]))
 
 
 # Calendar
@@ -240,9 +229,7 @@ CALENDAR_TITLE = "RSVP App Events Calendar"
 def get_calendar_id(service):
     page_token = None
     while True:
-        calendar_list = (
-            service.calendarList().list(pageToken=page_token).execute()
-        )
+        calendar_list = service.calendarList().list(pageToken=page_token).execute()
         for calendar_list_entry in calendar_list["items"]:
             if calendar_list_entry["summary"] == CALENDAR_TITLE:
                 return calendar_list_entry["id"]
@@ -251,9 +238,7 @@ def get_calendar_id(service):
         if not page_token:
             break
 
-    calendar = (
-        service.calendars().insert(body={"summary": CALENDAR_TITLE}).execute()
-    )
+    calendar = service.calendars().insert(body={"summary": CALENDAR_TITLE}).execute()
     return calendar["id"]
 
 
@@ -261,11 +246,7 @@ def get_calendar_acls(service, calendarId):
     page_token = None
     items = []
     while True:
-        acls = (
-            service.acl()
-            .list(calendarId=calendarId, pageToken=page_token)
-            .execute()
-        )
+        acls = service.acl().list(calendarId=calendarId, pageToken=page_token).execute()
         items.extend(acls["items"])
         page_token = acls.get("nextPageToken")
         if not page_token:
@@ -288,9 +269,7 @@ def update_calendar_sharing(service, emails):
         email = reader["scope"]["value"]
         if email not in emails:
             ruleId = reader["id"]
-            service.acl().delete(
-                calendarId=calendarId, ruleId=ruleId
-            ).execute()
+            service.acl().delete(calendarId=calendarId, ruleId=ruleId).execute()
             print("Revoked access for {}".format(email))
 
     new_users = set(emails) - permitted_users
@@ -311,9 +290,7 @@ def generate_calendar_event_id(obj, type_):
         raise ValueError("Unknown Calendar Event Type: {}".format(type_))
 
     suffix = random_string()
-    return "{prefix}:{key}:{suffix}".format(
-        prefix=type_, key=key, suffix=suffix
-    )
+    return "{prefix}:{key}:{suffix}".format(prefix=type_, key=key, suffix=suffix)
 
 
 def ical_uid_to_search_uid(iCalUID):
@@ -323,15 +300,11 @@ def ical_uid_to_search_uid(iCalUID):
 
 def delete_calendar_event(service, calendarId, iCalUID):
     events = (
-        service.events()
-        .list(calendarId=calendarId, iCalUID=iCalUID)
-        .execute()["items"]
+        service.events().list(calendarId=calendarId, iCalUID=iCalUID).execute()["items"]
     )
     if len(events) == 1:
         event = events[0]
-        service.events().delete(
-            calendarId=calendarId, eventId=event["id"]
-        ).execute()
+        service.events().delete(calendarId=calendarId, eventId=event["id"]).execute()
     else:
         print("Event not found: {}".format(iCalUID))
 
@@ -369,16 +342,10 @@ def add_or_update_event(service, calendarId, iCalUID, body):
 
 
 def list_events(service, calendarId):
-    events = (
-        service.events().list(calendarId=calendarId, maxResults=2500).execute()
-    )
+    events = service.events().list(calendarId=calendarId, maxResults=2500).execute()
     event_items = events["items"]
     while "nextPageToken" in events:
-        events = (
-            service.events()
-            .list(calendarId=calendarId, maxResults=2500)
-            .execute()
-        )
+        events = service.events().list(calendarId=calendarId, maxResults=2500).execute()
         event_items = events["items"] + event_items
     return event_items
 

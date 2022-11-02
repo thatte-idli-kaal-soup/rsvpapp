@@ -19,14 +19,13 @@ service account is being used from.
 """
 
 import datetime
-from itertools import chain
 import os
 import sys
+from itertools import chain
 
 import click
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from rsvp.models import Event, GDrivePhoto, User
 from rsvp.gdrive_utils import (
     add_birthday,
     add_rsvp_event,
@@ -35,9 +34,10 @@ from rsvp.gdrive_utils import (
     delete_birthday,
     delete_rsvp_event,
     photos,
-    update_permissions,
     update_calendar_sharing,
+    update_permissions,
 )
+from rsvp.models import Event, GDrivePhoto, User
 from rsvp.utils import read_app_config
 from rsvp.zulip_utils import zulip_announce_new_photos
 
@@ -68,9 +68,7 @@ def create_drive_root_dir(ctx, name):
 def sync_photos(ctx):
     service = ctx.obj["drive_service"]
     gdrive_root = ctx.obj["gdrive_root"]
-    gd_photos = [
-        GDrivePhoto(**photo) for photo in photos(service, gdrive_root)
-    ]
+    gd_photos = [GDrivePhoto(**photo) for photo in photos(service, gdrive_root)]
     if not gd_photos:
         return
     previous_photos = set(GDrivePhoto.objects.values_list("gdrive_id"))
@@ -80,9 +78,7 @@ def sync_photos(ctx):
     GDrivePhoto.objects.delete()
     GDrivePhoto.objects.insert(gd_photos, load_bulk=False)
     current_photos = set(GDrivePhoto.objects.values_list("gdrive_id"))
-    current_paths = set(
-        GDrivePhoto.objects.values_list("gdrive_parent", "gdrive_path")
-    )
+    current_paths = set(GDrivePhoto.objects.values_list("gdrive_parent", "gdrive_path"))
     new_photos = GDrivePhoto.objects.filter(
         gdrive_id__in=(current_photos - previous_photos)
     )
