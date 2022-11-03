@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Make sure we deploy to both the workers
+
+fly deploy
+fly deploy -c cron/fly.toml
