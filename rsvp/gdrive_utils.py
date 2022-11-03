@@ -121,13 +121,10 @@ def update_permissions(service, file_id, emails):
         .list(fileId=file_id, fields="permissions(id, emailAddress, role)")
         .execute()
     )
-    permissions = [
-        permission
+    permission_emails = {
+        permission["emailAddress"].lower()
         for permission in permissions.get("permissions", [])
         if "emailAddress" in permission
-    ]
-    permission_emails = {
-        permission["emailAddress"].lower() for permission in permissions
     }
     delete_permissions = [
         permission
