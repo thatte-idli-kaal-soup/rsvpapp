@@ -9,9 +9,12 @@ processes = []
   allowed_public_ports = []
   auto_rollback = true
 
+[processes]
+cron = "python scripts/cron.py"
+
 [[services]]
   http_checks = []
-  processes = ["app"]
+  processes = ["cron"]
   script_checks = []
   [services.concurrency]
     hard_limit = 25
