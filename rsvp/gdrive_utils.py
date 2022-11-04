@@ -128,7 +128,7 @@ def update_permissions(service, file_id, emails):
     }
     delete_permissions = [
         permission
-        for permission in permissions
+        for permission in permissions.get("permissions", [])
         if permission["emailAddress"].lower() not in emails
         and permission["role"] != "owner"
         and "gserviceaccount.com" not in permission["emailAddress"]
