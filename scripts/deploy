@@ -3,4 +3,4 @@
 # Make sure we deploy to both the workers
 
 fly deploy
-fly deploy -c cron/fly.toml
+fly deploy --config cron/fly.toml --dockerfile cron/Dockerfile
