@@ -140,7 +140,7 @@ def sync_calendar_birthdays(ctx):
 @click.pass_context
 def sync_calendar_rsvp_events(ctx):
     service = ctx.obj["calendar_service"]
-    today = datetime.datetime.now()
+    today = datetime.datetime.utcnow()
     app_config = read_app_config()
     timezone = app_config["TIMEZONE"]
     calendarId = get_calendar_id(service)
