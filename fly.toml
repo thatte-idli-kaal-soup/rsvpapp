@@ -3,6 +3,7 @@
 app = "tiks-ultimate-rsvp"
 kill_signal = "SIGINT"
 kill_timeout = 5
+swap_size_mb = 512
 processes = []
 
 [env]
