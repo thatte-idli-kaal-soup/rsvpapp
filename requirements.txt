@@ -27,7 +27,7 @@ google-api-python-client==2.65.0; python_version >= "3.7"
 google-auth-httplib2==0.1.0; python_version >= "3.7"
 google-auth==2.14.0; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.7"
 googleapis-common-protos==1.56.4; python_version >= "3.7"
-gunicorn==20.1.0; python_version >= "3.5"
+gunicorn==22.0.0; python_version >= "3.5"
 httplib2==0.21.0; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.7"
 idna==3.4; python_version >= "3.7" and python_version < "4" and (python_version >= "3.7" and python_full_version < "3.0.0" or python_version >= "3.7" and python_full_version >= "3.5.0")
 importlib-metadata==5.0.0; python_version < "3.10" and python_version >= "3.7"
