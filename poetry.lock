@@ -337,13 +337,13 @@ tests = ["asttokens", "littleutils", "pytest", "rich"]
 
 [[package]]
 name = "flask"
-version = "2.2.2"
+version = "2.2.5"
 description = "A simple framework for building complex web applications."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "Flask-2.2.2-py3-none-any.whl", hash = "sha256:b9c46cc36662a7949f34b52d8ec7bb59c0d74ba08ba6cb9ce9adc1d8676d9526"},
-    {file = "Flask-2.2.2.tar.gz", hash = "sha256:642c450d19c4ad482f96729bd2a8f6d32554aa1e231f4f6b4e7e5264b16cca2b"},
+    {file = "Flask-2.2.5-py3-none-any.whl", hash = "sha256:58107ed83443e86067e41eff4631b058178191a355886f8e479e347fa1285fdf"},
+    {file = "Flask-2.2.5.tar.gz", hash = "sha256:edee9b0a7ff26621bd5a8c10ff484ae28737a2410d99b0bb9a6850c7fb977aa0"},
 ]
 
 [package.dependencies]
@@ -1615,4 +1615,4 @@ typing-extensions = ">=3.7"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "913aad61744553f44951e637f817acf69932bff7796f581cb77454aa50887d41"
+content-hash = "de3cd8e2ebffd8d0742de2c5faf689bb730c9414877bfd4fafb2c16377191413"
