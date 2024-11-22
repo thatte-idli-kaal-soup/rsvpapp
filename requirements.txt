@@ -45,7 +45,7 @@ ply==3.11
 protobuf==4.21.9; python_version >= "3.7"
 pyasn1-modules==0.2.8; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.7"
 pyasn1==0.4.8; python_version >= "3.7" and python_full_version < "3.0.0" and python_version < "4" and (python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.7") or python_full_version >= "3.6.0" and python_version >= "3.7" and python_version < "4" and (python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.7")
-pymongo==4.3.2; python_version >= "3.7"
+pymongo==4.6.3; python_version >= "3.7"
 pyparsing==3.0.9; python_full_version >= "3.6.8" and python_version >= "3.7"
 pyrsistent==0.19.1; python_version >= "3.7"
 python-dateutil==2.8.2; python_version >= "3.8" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.8"
