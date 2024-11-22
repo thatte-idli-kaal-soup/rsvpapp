@@ -7,7 +7,7 @@ license = "Apache-2.0 License"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-requests = "^2.26.0"
+requests = "^2.32.2"
 beautifulsoup4 = "^4.10.0"
 alley = "^0.0.3"
 Flask-Versioned = { git = "https://github.com/pilt/flask-versioned.git", rev = "c6591bc9a5605242d5d82dd4e3bf30c11452748e" }
