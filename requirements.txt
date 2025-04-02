@@ -38,7 +38,7 @@ markupsafe==2.1.1; python_version >= "3.7"
 matrix-client==0.4.0; python_version >= "3.6"
 mistune==2.0.4
 mongoengine==0.24.2; python_version >= "3.6"
-numpy==1.23.4
+numpy==1.26.4
 oauthlib==3.2.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
 pandas==1.5.1; python_version >= "3.8"
 ply==3.11
