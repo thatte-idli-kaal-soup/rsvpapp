@@ -35,7 +35,7 @@ from .gdrive_utils import (
     list_sub_dirs,
     upload_photo,
 )
-from .models import Bookmark, Event, GDrivePhoto, InterestedUser, Post, User
+from .models import Event, GDrivePhoto, InterestedUser, Post, User
 from .utils import (
     format_gphoto_time,
     generate_password,
@@ -441,25 +441,6 @@ def add_post():
 @login_required
 def images():
     return render_template("images.html", images=list_images(), image_url=image_url)
-
-
-# Bookmark views #######################################################
-
-
-@app.route("/bookmarks/")
-@login_required
-def show_bookmarks():
-    return show_bookmarks_page(page=1)
-
-
-@app.route("/bookmarks/<int:page>")
-@login_required
-def show_bookmarks_page(page=1):
-    bookmarks = Bookmark.objects.order_by("-id")
-    pagination = bookmarks.paginate(page=page, per_page=25)
-    return render_template(
-        "bookmarks.html", pagination=pagination, pages=pagination.iter_pages()
-    )
 
 
 # Miscellaneous views ##################################################

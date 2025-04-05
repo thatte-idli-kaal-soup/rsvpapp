@@ -315,13 +315,6 @@ class GDrivePhoto(db.Document):
         return cls.objects.filter(gdrive_created_at__gte=days)
 
 
-class Bookmark(db.Document):
-    url = db.URLField(required=True)
-    title = db.StringField()
-    description = db.StringField()
-    image = db.URLField()
-
-
 class InterestedUser(db.Document):
     created_at = db.DateTimeField(required=True, default=datetime.datetime.now)
     email = db.EmailField()
