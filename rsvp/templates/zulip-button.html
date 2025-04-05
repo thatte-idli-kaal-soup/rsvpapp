@@ -1,8 +1,0 @@
-{% with zurl = (event or post)|zulip_event_url %}
-    {% if zurl %}
-        <a class="btn {% if event %}dropdown-item{% else %}btn-light{% endif %}" href="{{ zurl }}" target="_blank">
-            <i class="fa fa-comments"></i>
-            View Zulip Thread
-        </a>
-    {% endif %}
-{% endwith %}

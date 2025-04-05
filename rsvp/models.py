@@ -17,7 +17,6 @@ from .splitwise_utils import (
     SPLITWISE_DUES_LIMIT,
 )
 from .utils import random_id, markdown_to_html, read_app_config, format_date
-from .zulip_utils import zulip_announce_event, zulip_announce_post
 
 
 db = MongoEngine()
@@ -147,7 +146,6 @@ class Event(db.Document):
 
 
 signals.pre_save.connect(Event.pre_save, sender=Event)
-signals.post_save.connect(zulip_announce_event, sender=Event)
 signals.pre_save.connect(ensure_splitwise_ids_hook, sender=Event)
 signals.post_save.connect(splitwise_create_group_hook, sender=Event)
 
@@ -301,7 +299,6 @@ class Post(db.Document):
 
 
 signals.pre_save.connect(Post.pre_save, sender=Post)
-signals.post_save.connect(zulip_announce_post, sender=Post)
 
 
 class GDrivePhoto(db.Document):

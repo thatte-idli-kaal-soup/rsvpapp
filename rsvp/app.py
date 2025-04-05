@@ -16,7 +16,6 @@ from .utils import (
     rsvp_name,
     send_approval_email,
 )
-from .zulip_utils import zulip_event_url
 
 app = Flask(__name__)
 app.config.from_envvar("SETTINGS")
@@ -124,27 +123,8 @@ def load_user(user_id):
         return
 
 
-@login_manager.request_loader
-def load_token_user(request):
-    token_header = request.headers.get("Authorization", "").strip()
-    if not token_header:
-        return
-
-    token = token_header.split()[-1]
-    if not (token and token == os.environ["ZULIP_RSVP_TOKEN"]):
-        return
-
-    try:
-        user = User.objects.get(email=ANONYMOUS_EMAIL)
-    except User.DoesNotExist:
-        user = User.objects(email=ANONYMOUS_EMAIL, name="Bot User")
-        user.save()
-    return user
-
-
 # Add template filters
 app.jinja_env.filters["format_date"] = format_date
 app.jinja_env.filters["format_gphoto_time"] = format_gphoto_time
 app.jinja_env.filters["rsvp_by"] = rsvp_by
 app.jinja_env.filters["rsvp_name"] = rsvp_name
-app.jinja_env.filters["zulip_event_url"] = zulip_event_url

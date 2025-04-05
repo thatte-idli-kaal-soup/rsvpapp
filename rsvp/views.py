@@ -44,7 +44,6 @@ from .utils import (
     role_required,
     send_approved_email,
 )
-from .zulip_utils import zulip_event_responses
 
 
 @app.before_request
@@ -117,7 +116,6 @@ def event(id):
         approved_users=approved_users,
         TEXT2=event.title,
         description=description,
-        comments=zulip_event_responses(event),
     )
 
 
@@ -365,9 +363,9 @@ def attendance():
     end = request.form.get("end-date")
     events = Event.objects.filter(date__gte=start, date__lte=end)
     response = make_response(get_attendance(events))
-    response.headers[
-        "Content-Disposition"
-    ] = "attachment; filename=attendance-{}--{}.csv".format(start, end)
+    response.headers["Content-Disposition"] = (
+        "attachment; filename=attendance-{}--{}.csv".format(start, end)
+    )
     response.headers["Content-type"] = "text/csv"
     return response
 
@@ -390,9 +388,10 @@ def show_post(id):
     if not post.public and not current_user.is_authenticated:
         return current_app.login_manager.unauthorized()
     description = post.content[:100] if post.public else "Private post"
-    comments = zulip_event_responses(post)
     return render_template(
-        "post.html", post=post, description=description, comments=comments
+        "post.html",
+        post=post,
+        description=description,
     )
 
 
@@ -510,9 +509,11 @@ def photo_map():
             "longitude": photo.gdrive_metadata["location"]["longitude"],
             "thumbnail": photo.gdrive_thumbnail,
             "caption": CAPTION_FMT.format(
-                format_gphoto_time(photo.gdrive_metadata["time"])
-                if "time" in photo.gdrive_metadata
-                else "unknown",
+                (
+                    format_gphoto_time(photo.gdrive_metadata["time"])
+                    if "time" in photo.gdrive_metadata
+                    else "unknown"
+                ),
                 photo.gdrive_id,
             ),
         }
