@@ -10,9 +10,6 @@
                   <a href="/event/{{item.id}}">{{ item.name }}</a>
                 </span>
                 <div class="rsvp-count">
-                    {% if item.is_paid %}
-                        <i class="fa fa-wallet text-secondary" title="Paid"></i>
-                    {% endif %}
                     {% if item.rsvps %}
                         <i class="fa fa-user"></i> {{item.rsvp_count}}
                     {% endif %}

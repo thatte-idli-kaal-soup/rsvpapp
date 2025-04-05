@@ -26,9 +26,6 @@
                     {% if event.archived %}
                         <i class="fa fa-archive text-secondary" title="Archived"></i>
                     {% endif %}
-                    {% if event.is_paid %}
-                        <i class="fa fa-wallet text-secondary" title="Paid"></i>
-                    {% endif %}
                 </span>
             </p>
             {% if event.created_by %}
@@ -38,12 +35,6 @@
             {% endif %}
         </div>
     </span>
-    {% with next_url = event.url %}
-      {% if event.is_paid and not current_user.splitwise_connected %}
-        {% include 'splitwise-connect.html' %}
-      {% endif %}
-    {% endwith %}
-    {% include 'splitwise-dues.html' %}
     {% if event.can_rsvp(current_user) %}
         <div class="card col-md-6" id="event-rsvp">
             <div class="card-body">
@@ -151,8 +142,6 @@
                                         Cancel Event
                                     </button>
                                 {% endif %}
-                                <div class="dropdown-divider"></div>
-                                {% include 'event-splitwise.html' %}
                                 <div class="dropdown-divider"></div>
                                 {% include 'event-gdrive.html' %}
                             </div>

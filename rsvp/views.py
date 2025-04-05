@@ -169,7 +169,6 @@ def create_event():
         "date": "{} {}".format(date, time),
         "created_by": (current_user.email if current_user.is_authenticated else None),
         "description": request.form.get("event-description", ""),
-        "is_paid": request.form.get("is_paid") == "on",
     }
     end_date = request.form.get("end_date", "")
     end_time = request.form.get("end_time", "")

@@ -84,18 +84,10 @@ def api_rsvps(event_id):
     try:
         user = User.objects.get(email=doc["user"])
     except User.DoesNotExist:
-        if event.is_paid:
-            return ('{"error": "Only registered users can RSVP on paid events"}', 400)
-        elif use_anonymous:
+        if use_anonymous:
             user = User.objects.get(email=ANONYMOUS_EMAIL)
         else:
             return '{"error": "user does not exist"}', 400
-
-    if event.is_paid and not (user.splitwise_connected and user.acceptable_dues):
-        return (
-            '{"error": "Users without Splitwise linked or with dues above the limit cannot RSVP."}',
-            400,
-        )
 
     new_rsvp = (user.email == ANONYMOUS_EMAIL) or Event.objects.filter(
         id=event.id, rsvps__user=user
@@ -103,9 +95,9 @@ def api_rsvps(event_id):
 
     if new_rsvp:
         data = {
-            "rsvp_by": current_user.email
-            if current_user.is_authenticated
-            else ANONYMOUS_EMAIL,
+            "rsvp_by": (
+                current_user.email if current_user.is_authenticated else ANONYMOUS_EMAIL
+            ),
             "user": user.email,
         }
         data.update(doc)
@@ -129,8 +121,6 @@ def api_rsvps(event_id):
 
     event.save()
     event.update_waitlist()
-    if not event.sync_rsvps_with_splitwise():
-        flash("Could not find Splitwise group to sync RSVPs with.", "warning")
     return rsvp.to_json()
 
 
@@ -155,8 +145,6 @@ def api_rsvp(event_id, rsvp_id):
         rsvp.cancelled = True
     event.save()
     event.update_waitlist()
-    if not event.sync_rsvps_with_splitwise():
-        flash("Could not find Splitwise group to sync RSVPs with.", "warning")
     return json.dumps({"deleted": "true"})
 
 

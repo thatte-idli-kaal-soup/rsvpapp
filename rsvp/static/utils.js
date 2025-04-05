@@ -39,19 +39,3 @@ $(function() {
         placement: "bottom"
     });
 });
-
-// Hide non-relevant Payment icons
-const removeAndroid = () => {
-    if (navigator.userAgent.indexOf('Android') < 0) {
-        document.querySelector('#android-payments').remove();
-    }
-};
-
-const removeIPhone = () => {
-    if (navigator.userAgent.indexOf('iPhone') < 0) {
-        document.querySelector('#iphone-payments').remove();
-    }
-};
-
-document.addEventListener('DOMContentLoaded', removeIPhone);
-document.addEventListener('DOMContentLoaded', removeAndroid);

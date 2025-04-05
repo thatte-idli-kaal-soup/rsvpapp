@@ -6,16 +6,6 @@ from flask_login import UserMixin, AnonymousUserMixin
 from flask_mongoengine import MongoEngine
 from mongoengine import signals
 
-from .splitwise_utils import (
-    calculate_dues,
-    get_simplified_debts,
-    get_groups,
-    get_friends,
-    sync_rsvps_with_splitwise_group,
-    ensure_splitwise_ids_hook,
-    splitwise_create_group_hook,
-    SPLITWISE_DUES_LIMIT,
-)
 from .utils import random_id, markdown_to_html, read_app_config, format_date
 
 
@@ -52,8 +42,6 @@ class Event(db.Document):
     archived = db.BooleanField(required=True, default=False)
     created_by = db.LazyReferenceField("User")
     cancelled = db.BooleanField(required=True, default=False)
-    is_paid = db.BooleanField(required=True, default=False)
-    splitwise_group_id = db.IntField()
     gdrive_id = db.StringField()
     meta = {"indexes": [{"fields": ["$name", "$description"]}]}  # text index
 
@@ -118,36 +106,15 @@ class Event(db.Document):
         if user.is_admin:
             return True
 
-        if self.is_paid:
-            return user.splitwise_connected and user.acceptable_dues
-
-        if not self.is_paid:
-            return not (self.archived or self.cancelled)
-
-        return False
+        return not (self.archived or self.cancelled)
 
     def update_waitlist(self):
         for i, rsvp in enumerate(self.non_cancelled_rsvps):
             rsvp.waitlisted = i >= self.rsvp_limit if self.rsvp_limit > 0 else False
         self.save()
 
-    def sync_rsvps_with_splitwise(self):
-        group_id = self.splitwise_group_id
-        if not group_id:
-            return True
-
-        groups = get_groups(force_refresh=True)
-        filtered_groups = [group for group in groups if group["id"] == group_id]
-        if not len(filtered_groups) == 1:
-            return False
-        users = [rsvp.user.fetch() for rsvp in self.active_rsvps]
-        sync_rsvps_with_splitwise_group(filtered_groups[0], users)
-        return True
-
 
 signals.pre_save.connect(Event.pre_save, sender=Event)
-signals.pre_save.connect(ensure_splitwise_ids_hook, sender=Event)
-signals.post_save.connect(splitwise_create_group_hook, sender=Event)
 
 
 class User(db.Document, UserMixin):
@@ -156,7 +123,6 @@ class User(db.Document, UserMixin):
     gender = db.StringField()
     active = db.BooleanField(default=True)
     upi_id = db.StringField()
-    splitwise_id = db.IntField()
     blood_group = db.StringField()
     nick = db.StringField()
     dob = db.DateTimeField()
@@ -178,19 +144,6 @@ class User(db.Document, UserMixin):
 
         return False
 
-    def payment_link(self, amount="", currency="", remark=""):
-        if not self.upi_id:
-            return
-        query = {
-            "pa": self.upi_id,
-            "am": amount,
-            "pn": self.name,
-            "cu": currency,
-            "tn": remark,
-        }
-        params = urlencode(query, quote_via=quote)
-        return f"upi://pay?{params}"
-
     @property
     def nick_name(self):
         return self.nick or self.name
@@ -206,46 +159,6 @@ class User(db.Document, UserMixin):
     @property
     def is_anonymous_user(self):
         return self.email == ANONYMOUS_EMAIL
-
-    @property
-    def splitwise_connected(self):
-        if not self.splitwise_id:
-            return False
-
-        friend_ids = {f["id"] for f in get_friends()}
-        return self.splitwise_id in friend_ids
-
-    @property
-    def dues(self):
-        if not self.splitwise_id:
-            return 0, ""
-
-        return calculate_dues(self.splitwise_id)
-
-    @property
-    def acceptable_dues(self):
-        dues, _ = self.dues
-        return dues <= SPLITWISE_DUES_LIMIT
-
-    @property
-    def dues_details(self):
-        if not self.splitwise_id:
-            return []
-
-        debts = get_simplified_debts(self.splitwise_id)
-
-        owed_users = User.objects.filter(splitwise_id__in=[d["to"] for d in debts])
-        owed_users = {user.splitwise_id: user for user in owed_users}
-
-        group_ids = [d["group_id"] for d in debts]
-        events = Event.objects.filter(splitwise_group_id__in=group_ids)
-        events = {event.splitwise_group_id: event for event in events}
-
-        for debt in debts:
-            debt["to_user"] = owed_users.get(debt["to"])
-            debt["event"] = events.get(debt["group_id"])
-
-        return debts
 
 
 class AnonymousUser(AnonymousUserMixin):

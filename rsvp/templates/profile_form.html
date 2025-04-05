@@ -1,8 +1,5 @@
 {% set user = current_user %}
 <p class="h3">Update your details here</p>
-{% with next_url = url_for('user_profile') %}
-  {% include 'splitwise-connect.html' %}
-{% endwith %}
 <div class="row">
     <div class="col-sm-4">
         <div class="card bg-dark text-white mb-3">
@@ -25,7 +22,6 @@
                     <input type="text" class="form-control my-2" name="phone" id="phone" placeholder="Phone Number" value="{{user.phone or ''}}">
                     <textarea rows="4" class="form-control my-2" name="address" id="address" placeholder="Address (please include pincode)">{{user.address or ''}}</textarea>
                     <input type="text" class="form-control my-2" name="upi-id" id="upi-id" placeholder="UPI ID" value="{{user.upi_id or ''}}">
-                    <input type="text" class="form-control my-2" name="splitwise-id" id="splitwise-id" placeholder="Splitwise ID" value="Splitwise ID: {{user.splitwise_id  or ''}}" readonly>
                     <input type="text" class="form-control my-2" name="blood-group" id="blood-group" placeholder="Blood Group" value="{{user.blood_group or ''}}">
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
