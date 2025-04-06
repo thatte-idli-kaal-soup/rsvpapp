@@ -503,28 +503,6 @@ def photo_map():
     return render_template("photo-map.html", data=json.dumps(data))
 
 
-@app.route("/features", methods=["GET"])
-def features():
-    return render_template("features.html")
-
-
-@app.route("/request-demo", methods=["POST"])
-def request_demo():
-    email = request.form.get("email")
-    try:
-        InterestedUser.objects.create(email=email)
-        return render_template("demo-request-success.html")
-    except ValidationError:
-        return redirect(url_for("features"))
-
-
-@app.route("/demo-requests", methods=["GET"])
-@role_required("admin")
-def demo_requests():
-    demo_requests = InterestedUser.objects.filter()
-    return render_template("demo-requests.html", demo_requests=demo_requests)
-
-
 @app.route("/secret-santa/<event_id>", methods=["GET", "POST"])
 @login_required
 @role_required("secret-santa-admin")
