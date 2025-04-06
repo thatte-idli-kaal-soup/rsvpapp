@@ -525,14 +525,6 @@ def demo_requests():
     return render_template("demo-requests.html", demo_requests=demo_requests)
 
 
-@app.route("/onesta/<letters>")
-@login_required
-def onesta(letters):
-    letters = letters.lower()
-    users = [user for user in User.objects if letters in user.name.lower()]
-    return render_template("names.html", users=users)
-
-
 @app.route("/secret-santa/<event_id>", methods=["GET", "POST"])
 @login_required
 @role_required("secret-santa-admin")
