@@ -21,6 +21,7 @@ class RSVP(db.EmbeddedDocument):
     rsvp_by = db.LazyReferenceField("User")
     cancelled = db.BooleanField(default=False)
     waitlisted = db.BooleanField(default=False)
+    meta = {"strict": False}
 
     def can_cancel(self, user):
         return user == self.rsvp_by or user == self.user or self.rsvp_by is None
@@ -43,7 +44,10 @@ class Event(db.Document):
     created_by = db.LazyReferenceField("User")
     cancelled = db.BooleanField(required=True, default=False)
     gdrive_id = db.StringField()
-    meta = {"indexes": [{"fields": ["$name", "$description"]}]}  # text index
+    meta = {
+        "indexes": [{"fields": ["$name", "$description"]}],  # text index
+        "strict": False,
+    }
 
     @classmethod
     def pre_save(cls, sender, document, **kwargs):
@@ -130,6 +134,7 @@ class User(db.Document, UserMixin):
     address = db.StringField()
     hide_dob = db.BooleanField(default=False)
     roles = db.SortedListField(db.StringField())
+    meta = {"strict": False}
 
     def get_id(self):
         return self.email
