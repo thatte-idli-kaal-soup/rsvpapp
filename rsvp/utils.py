@@ -4,21 +4,22 @@ import csv
 import io
 import os
 import re
+import smtplib
 import string
 from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from functools import wraps
 from hashlib import pbkdf2_hmac
 from random import choice, shuffle
 
 import mistune
-import sendgrid
 
 # 3rd party
 from bson.objectid import ObjectId
 from dropbox import Dropbox
 from flask import current_app, render_template
 from flask_login import current_user
-from sendgrid.helpers.mail import Content, Email, Mail, Personalization
 
 ALLOWED_RATIOS = ((4, 3), (21, 9), (16, 9), (1, 1))
 
@@ -185,23 +186,39 @@ def send_approved_email(user):
 
 
 def send_email(to_users, subject, body):
-    sg = sendgrid.SendGridAPIClient(apikey=os.environ.get("SENDGRID_API_KEY"))
-    from_email = Email(os.environ.get("FROM_EMAIL", "noreply@thatteidlikaalsoup.team"))
-    content = Content("text/plain", body)
-    to_emails = [Email("{} <{}>".format(user.name, user.email)) for user in to_users]
-    mail = Mail(from_email, subject, to_emails[0], content)
-    for to_email in to_emails[1:]:
-        personalization = Personalization()
-        personalization.add_to(to_email)
-        mail.add_personalization(personalization)
+    # Gmail SMTP server configuration
+    smtp_server = "smtp.zeptomail.in"
+    smtp_port = 587  # Port for TLS
+    smtp_user = os.environ.get("ZEPTOMAIL_USER")
+    smtp_password = os.environ.get("ZEPTOMAIL_PASSWORD")
+
+    # Sender's email
+    from_email = os.environ.get("FROM_EMAIL", "noreply@tiks-ultimate.in")
+
     try:
-        response = sg.client.mail.send.post(request_body=mail.get())
+        # Establish a secure session with Gmail's SMTP server
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()  # Upgrade the connection to secure
+        server.login(smtp_user, smtp_password)
+
+        # Send the email to each recipient individually
+        for user in to_users:
+            # Create a new message for each recipient
+            msg = MIMEMultipart()
+            msg["Subject"] = subject
+            msg["From"] = from_email
+            msg["To"] = user.email
+            msg.attach(MIMEText(body, "plain"))
+
+            # Send the email
+            server.sendmail(from_email, [user.email], msg.as_string())
+
+        # Quit the SMTP session
+        server.quit()
+        return True
     except Exception as e:
-        # FIXME: Silently failing...
         print(e)
         return False
-
-    return int(response.status_code / 200) == 2
 
 
 def event_absolute_url(event):
