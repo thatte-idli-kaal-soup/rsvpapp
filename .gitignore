@@ -19,3 +19,4 @@ data/
 /.herokurc
 /.ipynb_checkpoints/
 /.profile.d/
+/shutdown/user-merges.json
