@@ -1,0 +1,346 @@
+#+TITLE: RSVP App Shutdown — Notes & Runbook
+#+AUTHOR: punchagan
+#+DATE: [2026-06-12 Fri]
+#+STARTUP: overview
+#+PROPERTY: header-args:sh   :eval query :results output :exports both
+#+PROPERTY: header-args:js   :eval no
+#+PROPERTY: header-args:python :eval no
+
+# NOTE: header-args default is ":eval query" — C-c C-c on a block will ASK before
+# running. Destructive blocks are also tagged :eval no and marked ☠ in the heading.
+# Placeholders to fill in:
+#   <ATLAS_URI>  = mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/heroku_cdbwn214
+#   <TOOLS>      = ./mongodb-database-tools-amazon2-x86_64-100.17.0/bin
+
+* Context
+
+RSVP app for TIKS (=thatte-idli-kaal-soup/rsvpapp=): Flask + MongoDB, Google OAuth,
+deployed on Fly.io. Being shut down. The live DB lived on MongoDB Atlas under the
+database name =heroku_cdbwn214= (legacy name baked into the archive).
+
+Collections and document counts (the verified baseline — everything keys off these):
+
+| collection                        | count |
+|-----------------------------------+-------|
+| user                              |   331 |
+| event                             |  1320 |
+| post                              |    40 |
+| g_drive_photo                     |  2657 |
+| interested_user                   |     5 |
+| bookmark                          |   813 |
+| db_migrations                     |     6 |
+| objectlabs-system                 |     1 |
+| objectlabs-system.admin.collections |   1 |
+
+(=objectlabs-system*= are Atlas internal bookkeeping — ignore.)
+
+* What I've done so far                                              :timeline:
+
+** Took and verified a full DB dump
+
+Final dump from Atlas as a single gzipped archive:
+
+#+begin_src sh
+<TOOLS>/mongodump \
+  --uri="<ATLAS_URI>" \
+  --archive=rsvp-2026-06-11.archive --gzip
+#+end_src
+
+Restored it locally and confirmed 5174 documents, 0 failures. The restore put
+everything under the =heroku_cdbwn214= database.
+
+#+begin_src sh
+<TOOLS>/mongorestore \
+  --uri="mongodb://localhost:27017" \
+  --archive=rsvp-2026-06-11.archive --gzip
+#+end_src
+
+** Hit the MongoDB 8.x / kernel 6.19 wall (important — see reference section)
+
+=docker run ... mongo= (=:latest= = 8.2) segfaulted (exit 139); =mongo:8.0= refused
+to start with an explicit kernel-incompatibility message. Fix was pinning to
+=mongo:7.0=. Full explanation in [[*The MongoDB 8.x + kernel 6.19 gotcha]].
+
+** Verified counts against Atlas
+
+Ran =counts.js= (see [[*counts.js]]) against both the local restore and Atlas — they
+matched. That was the green light to delete.
+
+#+begin_src sh
+mongosh "mongodb://localhost:27017/heroku_cdbwn214" counts.js
+mongosh "<ATLAS_URI>" counts.js
+#+end_src
+
+** Encrypted the master archive
+
+#+begin_src sh
+gpg -c rsvp-2026-06-11.archive   # -> rsvp-2026-06-11.archive.gpg
+#+end_src
+
+The =.gpg= is the permanent, portable master copy. Keep it; forget the plaintext.
+
+** Deleted the shared Google Calendar
+
+Via =fly ssh console -a tiks-ultimate-rsvp=, using a *lookup-only* finder (NOT the
+app's =get_calendar_id=, which recreates the calendar if missing). Script in
+[[*Calendar delete (already run — kept for reference) ☠]].
+
+** Suspended the cron Fly app
+
+=tiks-ultimate-rsvp-cron= is suspended (not running, won't re-sync or recreate the
+calendar). Still needs a final =fly apps destroy= — see [[*Remaining teardown]].
+
+** DONE Deleted Atlas DB and account
+
+Production MongoDB Atlas cluster deleted and the Atlas account closed entirely.
+Local =mongo:7.0= + =rsvp-store= volume is the only live DB now.
+
+** DONE Deleted Dropbox backups
+
+Ran =delete_dropbox_backups.py --delete= (chunked into batches of 1000 to handle
+the >1000 file API limit). All =*-dump-*.tar.gz= files removed.
+
+** DONE Cloudinary
+
+Account appears to have expired/died on its own — no action needed.
+
+* The MongoDB 8.x + kernel 6.19 gotcha                              :reference:
+
+This host's kernel (=uname -r= → =7.0.0-22-generic=) is read by MongoDB as ≥ 6.19.
+Per MongoDB =SERVER-121912=: MongoDB 8.0+ crashes on startup on kernel 6.19+ due to
+the vendored TCMalloc violating the rseq ABI. Affects ALL 8.x packages (website,
+package managers, Docker) — bumping the 8.x point version does NOT help.
+
+Symptoms seen, both the same root cause:
+- =mongo:latest= (8.2) → SIGSEGV, exit code 139, dies seconds after "Waiting for connections".
+- =mongo:8.0= → clean fatal refusal: "Linux kernel versions 6.19 and newer has a known incompatibility".
+
+Workarounds:
+- *Use =mongo:7.0=* (predates the broken allocator) — what we did.
+- Or verify with =bsondump= (no server needed at all).
+- Or downgrade the host kernel to ≤ 6.18 (overkill here).
+
+The =mongodump=/=mongorestore= *tools* are NOT affected — only the *server* is. So
+backups themselves are fine regardless of kernel.
+
+* Future-useful commands                                                :howto:
+
+** Restore from the gpg archive
+
+Decrypt, then restore. Decrypt is a separate step (prompts for the passphrase):
+
+#+begin_src sh
+gpg -d rsvp-2026-06-11.archive.gpg > rsvp-2026-06-11.archive
+#+end_src
+
+Then restore into a running local Mongo (see next section for spinning one up).
+The =--nsFrom/--nsTo= renames the cryptic db to something sane:
+
+#+begin_src sh
+<TOOLS>/mongorestore \
+  --uri="mongodb://localhost:27017" \
+  --archive=rsvp-2026-06-11.archive --gzip \
+  --nsFrom="heroku_cdbwn214.*" --nsTo="rsvpdata.*"
+#+end_src
+
+Tip: delete the decrypted plaintext archive when done; keep only the =.gpg=.
+
+** Spin up a working local MongoDB (survives restarts)              :docker:
+
+=mongo:7.0= to dodge the kernel bug; a *named volume* so data persists across
+container stop/rm/recreate.
+
+#+begin_src sh
+docker volume create rsvp-store
+docker run -d --name rsvp-db -p 27017:27017 -v rsvp-store:/data/db mongo:7.0
+docker logs -f rsvp-db   # wait for "Waiting for connections", then C-c
+#+end_src
+
+Everyday use afterwards:
+
+#+begin_src sh
+docker start rsvp-db    # bring it up
+docker stop rsvp-db     # put it away — data stays in the rsvp-store volume
+#+end_src
+
+Recreate the container any time (data is in the volume, not the container):
+
+#+begin_src sh
+docker rm -f rsvp-db
+docker run -d --name rsvp-db -p 27017:27017 -v rsvp-store:/data/db mongo:7.0
+#+end_src
+
+NOTE: the volume is tied to THIS machine + Docker install. The =.gpg= archive is the
+portable copy — to move machines, copy the archive and re-restore there.
+
+** Browse the data in a GUI
+
+Install MongoDB Compass (mongodb.com/products/compass), connect to:
+
+: mongodb://localhost:27017
+
+Compass is just a client — unaffected by the kernel bug. Point-and-click filtering,
+query, edit, CSV export.
+
+** Export collections to plain JSON (tool-agnostic, future-proof)
+
+Readable by anything years from now, no Mongo required:
+
+#+begin_src sh
+for c in user event post g_drive_photo interested_user; do
+  <TOOLS>/mongoexport \
+    --uri="mongodb://localhost:27017/rsvpdata" \
+    --collection="$c" --jsonArray --out="rsvp-$c.json"
+done
+#+end_src
+
+** Verify a dump WITHOUT a server (bsondump)
+
+Validates BSON and prints per-collection counts — immune to the kernel issue:
+
+#+begin_src sh
+<TOOLS>/mongodump --uri="<ATLAS_URI>" --out=./rsvp-bson
+for f in ./rsvp-bson/heroku_cdbwn214/*.bson; do
+  echo -n "$(basename "$f"): "
+  <TOOLS>/bsondump "$f" 2>&1 >/dev/null | grep -o '[0-9]* objects'
+done
+#+end_src
+
+** Export posts to static markdown                                  :parked:
+
+Script prepared separately: =export-posts.js=. Writes one =.md= per non-draft post
+(original markdown from =content=, front-matter with title/date/authors). Run:
+
+#+begin_src sh
+mongosh "mongodb://localhost:27017/heroku_cdbwn214" export-posts.js
+#+end_src
+
+Confirm author-ref format first with:
+
+#+begin_src js
+db.post.findOne({}, { title: 1, authors: 1, content: 1, draft: 1, public: 1 })
+#+end_src
+
+** Reconstruct the GDrive folders list                              :parked:
+
+No folder collection exists; folders are derived from =g_drive_photo=
+(=gdrive_parent= = folder id, =gdrive_path= = path). Inspect first:
+
+#+begin_src js
+db.g_drive_photo.findOne()
+#+end_src
+
+Then group:
+
+#+begin_src js
+db.g_drive_photo.aggregate([
+  { $group: {
+      _id: "$gdrive_parent",
+      photo_count: { $sum: 1 },
+      sample_path: { $first: "$gdrive_path" },
+      newest: { $max: "$gdrive_created_at" }
+  }},
+  { $sort: { photo_count: -1 } }
+]).forEach(f => print(`${f._id}\t${f.photo_count}\t${f.sample_path}`));
+#+end_src
+
+(Folder *names* vs IDs depend on the =gdrive_path= format — TODO once inspected.)
+
+* counts.js                                                        :reference:
+
+The verification script used throughout. Save alongside the notes.
+
+#+begin_src js :tangle counts.js
+const names = db.getCollectionNames();
+names.sort().forEach(n => {
+  print(n + "\t" + db.getCollection(n).countDocuments({}));
+});
+#+end_src
+
+* Calendar delete (already run — kept for reference) ☠           :destructive:
+:PROPERTIES:
+:header-args:sh: :eval no
+:END:
+
+Run from inside =fly ssh console -a tiks-ultimate-rsvp=. Lookup-only (does not
+recreate). Needs the service account to be the calendar OWNER, else 403.
+
+#+begin_src python :eval no
+from rsvp.gdrive_utils import create_service
+CALENDAR_TITLE = "RSVP App Events Calendar"   # confirm exact summary
+svc = create_service("calendar")
+page_token, cal_id = None, None
+while True:
+    cl = svc.calendarList().list(pageToken=page_token).execute()
+    for e in cl["items"]:
+        if e["summary"] == CALENDAR_TITLE:
+            cal_id = e["id"]; break
+    page_token = cl.get("nextPageToken")
+    if cal_id or not page_token:
+        break
+if not cal_id:
+    print("Not found; nothing to delete.")
+else:
+    svc.calendars().delete(calendarId=cal_id).execute()
+    print("Deleted", cal_id)
+#+end_src
+
+* Delete Dropbox backups ☠                                       :destructive:
+:PROPERTIES:
+:header-args:sh: :eval no
+:END:
+
+Script prepared separately: =delete_dropbox_backups.py= (uv, dry-run by default).
+Targets root-level files matching =*-dump-*.tar.gz= only.
+
+#+begin_src sh :eval no
+export DROPBOX_ACCESS_TOKEN="..."
+uv run delete_dropbox_backups.py            # dry run: list matches
+uv run delete_dropbox_backups.py --delete   # delete (prompts)
+#+end_src
+
+DONE: deleted 2026-06-14. See note in [[*DONE Deleted Dropbox backups]].
+
+* Remaining teardown                                                  :todo:
+
+** TODO Destroy Fly.io main app ☠
+
+Cron app (=tiks-ultimate-rsvp-cron=) already destroyed. One remaining:
+
+#+begin_src sh :eval no
+fly apps destroy tiks-ultimate-rsvp
+#+end_src
+
+** DONE Remove service account URL gist
+
+Deleted from github.com/gist. Service account itself retained for media/stats work.
+
+** TODO Revoke forgotten credentials (do soon, independent of Fly/GCloud)
+
+These services may still have active accounts; nothing in the app depends on
+them anymore:
+
+- [x] *Gmail app password* — deleted.
+- [x] *SendGrid* + *Papertrail* — both were Heroku add-ons (SendGrid username is
+      =app92866268@heroku.com=). Heroku account is no longer active so these are
+      almost certainly dead too. No action needed.
+- [x] *Splitwise* — token revoked and account deleted.
+- [x] *Dropbox* — account deleted.
+- [x] *ZeptoMail* — token deleted.
+- [x] *Zulip bot* — deactivated.
+- [ ] Archive =thatte-idli-kaal-soup/rsvpapp= on GitHub
+      (Settings → Archive this repository)
+- [ ] Archive =thatte-idli-kaal-soup/namma-bots= (Zulip bot repo)
+
+** TODO Revoke after media/stats work is fully done
+
+- [ ] Delete the *Google Cloud project* — kills OAuth login clients
+      (=GOOGLE_CLIENT_ID/SECRET=), GDrive OAuth app (=GDRIVE_CLIENT_ID/SECRET=),
+      and the service account in one shot.
+
+* What I'm keeping                                                    :assets:
+
+- =rsvp-2026-06-11.archive.gpg= — portable permanent master; restores anywhere.
+- Local =mongo:7.0= + =rsvp-store= volume — reopen anytime with =docker start rsvp-db=, browse in Compass.
+- Google Service account — retained for continued media directory access and stats work.
+- Google Drive photo albums — restricted albums stay as-is; public albums had permissions removed.
